@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Permission {
+  id    Int              @id @default(autoincrement())
+  name  String           @unique @db.VarChar(100)
+  roles RolePermission[]
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique @db.VarChar(100)
+  users       User[]
+  permissions RolePermission[]
+}
+
+model RolePermission {
+  roleId       Int
+  permissionId Int
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String        @db.VarChar(150)
+  email        String        @unique @db.VarChar(254)
+  password     String        @db.VarChar(255)
+  roleId       Int
+  role         Role          @relation(fields: [roleId], references: [id])
+  accessPoints AccessPoint[]
+}
+
+model CameraType {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique @db.VarChar(50)
+  cameras Camera[]
+}
+
+model CameraStatus {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique @db.VarChar(50)
+  cameras Camera[]
+}
+
+model Camera {
+  id                Int           @id @default(autoincrement())
+  name              String        @db.VarChar(150)
+  location          String        @db.VarChar(255)
+  cameraTypeId      Int
+  cameraStatusId    Int
+  streamLink        String?       @db.VarChar(500)
+  cameraType        CameraType    @relation(fields: [cameraTypeId], references: [id])
+  cameraStatus      CameraStatus  @relation(fields: [cameraStatusId], references: [id])
+  entryAccessPoints AccessPoint[] @relation("EntryCamera")
+  exitAccessPoints  AccessPoint[] @relation("ExitCamera")
+  ingresoLogs       AccessLog[]   @relation("IngresoCamera")
+  salidaLogs        AccessLog[]   @relation("SalidaCamera")
+  alerts            Alert[]
+}
+
+model TipoVehiculo {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique @db.VarChar(50)
+  vehicles Vehicle[]
+}
+
+model Vehicle {
+  id             Int           @id @default(autoincrement())
+  plate          String        @unique @db.VarChar(20)
+  brand          String?       @db.VarChar(100)
+  model          String?       @db.VarChar(100)
+  tipoVehiculoId Int?
+  color          String?       @db.VarChar(50)
+  tipoVehiculo   TipoVehiculo? @relation(fields: [tipoVehiculoId], references: [id])
+  sanctions      Sanction[]
+  accessLogs     AccessLog[]
+
+  @@index([plate])
+}
+
+model AccessPoint {
+  id            Int         @id @default(autoincrement())
+  name          String      @db.VarChar(150)
+  location      String      @db.VarChar(255)
+  entryCameraId Int         @unique
+  exitCameraId  Int         @unique
+  userId        Int
+  entryCamera   Camera      @relation("EntryCamera", fields: [entryCameraId], references: [id])
+  exitCamera    Camera      @relation("ExitCamera", fields: [exitCameraId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+  accessLogs    AccessLog[]
+}
+
+model AccessLog {
+  id              Int          @id @default(autoincrement())
+  vehicleId       Int
+  accessPointId   Int?
+  ingresoCameraId Int?
+  salidaCameraId  Int?
+  ingresoAt       DateTime     @default(now())
+  egresoAt        DateTime?
+  evidenceUrl     String?      @db.VarChar(500)
+  vehicle         Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  accessPoint     AccessPoint? @relation(fields: [accessPointId], references: [id], onDelete: SetNull)
+  ingresoCamera   Camera?      @relation("IngresoCamera", fields: [ingresoCameraId], references: [id], onDelete: SetNull)
+  salidaCamera    Camera?      @relation("SalidaCamera", fields: [salidaCameraId], references: [id], onDelete: SetNull)
+
+  @@index([vehicleId])
+  @@index([ingresoAt])
+}
+
+model Sanction {
+  id                   Int                @id @default(autoincrement())
+  vehicleId            Int
+  sanctionDefinitionId Int
+  startsAt             DateTime           @default(now())
+  endsAt               DateTime?
+  vehicle              Vehicle            @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  definition           SanctionDefinition @relation(fields: [sanctionDefinitionId], references: [id])
+}
+
+model SanctionDefinition {
+  id           Int        @id @default(autoincrement())
+  name         String     @db.VarChar(150)
+  reason       String     @db.VarChar(500)
+  durationDays Int
+  sanctions    Sanction[]
+}
+
+model AlertType {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique @db.VarChar(100)
+  alerts Alert[]
+}
+
+model Alert {
+  id          Int       @id @default(autoincrement())
+  alertTypeId Int
+  cameraId    Int?
+  createdAt   DateTime  @default(now())
+  alertType   AlertType @relation(fields: [alertTypeId], references: [id])
+  camera      Camera?   @relation(fields: [cameraId], references: [id], onDelete: SetNull)
+}

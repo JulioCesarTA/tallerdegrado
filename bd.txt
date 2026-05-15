@@ -1,0 +1,113 @@
+================================================================================
+BASE DE DATOS - SISTEMA DE CONTROL VEHICULAR UAGRM
+================================================================================
+
+TABLAS Y ATRIBUTOS (estado actual)
+================================================================================
+
+1. Permission
+   - id   : String (PK, cuid)
+   - name : String (UNIQUE)
+
+2. Role
+   - id   : String (PK, cuid)
+   - name : String (UNIQUE)
+
+3. RolePermission  [tabla intermedia]
+   - roleId       : String (FK -> Role, CASCADE)
+   - permissionId : String (FK -> Permission, CASCADE)
+   PK compuesta: (roleId, permissionId)
+
+4. User
+   - id            : String  (PK, cuid)
+   - name          : String
+   - email         : String  (UNIQUE)
+   - passwordHash  : String
+   - roleId        : String  (FK -> Role)
+   - entryCameraId : String? (FK -> Camera, SET NULL)
+   - exitCameraId  : String? (FK -> Camera, SET NULL)
+
+5. Camera
+   - id       : String (PK, cuid)
+   - name     : String
+   - location : String
+   - type     : Enum [entrada, salida]
+
+6. Vehicle
+   - id    : String (PK, cuid)
+   - plate : String (UNIQUE, INDEX)
+   - brand : String?
+   - model : String?
+   - color : String?
+
+7. AccessLog
+   - id          : String   (PK, cuid)
+   - vehicleId   : String   (FK -> Vehicle, CASCADE, INDEX)
+   - cameraId    : String?  (FK -> Camera, SET NULL)
+   - type        : Enum     [ingreso, salida]
+   - occurredAt  : DateTime (default: now, INDEX)
+   - evidenceUrl : String?
+
+8. Incident
+   - id          : String   (PK, cuid)
+   - vehicleId   : String   (FK -> Vehicle, CASCADE, INDEX)
+   - description : String
+   - evidenceUrl : String?
+   - reportedAt  : DateTime (default: now)
+
+9. Sanction
+   - id                   : String   (PK, cuid)
+   - vehicleId            : String   (FK -> Vehicle, CASCADE)
+   - sanctionDefinitionId : String   (FK -> SanctionDefinition)
+   - startsAt             : DateTime (default: now)
+   - endsAt               : DateTime?
+
+10. SanctionDefinition
+    - id           : String (PK, cuid)
+    - name         : String
+    - reason       : String
+    - durationDays : Int
+
+11. Alert
+    - id        : String   (PK, cuid)
+    - type      : Enum     [camera_disconnected, camera_error, detection_failure,
+                            sanctioned_vehicle_attempt, network_failure, system_interruption]
+    - cameraId  : String?  (FK -> Camera, SET NULL)
+    - createdAt : DateTime (default: now)
+
+================================================================================
+ENUMS
+================================================================================
+
+  CameraType : entrada | salida
+  AccessType : ingreso | salida
+  AlertType  : camera_disconnected
+               camera_error
+               detection_failure
+               sanctioned_vehicle_attempt
+               network_failure
+               system_interruption
+
+================================================================================
+RELACIONES
+================================================================================
+
+  Permission       <--  RolePermission  -->  Role
+  Role             <--  User
+  Camera           <--  User             (entryCameraId — camara de ingreso del operador)
+  Camera           <--  User             (exitCameraId  — camara de salida del operador)
+  Camera           <--  AccessLog
+  Camera           <--  Alert
+  Vehicle          <--  AccessLog
+  Vehicle          <--  Incident
+  Vehicle          <--  Sanction
+  SanctionDefinition <-- Sanction
+
+================================================================================
+RESUMEN
+================================================================================
+
+  Total tablas : 11
+  Total enums  : 3 (CameraType, AccessType, AlertType)
+
+================================================================================
