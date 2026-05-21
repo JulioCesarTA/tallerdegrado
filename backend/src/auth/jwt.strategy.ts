@@ -19,28 +19,28 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: AuthUser): Promise<AuthUser> {
-    const user = await this.prisma.user.findUnique({
+    const usuario = await this.prisma.usuario.findUnique({
       where: { id: payload.sub },
       select: {
         id: true,
-        email: true,
-        role: {
+        correo: true,
+        rol: {
           include: {
-            permissions: {
-              include: { permission: { select: { name: true } } },
+            permisos: {
+              include: { permiso: { select: { nombre: true } } },
             },
           },
         },
       },
     });
 
-    if (!user) throw new UnauthorizedException('Token invalido');
+    if (!usuario) throw new UnauthorizedException('Token invalido');
 
     return {
-      sub: user.id,
-      email: user.email,
-      role: user.role.name,
-      permissions: user.role.permissions.map((item) => item.permission.name),
+      sub: usuario.id,
+      email: usuario.correo,
+      role: usuario.rol.nombre,
+      permissions: usuario.rol.permisos.map((item) => item.permiso.nombre),
     };
   }
 }

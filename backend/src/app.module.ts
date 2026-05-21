@@ -9,9 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { BackupsModule } from './backups/backups.module';
 import { CamerasModule } from './cameras/cameras.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
-import { PermissionsGuard } from './common/guards/permissions.guard';
 import { DetectionsModule } from './detections/detections.module';
-import { EventsModule } from './events/events.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ReportsModule } from './reports/reports.module';
 import { SanctionDefinitionsModule } from './sanction-definitions/sanction-definitions.module';
@@ -35,7 +33,6 @@ import { VehiclesModule } from './vehicles/vehicles.module';
     AuthModule,
     UsersModule,
     CamerasModule,
-    EventsModule,
     DetectionsModule,
     VehiclesModule,
     SanctionsModule,
@@ -46,7 +43,6 @@ import { VehiclesModule } from './vehicles/vehicles.module';
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: PermissionsGuard },
   ],
 })
 export class AppModule {}

@@ -1,0 +1,38 @@
+# Uso: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+# En dev los contenedores usan hot-reload con volúmenes montados.
+
+services:
+
+  postgres:
+    ports:
+      - "5432:5432"   # expuesto para conectar con Prisma Studio localmente
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend/src:/app/src          # hot-reload
+      - ./backend/prisma:/app/prisma
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3001:3001"   # acceso directo en dev (sin Nginx)
+    command: npm run start:dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend/src:/app/src         # hot-reload
+      - ./frontend/public:/app/public
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"   # acceso directo en dev (sin Nginx)
+    command: npm run dev
+
+  nginx:
+    profiles:
+      - "prod-only"   # nginx no arranca en dev

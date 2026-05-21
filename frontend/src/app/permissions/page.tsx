@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import { SectionCard } from '@/components/section-card';
 import { api } from '@/lib/api';
-import { Permission } from '@/lib/types';
+import { Permiso } from '@/lib/types';
 
 export default function PermissionsPage() {
-  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [permissions, setPermissions] = useState<Permiso[]>([]);
   const [form, setForm] = useState({ name: '' });
 
   async function load() {
-    setPermissions(await api<Permission[]>('/permissions'));
+    setPermissions(await api<Permiso[]>('/permissions'));
   }
 
   useEffect(() => { load(); }, []);
@@ -27,14 +27,12 @@ export default function PermissionsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-xs text-slate-500 uppercase">
-              <tr>
-                <th className="pb-3">Nombre</th>
-              </tr>
+              <tr><th className="pb-3">Nombre</th></tr>
             </thead>
             <tbody>
               {permissions.map((p) => (
                 <tr key={p.id} className="border-t border-slate-100">
-                  <td className="py-2.5">{p.name}</td>
+                  <td className="py-2.5">{p.nombre}</td>
                 </tr>
               ))}
             </tbody>

@@ -1,12 +1,13 @@
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
-export class ProcessDetectionDto {
+export class RegisterExitDto {
+  @IsString()
+  placa: string;
+
   @Type(() => Number)
   @IsInt()
   cameraId: number;
 
-  @IsOptional()
-  @IsString()
-  plateOverride?: string;
+  @IsOptional() @IsString() evidenceUrl?: string;
 }

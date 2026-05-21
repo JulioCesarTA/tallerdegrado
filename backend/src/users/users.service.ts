@@ -4,12 +4,25 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-const userSelect = {
+const usuarioSelect = {
   id: true,
-  name: true,
-  email: true,
-  roleId: true,
-  role: { select: { id: true, name: true } },
+  nombre: true,
+  correo: true,
+  rolId: true,
+  rol: { select: { id: true, nombre: true } },
+} as const;
+
+const usuarioWithCamerasSelect = {
+  ...usuarioSelect,
+  puntosAcceso: {
+    take: 1,
+    select: {
+      camaraIngresoId: true,
+      camaraSalidaId: true,
+      camaraIngreso: true,
+      camaraSalida: true,
+    },
+  },
 } as const;
 
 @Injectable()
@@ -17,18 +30,26 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.user.findMany({ select: userSelect, orderBy: { name: 'asc' } });
+    return this.prisma.usuario.findMany({ select: usuarioSelect, orderBy: { nombre: 'asc' } });
   }
 
   async findOne(id: number) {
-    const user = await this.prisma.user.findUnique({ where: { id }, select: userSelect });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
-    return user;
+    const usuario = await this.prisma.usuario.findUnique({ where: { id }, select: usuarioWithCamerasSelect });
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
+    const { puntosAcceso, ...rest } = usuario;
+    const ap = puntosAcceso[0] ?? null;
+    return {
+      ...rest,
+      camaraIngresoId: ap?.camaraIngresoId ?? null,
+      camaraSalidaId: ap?.camaraSalidaId ?? null,
+      camaraIngreso: ap?.camaraIngreso ?? null,
+      camaraSalida: ap?.camaraSalida ?? null,
+    };
   }
 
   async create(dto: CreateUserDto) {
-    const exists = await this.prisma.user.findUnique({
-      where: { email: dto.email.toLowerCase() },
+    const exists = await this.prisma.usuario.findUnique({
+      where: { correo: dto.email.toLowerCase() },
       select: { id: true },
     });
     if (exists) throw new ConflictException('El correo ya existe');
@@ -36,14 +57,14 @@ export class UsersService {
     await this.ensureRoleExists(dto.roleId);
     const password = await bcrypt.hash(dto.password, 10);
 
-    return this.prisma.user.create({
+    return this.prisma.usuario.create({
       data: {
-        name: dto.name,
-        email: dto.email.toLowerCase(),
+        nombre: dto.name,
+        correo: dto.email.toLowerCase(),
         password,
-        roleId: dto.roleId,
+        rolId: dto.roleId,
       },
-      select: userSelect,
+      select: usuarioSelect,
     });
   }
 
@@ -52,27 +73,27 @@ export class UsersService {
     if (dto.roleId) await this.ensureRoleExists(dto.roleId);
 
     const data: Record<string, unknown> = {};
-    if (dto.name) data.name = dto.name;
-    if (dto.email) data.email = dto.email.toLowerCase();
-    if (dto.roleId) data.roleId = dto.roleId;
+    if (dto.name) data.nombre = dto.name;
+    if (dto.email) data.correo = dto.email.toLowerCase();
+    if (dto.roleId) data.rolId = dto.roleId;
     if (dto.password) data.password = await bcrypt.hash(dto.password, 10);
 
-    return this.prisma.user.update({ where: { id }, data, select: userSelect });
+    return this.prisma.usuario.update({ where: { id }, data, select: usuarioSelect });
   }
 
   async remove(id: number) {
     await this.ensureExists(id);
-    await this.prisma.user.delete({ where: { id } });
+    await this.prisma.usuario.delete({ where: { id } });
     return { message: 'Usuario eliminado' };
   }
 
   private async ensureExists(id: number) {
-    const user = await this.prisma.user.findUnique({ where: { id }, select: { id: true } });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    const usuario = await this.prisma.usuario.findUnique({ where: { id }, select: { id: true } });
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
   }
 
   private async ensureRoleExists(roleId: number) {
-    const role = await this.prisma.role.findUnique({ where: { id: roleId }, select: { id: true } });
-    if (!role) throw new NotFoundException('Rol no encontrado');
+    const rol = await this.prisma.rol.findUnique({ where: { id: roleId }, select: { id: true } });
+    if (!rol) throw new NotFoundException('Rol no encontrado');
   }
 }

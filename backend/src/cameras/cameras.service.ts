@@ -12,52 +12,57 @@ export class CamerasService {
   ) {}
 
   findAll() {
-    return this.prisma.camera.findMany({
-      include: { cameraType: true, cameraStatus: true },
-      orderBy: { name: 'asc' },
+    return this.prisma.camara.findMany({
+      include: { tipoCamara: true, estadoCamara: true },
+      orderBy: { nombre: 'asc' },
     });
   }
 
   async findOne(id: number) {
-    const camera = await this.prisma.camera.findUnique({
+    const camara = await this.prisma.camara.findUnique({
       where: { id },
-      include: { cameraType: true, cameraStatus: true },
+      include: { tipoCamara: true, estadoCamara: true },
     });
-    if (!camera) throw new NotFoundException('Camara no encontrada');
-    return camera;
+    if (!camara) throw new NotFoundException('Camara no encontrada');
+    return camara;
   }
 
   create(dto: CreateCameraDto) {
-    return this.prisma.camera.create({
-      data: dto,
-      include: { cameraType: true, cameraStatus: true },
+    return this.prisma.camara.create({
+      data: {
+        nombre: dto.nombre,
+        ubicacion: dto.ubicacion,
+        tipoCamaraId: dto.tipoCamaraId,
+        estadoCamaraId: dto.estadoCamaraId,
+      },
+      include: { tipoCamara: true, estadoCamara: true },
     });
   }
 
   async update(id: number, dto: UpdateCameraDto) {
     await this.findOne(id);
-    return this.prisma.camera.update({
+    return this.prisma.camara.update({
       where: { id },
       data: dto,
-      include: { cameraType: true, cameraStatus: true },
+      include: { tipoCamara: true, estadoCamara: true },
     });
   }
 
   async remove(id: number) {
     await this.findOne(id);
-    await this.prisma.camera.delete({ where: { id } });
+    await this.prisma.camara.delete({ where: { id } });
     return { message: 'Camara eliminada' };
   }
 
   findTypes() {
-    return this.prisma.cameraType.findMany({ orderBy: { name: 'asc' } });
+    return this.prisma.tipoCamara.findMany({ orderBy: { nombre: 'asc' } });
   }
 
   findStatuses() {
-    return this.prisma.cameraStatus.findMany({ orderBy: { name: 'asc' } });
+    return this.prisma.estadoCamara.findMany({ orderBy: { nombre: 'asc' } });
   }
 
-  async registerDetectionFailure(cameraId: number) {
-    await this.alertsService.createInternalAlert({ typeName: 'detection_failure', cameraId });
+  async registerDetectionFailure(camaraId: number) {
+    await this.alertsService.createInternalAlert({ typeName: 'detection_failure', camaraId });
   }
 }

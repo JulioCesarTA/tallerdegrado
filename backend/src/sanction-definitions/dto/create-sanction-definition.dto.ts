@@ -1,13 +1,15 @@
 import { IsInt, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateSanctionDefinitionDto {
   @IsString()
-  name: string;
+  nombre: string;
 
   @IsString()
-  reason: string;
+  motivo: string;
 
+  @Type(() => Number)
   @IsInt()
   @Min(1)
-  durationDays: number;
+  duracionDias: number;
 }

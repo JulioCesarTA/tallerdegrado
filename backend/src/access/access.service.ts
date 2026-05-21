@@ -11,10 +11,12 @@ import { CreatePermissionDto } from './dto/create-permission.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { CreatePuntoAccesoDto } from './dto/create-punto-acceso.dto';
+import { UpdatePuntoAccesoDto } from './dto/update-punto-acceso.dto';
 
-const roleInclude = {
-  permissions: {
-    include: { permission: true },
+const rolInclude = {
+  permisos: {
+    include: { permiso: true },
   },
 };
 
@@ -27,43 +29,43 @@ export class AccessService implements OnModuleInit {
   }
 
   async seedDefaults() {
-    for (const name of SYSTEM_PERMISSIONS) {
-      await this.prisma.permission.upsert({ where: { name }, update: {}, create: { name } });
+    for (const nombre of SYSTEM_PERMISSIONS) {
+      await this.prisma.permiso.upsert({ where: { nombre }, update: {}, create: { nombre } });
     }
 
     for (const role of DEFAULT_ROLES) {
-      const upserted = await this.prisma.role.upsert({
-        where: { name: role.name },
+      const upserted = await this.prisma.rol.upsert({
+        where: { nombre: role.name },
         update: {},
-        create: { name: role.name },
+        create: { nombre: role.name },
       });
 
-      const permissions = await this.prisma.permission.findMany({
-        where: { name: { in: [...role.permissions] } },
+      const permisos = await this.prisma.permiso.findMany({
+        where: { nombre: { in: [...role.permissions] } },
         select: { id: true },
       });
 
-      await this.prisma.rolePermission.deleteMany({ where: { roleId: upserted.id } });
+      await this.prisma.rolPermiso.deleteMany({ where: { rolId: upserted.id } });
 
-      if (permissions.length) {
-        await this.prisma.rolePermission.createMany({
-          data: permissions.map((p) => ({ roleId: upserted.id, permissionId: p.id })),
+      if (permisos.length) {
+        await this.prisma.rolPermiso.createMany({
+          data: permisos.map((p) => ({ rolId: upserted.id, permisoId: p.id })),
           skipDuplicates: true,
         });
       }
     }
 
-    const cameraTypes = ['entrada', 'salida'];
-    for (const name of cameraTypes) {
-      await this.prisma.cameraType.upsert({ where: { name }, update: {}, create: { name } });
+    const tipoCamaras = ['entrada', 'salida'];
+    for (const nombre of tipoCamaras) {
+      await this.prisma.tipoCamara.upsert({ where: { nombre }, update: {}, create: { nombre } });
     }
 
-    const cameraStatuses = ['activa', 'inactiva', 'falla', 'mantenimiento'];
-    for (const name of cameraStatuses) {
-      await this.prisma.cameraStatus.upsert({ where: { name }, update: {}, create: { name } });
+    const estadoCamaras = ['activa', 'inactiva', 'falla', 'mantenimiento'];
+    for (const nombre of estadoCamaras) {
+      await this.prisma.estadoCamara.upsert({ where: { nombre }, update: {}, create: { nombre } });
     }
 
-    const alertTypes = [
+    const tipoAlertas = [
       'camera_disconnected',
       'camera_error',
       'detection_failure',
@@ -71,23 +73,28 @@ export class AccessService implements OnModuleInit {
       'network_failure',
       'system_interruption',
     ];
-    for (const name of alertTypes) {
-      await this.prisma.alertType.upsert({ where: { name }, update: {}, create: { name } });
+    for (const nombre of tipoAlertas) {
+      await this.prisma.tipoAlerta.upsert({ where: { nombre }, update: {}, create: { nombre } });
+    }
+
+    const estadoAlertas = ['pendiente', 'mantenimiento', 'resuelto'];
+    for (const nombre of estadoAlertas) {
+      await this.prisma.estadoAlerta.upsert({ where: { nombre }, update: {}, create: { nombre } });
     }
 
     const tipoVehiculos = ['moto', 'auto'];
-    for (const name of tipoVehiculos) {
-      await this.prisma.tipoVehiculo.upsert({ where: { name }, update: {}, create: { name } });
+    for (const nombre of tipoVehiculos) {
+      await this.prisma.tipoVehiculo.upsert({ where: { nombre }, update: {}, create: { nombre } });
     }
   }
 
   findPermissions() {
-    return this.prisma.permission.findMany({ orderBy: { name: 'asc' } });
+    return this.prisma.permiso.findMany({ orderBy: { nombre: 'asc' } });
   }
 
   async createPermission(dto: CreatePermissionDto) {
     try {
-      return await this.prisma.permission.create({ data: { name: dto.name } });
+      return await this.prisma.permiso.create({ data: { nombre: dto.name } });
     } catch {
       throw new ConflictException('Ya existe un permiso con ese nombre');
     }
@@ -95,36 +102,36 @@ export class AccessService implements OnModuleInit {
 
   async updatePermission(id: number, dto: UpdatePermissionDto) {
     await this.ensurePermissionExists(id);
-    return this.prisma.permission.update({ where: { id }, data: dto });
+    return this.prisma.permiso.update({ where: { id }, data: { nombre: (dto as any).name ?? (dto as any).nombre } });
   }
 
   async removePermission(id: number) {
     await this.ensurePermissionExists(id);
-    await this.prisma.permission.delete({ where: { id } });
+    await this.prisma.permiso.delete({ where: { id } });
     return { message: 'Permiso eliminado' };
   }
 
   findRoles() {
-    return this.prisma.role.findMany({ include: roleInclude, orderBy: { name: 'asc' } });
+    return this.prisma.rol.findMany({ include: rolInclude, orderBy: { nombre: 'asc' } });
   }
 
   async findRole(id: number) {
-    const role = await this.prisma.role.findUnique({ where: { id }, include: roleInclude });
-    if (!role) throw new NotFoundException('Rol no encontrado');
-    return role;
+    const rol = await this.prisma.rol.findUnique({ where: { id }, include: rolInclude });
+    if (!rol) throw new NotFoundException('Rol no encontrado');
+    return rol;
   }
 
   async createRole(dto: CreateRoleDto) {
-    const permissions = await this.findPermissionsByIds(dto.permissionIds);
+    const permisos = await this.findPermissionsByIds(dto.permissionIds);
 
-    return this.prisma.role.create({
+    return this.prisma.rol.create({
       data: {
-        name: dto.name,
-        permissions: {
-          create: permissions.map((p) => ({ permissionId: p.id })),
+        nombre: dto.name,
+        permisos: {
+          create: permisos.map((p) => ({ permisoId: p.id })),
         },
       },
-      include: roleInclude,
+      include: rolInclude,
     });
   }
 
@@ -135,7 +142,7 @@ export class AccessService implements OnModuleInit {
       await this.findPermissionsByIds(dto.permissionIds);
     }
 
-    await this.prisma.role.update({ where: { id }, data: { name: dto.name } });
+    await this.prisma.rol.update({ where: { id }, data: { nombre: dto.name } });
 
     if (dto.permissionIds) {
       await this.replaceRolePermissions(id, { permissionIds: dto.permissionIds });
@@ -146,11 +153,11 @@ export class AccessService implements OnModuleInit {
 
   async replaceRolePermissions(id: number, dto: AssignRolePermissionsDto) {
     await this.ensureRoleExists(id);
-    const permissions = await this.findPermissionsByIds(dto.permissionIds);
+    const permisos = await this.findPermissionsByIds(dto.permissionIds);
 
-    await this.prisma.rolePermission.deleteMany({ where: { roleId: id } });
-    await this.prisma.rolePermission.createMany({
-      data: permissions.map((p) => ({ roleId: id, permissionId: p.id })),
+    await this.prisma.rolPermiso.deleteMany({ where: { rolId: id } });
+    await this.prisma.rolPermiso.createMany({
+      data: permisos.map((p) => ({ rolId: id, permisoId: p.id })),
       skipDuplicates: true,
     });
 
@@ -160,45 +167,103 @@ export class AccessService implements OnModuleInit {
   async removeRole(id: number) {
     await this.ensureRoleExists(id);
 
-    const usersCount = await this.prisma.user.count({ where: { roleId: id } });
+    const usersCount = await this.prisma.usuario.count({ where: { rolId: id } });
     if (usersCount > 0) {
       throw new ConflictException('No puedes eliminar un rol asignado a usuarios');
     }
 
-    await this.prisma.role.delete({ where: { id } });
+    await this.prisma.rol.delete({ where: { id } });
     return { message: 'Rol eliminado' };
   }
 
   async getRoleSnapshotByUserId(userId: number) {
-    const user = await this.prisma.user.findUnique({
+    const usuario = await this.prisma.usuario.findUnique({
       where: { id: userId },
-      select: { role: { include: roleInclude } },
+      select: { rol: { include: rolInclude } },
     });
 
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
 
     return {
-      role: user.role.name,
-      roleName: user.role.name,
-      permissions: user.role.permissions.map((item) => item.permission.name),
+      role: usuario.rol.nombre,
+      roleName: usuario.rol.nombre,
+      permissions: usuario.rol.permisos.map((item) => item.permiso.nombre),
     };
   }
 
   private async ensureRoleExists(id: number) {
-    const role = await this.prisma.role.findUnique({ where: { id } });
-    if (!role) throw new NotFoundException('Rol no encontrado');
-    return role;
+    const rol = await this.prisma.rol.findUnique({ where: { id } });
+    if (!rol) throw new NotFoundException('Rol no encontrado');
+    return rol;
   }
 
   private async ensurePermissionExists(id: number) {
-    const permission = await this.prisma.permission.findUnique({ where: { id } });
-    if (!permission) throw new NotFoundException('Permiso no encontrado');
-    return permission;
+    const permiso = await this.prisma.permiso.findUnique({ where: { id } });
+    if (!permiso) throw new NotFoundException('Permiso no encontrado');
+    return permiso;
   }
 
   private async findPermissionsByIds(ids: number[]) {
-    const permissions = await this.prisma.permission.findMany({ where: { id: { in: ids } } });
-    if (permissions.length !== ids.length) throw new NotFoundException('Uno o mas permisos no existen');
-    return permissions;
+    const permisos = await this.prisma.permiso.findMany({ where: { id: { in: ids } } });
+    if (permisos.length !== ids.length) throw new NotFoundException('Uno o mas permisos no existen');
+    return permisos;
+  }
+
+  // --- PuntoAcceso ---
+
+  findAccessPoints() {
+    return this.prisma.puntoAcceso.findMany({
+      include: {
+        camaraIngreso: true,
+        camaraSalida: true,
+        usuario: { select: { id: true, nombre: true, correo: true } },
+      },
+      orderBy: { id: 'asc' },
+    });
+  }
+
+  async createAccessPoint(dto: CreatePuntoAccesoDto) {
+    try {
+      return await this.prisma.puntoAcceso.create({
+        data: {
+          nombre: dto.nombre,
+          ubicacion: dto.ubicacion,
+          camaraIngresoId: dto.camaraIngresoId,
+          camaraSalidaId: dto.camaraSalidaId,
+          usuarioId: dto.usuarioId,
+        },
+        include: {
+          camaraIngreso: true,
+          camaraSalida: true,
+          usuario: { select: { id: true, nombre: true, correo: true } },
+        },
+      });
+    } catch (e: unknown) {
+      const code = (e as { code?: string })?.code;
+      if (code === 'P2002') throw new ConflictException('Una de las camaras ya esta asignada a otro punto de acceso');
+      if (code === 'P2003') throw new NotFoundException('Camara o usuario no encontrado');
+      throw e;
+    }
+  }
+
+  async updateAccessPoint(id: number, dto: UpdatePuntoAccesoDto) {
+    const existing = await this.prisma.puntoAcceso.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Punto de acceso no encontrado');
+    return this.prisma.puntoAcceso.update({
+      where: { id },
+      data: dto,
+      include: {
+        camaraIngreso: true,
+        camaraSalida: true,
+        usuario: { select: { id: true, nombre: true, correo: true } },
+      },
+    });
+  }
+
+  async removeAccessPoint(id: number) {
+    const existing = await this.prisma.puntoAcceso.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Punto de acceso no encontrado');
+    await this.prisma.puntoAcceso.delete({ where: { id } });
+    return { message: 'Punto de acceso eliminado' };
   }
 }

@@ -9,26 +9,40 @@ export class BackupsService {
     private readonly storageService: StorageService,
   ) {}
 
-  async generate() {
+  async generate(usuarioId: number) {
     const snapshot = await this.buildSnapshot();
     const stored = await this.storageService.saveBackup(JSON.stringify(snapshot, null, 2));
+    await this.prisma.backup.create({
+      data: { usuarioId, url: stored.url, fecha: new Date() },
+    });
     return { fileName: stored.fileName, url: stored.url, generatedAt: snapshot.generatedAt };
   }
 
   private async buildSnapshot() {
-    const [users, roles, permissions, cameras, vehicles, accessLogs, sanctions, sanctionDefinitions, alerts] =
+    const [usuarios, roles, permisos, camaras, vehiculos, registrosAcceso, sanciones, tipoSanciones, alertas] =
       await Promise.all([
-        this.prisma.user.findMany({ select: { id: true, name: true, email: true, roleId: true } }),
-        this.prisma.role.findMany(),
-        this.prisma.permission.findMany(),
-        this.prisma.camera.findMany(),
-        this.prisma.vehicle.findMany(),
-        this.prisma.accessLog.findMany(),
-        this.prisma.sanction.findMany(),
-        this.prisma.sanctionDefinition.findMany(),
-        this.prisma.alert.findMany(),
+        this.prisma.usuario.findMany({ select: { id: true, nombre: true, correo: true, rolId: true } }),
+        this.prisma.rol.findMany(),
+        this.prisma.permiso.findMany(),
+        this.prisma.camara.findMany(),
+        this.prisma.vehiculo.findMany(),
+        this.prisma.registroAcceso.findMany(),
+        this.prisma.sancion.findMany(),
+        this.prisma.tipoSancion.findMany(),
+        this.prisma.alerta.findMany(),
       ]);
 
-    return { generatedAt: new Date().toISOString(), users, roles, permissions, cameras, vehicles, accessLogs, sanctions, sanctionDefinitions, alerts };
+    return {
+      generatedAt: new Date().toISOString(),
+      usuarios,
+      roles,
+      permisos,
+      camaras,
+      vehiculos,
+      registrosAcceso,
+      sanciones,
+      tipoSanciones,
+      alertas,
+    };
   }
 }

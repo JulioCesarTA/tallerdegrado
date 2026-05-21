@@ -5,6 +5,8 @@ import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { AccessService } from './access.service';
 import { AssignRolePermissionsDto } from './dto/assign-role-permissions.dto';
+import { CreatePuntoAccesoDto } from './dto/create-punto-acceso.dto';
+import { UpdatePuntoAccesoDto } from './dto/update-punto-acceso.dto';
 
 @Controller()
 export class AccessController {
@@ -61,5 +63,27 @@ export class AccessController {
   @Delete('roles/:id')
   removeRole(@Param('id', ParseIntPipe) id: number) {
     return this.accessService.removeRole(id);
+  }
+
+  // --- PuntoAcceso ---
+
+  @Get('access-points')
+  findAccessPoints() {
+    return this.accessService.findAccessPoints();
+  }
+
+  @Post('access-points')
+  createAccessPoint(@Body() dto: CreatePuntoAccesoDto) {
+    return this.accessService.createAccessPoint(dto);
+  }
+
+  @Patch('access-points/:id')
+  updateAccessPoint(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdatePuntoAccesoDto) {
+    return this.accessService.updateAccessPoint(id, dto);
+  }
+
+  @Delete('access-points/:id')
+  removeAccessPoint(@Param('id', ParseIntPipe) id: number) {
+    return this.accessService.removeAccessPoint(id);
   }
 }

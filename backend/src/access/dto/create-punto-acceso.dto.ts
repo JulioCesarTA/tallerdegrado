@@ -1,18 +1,22 @@
 import { Type } from 'class-transformer';
 import { IsInt, IsString } from 'class-validator';
 
-export class CreateCameraDto {
+export class CreatePuntoAccesoDto {
   @IsString()
   nombre: string;
 
   @IsString()
   ubicacion: string;
 
-  @Type(() => Number)
   @IsInt()
-  tipoCamaraId: number;
+  @Type(() => Number)
+  camaraIngresoId: number;
 
-  @Type(() => Number)
   @IsInt()
-  estadoCamaraId: number;
+  @Type(() => Number)
+  camaraSalidaId: number;
+
+  @IsInt()
+  @Type(() => Number)
+  usuarioId: number;
 }

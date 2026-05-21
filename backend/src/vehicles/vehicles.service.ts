@@ -3,18 +3,18 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 
-const vehicleInclude = {
-  tipoVehiculo: { select: { id: true, name: true } },
-  sanctions: {
-    include: { definition: { select: { id: true, name: true, reason: true } } },
-    orderBy: { startsAt: 'desc' as const },
+const vehiculoInclude = {
+  tipoVehiculo: { select: { id: true, nombre: true } },
+  sanciones: {
+    include: { tipoSancion: { select: { id: true, nombre: true, motivo: true } } },
+    orderBy: { fechaInicio: 'desc' as const },
   },
-  accessLogs: {
-    orderBy: { ingresoAt: 'desc' as const },
+  registrosAcceso: {
+    orderBy: { horaIngreso: 'desc' as const },
     take: 20,
     include: {
-      ingresoCamera: { select: { id: true, name: true } },
-      salidaCamera: { select: { id: true, name: true } },
+      puntoAccesoIngreso: { select: { id: true, nombre: true } },
+      puntoAccesoEgreso: { select: { id: true, nombre: true } },
     },
   },
 };
@@ -24,60 +24,72 @@ export class VehiclesService {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll(search?: string) {
-    return this.prisma.vehicle.findMany({
+    return this.prisma.vehiculo.findMany({
       where: search
-        ? { plate: { contains: search.toUpperCase(), mode: 'insensitive' } }
+        ? { placa: { contains: search.toUpperCase(), mode: 'insensitive' } }
         : undefined,
-      include: vehicleInclude,
-      orderBy: { plate: 'asc' },
+      include: vehiculoInclude,
+      orderBy: { placa: 'asc' },
     });
   }
 
   async findOne(id: number) {
-    const vehicle = await this.prisma.vehicle.findUnique({ where: { id }, include: vehicleInclude });
-    if (!vehicle) throw new NotFoundException('Vehiculo no encontrado');
-    return vehicle;
+    const vehiculo = await this.prisma.vehiculo.findUnique({ where: { id }, include: vehiculoInclude });
+    if (!vehiculo) throw new NotFoundException('Vehiculo no encontrado');
+    return vehiculo;
   }
 
   async create(dto: CreateVehicleDto) {
-    const exists = await this.prisma.vehicle.findUnique({
-      where: { plate: dto.plate.toUpperCase() },
+    const exists = await this.prisma.vehiculo.findUnique({
+      where: { placa: dto.plate.toUpperCase() },
       select: { id: true },
     });
     if (exists) throw new ConflictException('La placa ya existe');
 
-    return this.prisma.vehicle.create({
-      data: { ...dto, plate: dto.plate.toUpperCase() },
-      include: vehicleInclude,
+    return this.prisma.vehiculo.create({
+      data: {
+        placa: dto.plate.toUpperCase(),
+        marca: dto.brand,
+        modelo: dto.model,
+        color: dto.color,
+        tipoVehiculoId: dto.tipoVehiculoId,
+      },
+      include: vehiculoInclude,
     });
   }
 
   async update(id: number, dto: UpdateVehicleDto) {
     await this.ensureExists(id);
-    return this.prisma.vehicle.update({
+    return this.prisma.vehiculo.update({
       where: { id },
-      data: { ...dto, plate: dto.plate?.toUpperCase() },
-      include: vehicleInclude,
+      data: {
+        ...(dto.plate ? { placa: dto.plate.toUpperCase() } : {}),
+        ...(dto.brand !== undefined ? { marca: dto.brand } : {}),
+        ...(dto.model !== undefined ? { modelo: dto.model } : {}),
+        ...(dto.color !== undefined ? { color: dto.color } : {}),
+        ...(dto.tipoVehiculoId !== undefined ? { tipoVehiculoId: dto.tipoVehiculoId } : {}),
+      },
+      include: vehiculoInclude,
     });
   }
 
   async remove(id: number) {
     await this.ensureExists(id);
-    await this.prisma.vehicle.delete({ where: { id } });
+    await this.prisma.vehiculo.delete({ where: { id } });
     return { message: 'Vehiculo eliminado' };
   }
 
   async findByPlate(plate: string) {
-    const vehicle = await this.prisma.vehicle.findUnique({
-      where: { plate: plate.toUpperCase() },
-      include: vehicleInclude,
+    const vehiculo = await this.prisma.vehiculo.findUnique({
+      where: { placa: plate.toUpperCase() },
+      include: vehiculoInclude,
     });
-    if (!vehicle) throw new NotFoundException('No existe vehiculo con esa placa');
-    return vehicle;
+    if (!vehiculo) throw new NotFoundException('No existe vehiculo con esa placa');
+    return vehiculo;
   }
 
   private async ensureExists(id: number) {
-    const vehicle = await this.prisma.vehicle.findUnique({ where: { id }, select: { id: true } });
-    if (!vehicle) throw new NotFoundException('Vehiculo no encontrado');
+    const vehiculo = await this.prisma.vehiculo.findUnique({ where: { id }, select: { id: true } });
+    if (!vehiculo) throw new NotFoundException('Vehiculo no encontrado');
   }
 }

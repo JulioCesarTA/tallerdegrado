@@ -3,17 +3,17 @@
 import { useEffect, useState } from 'react';
 import { SectionCard } from '@/components/section-card';
 import { api } from '@/lib/api';
-import { Permission, Role } from '@/lib/types';
+import { Permiso, Rol } from '@/lib/types';
 
 export default function RolesPage() {
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [permissions, setPermissions] = useState<Permission[]>([]);
-  const [form, setForm] = useState({ name: '', permissionIds: [] as string[] });
+  const [roles, setRoles]           = useState<Rol[]>([]);
+  const [permissions, setPermissions] = useState<Permiso[]>([]);
+  const [form, setForm]             = useState({ name: '', permissionIds: [] as number[] });
 
   async function load() {
     const [rolesData, permsData] = await Promise.all([
-      api<Role[]>('/roles'),
-      api<Permission[]>('/permissions'),
+      api<Rol[]>('/roles'),
+      api<Permiso[]>('/permissions'),
     ]);
     setRoles(rolesData);
     setPermissions(permsData);
@@ -27,7 +27,7 @@ export default function RolesPage() {
     load();
   }
 
-  function togglePerm(id: string, checked: boolean) {
+  function togglePerm(id: number, checked: boolean) {
     setForm((f) => ({
       ...f,
       permissionIds: checked ? [...f.permissionIds, id] : f.permissionIds.filter((x) => x !== id),
@@ -38,18 +38,18 @@ export default function RolesPage() {
     <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
       <SectionCard title="Roles">
         <div className="space-y-3">
-          {roles.map((role) => (
-            <article key={role.id} className="rounded-2xl border border-slate-200 p-4">
+          {roles.map((rol) => (
+            <article key={rol.id} className="rounded-2xl border border-slate-200 p-4">
               <div className="flex items-center justify-between gap-2">
-                <p className="font-medium">{role.name}</p>
+                <p className="font-medium">{rol.nombre}</p>
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
-                  {role.permissions.length} permisos
+                  {rol.permisos?.length ?? 0} permisos
                 </span>
               </div>
               <div className="mt-3 flex flex-wrap gap-1.5">
-                {role.permissions.map((item) => (
-                  <span key={item.permission.id} className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
-                    {item.permission.name}
+                {rol.permisos?.map((item) => (
+                  <span key={item.permiso.id} className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
+                    {item.permiso.nombre}
                   </span>
                 ))}
               </div>
@@ -70,7 +70,7 @@ export default function RolesPage() {
                   onChange={(e) => togglePerm(p.id, e.target.checked)}
                   className="h-4 w-4"
                 />
-                <span className="text-sm">{p.name}</span>
+                <span className="text-sm">{p.nombre}</span>
               </label>
             ))}
           </div>

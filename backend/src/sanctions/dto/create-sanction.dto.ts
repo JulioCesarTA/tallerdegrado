@@ -5,13 +5,13 @@ export class CreateSanctionDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  vehicleId?: number;
+  vehiculoId?: number;
 
   @IsOptional()
   @IsString()
-  plate?: string;
+  placa?: string;
 
   @Type(() => Number)
   @IsInt()
-  sanctionDefinitionId: number;
+  tipoSancionId: number;
 }

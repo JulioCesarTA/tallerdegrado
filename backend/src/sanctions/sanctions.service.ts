@@ -2,9 +2,9 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSanctionDto } from './dto/create-sanction.dto';
 
-const sanctionInclude = {
-  vehicle: { select: { id: true, plate: true, brand: true, model: true } },
-  definition: { select: { id: true, name: true, reason: true, durationDays: true } },
+const sancionInclude = {
+  vehiculo: { select: { id: true, placa: true, marca: true, modelo: true } },
+  tipoSancion: { select: { id: true, nombre: true, motivo: true, duracionDias: true } },
 };
 
 @Injectable()
@@ -12,43 +12,43 @@ export class SanctionsService {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.sanction.findMany({ include: sanctionInclude, orderBy: { startsAt: 'desc' } });
+    return this.prisma.sancion.findMany({ include: sancionInclude, orderBy: { fechaInicio: 'desc' } });
   }
 
   async create(dto: CreateSanctionDto) {
-    const vehicleId = dto.vehicleId ?? (await this.findVehicleIdByPlate(dto.plate));
+    const vehiculoId = dto.vehiculoId ?? (await this.findVehicleIdByPlate(dto.placa));
 
-    const definition = await this.prisma.sanctionDefinition.findUnique({
-      where: { id: dto.sanctionDefinitionId },
-      select: { durationDays: true },
+    const tipoSancion = await this.prisma.tipoSancion.findUnique({
+      where: { id: dto.tipoSancionId },
+      select: { duracionDias: true },
     });
-    if (!definition) throw new NotFoundException('Definicion de sancion no encontrada');
+    if (!tipoSancion) throw new NotFoundException('Tipo de sancion no encontrado');
 
-    const startsAt = new Date();
-    const endsAt = definition.durationDays
-      ? new Date(Date.now() + definition.durationDays * 86_400_000)
+    const fechaInicio = new Date();
+    const fechaFin = tipoSancion.duracionDias
+      ? new Date(Date.now() + tipoSancion.duracionDias * 86_400_000)
       : undefined;
 
-    return this.prisma.sanction.create({
-      data: { vehicleId, sanctionDefinitionId: dto.sanctionDefinitionId, startsAt, endsAt },
-      include: sanctionInclude,
+    return this.prisma.sancion.create({
+      data: { vehiculoId, tipoSancionId: dto.tipoSancionId, fechaInicio, fechaFin },
+      include: sancionInclude,
     });
   }
 
   async remove(id: number) {
-    const sanction = await this.prisma.sanction.findUnique({ where: { id }, select: { id: true } });
-    if (!sanction) throw new NotFoundException('Sancion no encontrada');
-    await this.prisma.sanction.delete({ where: { id } });
+    const sancion = await this.prisma.sancion.findUnique({ where: { id }, select: { id: true } });
+    if (!sancion) throw new NotFoundException('Sancion no encontrada');
+    await this.prisma.sancion.delete({ where: { id } });
     return { message: 'Sancion eliminada' };
   }
 
-  private async findVehicleIdByPlate(plate?: string) {
-    if (!plate) throw new BadRequestException('Se requiere vehicleId o plate');
-    const vehicle = await this.prisma.vehicle.findUnique({
-      where: { plate: plate.toUpperCase() },
+  private async findVehicleIdByPlate(placa?: string) {
+    if (!placa) throw new BadRequestException('Se requiere vehiculoId o placa');
+    const vehiculo = await this.prisma.vehiculo.findUnique({
+      where: { placa: placa.toUpperCase() },
       select: { id: true },
     });
-    if (!vehicle) throw new NotFoundException('Vehiculo no encontrado');
-    return vehicle.id;
+    if (!vehiculo) throw new NotFoundException('Vehiculo no encontrado');
+    return vehiculo.id;
   }
 }

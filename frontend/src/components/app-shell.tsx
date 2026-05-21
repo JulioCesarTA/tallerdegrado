@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { PropsWithChildren, useState } from 'react';
-import { clearSession, getStoredUser } from '@/lib/auth';
+import { PropsWithChildren } from 'react';
+import { clearSession, getStoredUser, getToken } from '@/lib/auth';
 
 const links = [
   { href: '/dashboard',       label: 'Dashboard'       },
@@ -11,6 +11,7 @@ const links = [
   { href: '/roles',           label: 'Roles'           },
   { href: '/permissions',     label: 'Permisos'        },
   { href: '/cameras',         label: 'Camaras'         },
+  { href: '/access-points',   label: 'Puntos de acceso' },
   { href: '/detections',      label: 'Detecciones'     },
   { href: '/events',          label: 'Historial'       },
   { href: '/sanctions',       label: 'Sanciones'       },
@@ -20,7 +21,7 @@ const links = [
   { href: '/backups',         label: 'Backups'         },
 ];
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarContent() {
   const pathname = usePathname();
   const router = useRouter();
   const user = getStoredUser();
@@ -46,7 +47,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             <Link
               key={link.href}
               href={link.href}
-              onClick={onNavigate}
+  
               style={{
                 display: 'block',
                 padding: '10px 14px',
@@ -93,7 +94,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
 export function AppShell({ children }: PropsWithChildren) {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
 
   const isPublic =
     pathname === '/login' ||
@@ -101,10 +102,15 @@ export function AppShell({ children }: PropsWithChildren) {
 
   const pageTitle = links.find((l) => pathname.startsWith(l.href))?.label ?? 'Sistema';
 
+  if (!isPublic && !getToken()) {
+    router.replace('/login');
+    return null;
+  }
+
   if (isPublic) return <>{children}</>;
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex h-screen bg-slate-50">
       {/* Desktop sidebar */}
       <aside
         className="hidden lg:block flex-shrink-0"
@@ -113,37 +119,17 @@ export function AppShell({ children }: PropsWithChildren) {
         <SidebarContent />
       </aside>
 
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div
-            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }}
-            onClick={() => setMobileOpen(false)}
-          />
-          <aside style={{ position: 'absolute', left: 0, top: 0, width: 220, height: '100%', background: '#0f172a', zIndex: 50 }}>
-            <SidebarContent onNavigate={() => setMobileOpen(false)} />
-          </aside>
-        </div>
-      )}
-
       {/* Main */}
       <div className="flex flex-1 flex-col min-w-0">
         {/* Header */}
         <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-slate-200 bg-white px-4 py-3 lg:px-8">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="lg:hidden"
-            style={{ display: 'flex', flexDirection: 'column', gap: 5, padding: 4, background: 'none', border: 'none', cursor: 'pointer' }}
-          >
-            <span style={{ display: 'block', width: 20, height: 2, background: '#475569', borderRadius: 2 }} />
-            <span style={{ display: 'block', width: 20, height: 2, background: '#475569', borderRadius: 2 }} />
-            <span style={{ display: 'block', width: 20, height: 2, background: '#475569', borderRadius: 2 }} />
-          </button>
           <h2 className="text-lg font-bold text-slate-900">{pageTitle}</h2>
         </header>
 
-        <main className="flex-1 p-4 lg:p-8">
-          {children}
+        <main className="flex-1 min-h-0 overflow-auto p-4 lg:p-6">
+          <div className="h-full">
+            {children}
+          </div>
         </main>
       </div>
     </div>

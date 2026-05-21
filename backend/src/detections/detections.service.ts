@@ -4,7 +4,14 @@ import { CamerasService } from '../cameras/cameras.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { VisionService } from '../vision/vision.service';
-import { ProcessDetectionDto } from './dto/process-detection.dto';
+import { RegisterEntryDto } from './dto/register-entry.dto';
+import { RegisterExitDto } from './dto/register-exit.dto';
+
+// Keys must match exact TipoVehiculo.nombre values in the DB
+const TIPO_VEHICULO_MAP: Record<string, string[]> = {
+  moto: ['motocicleta', 'moto'],
+  auto: ['automovil', 'auto', 'sedan', 'carro', 'camioneta', 'pickup', 'suv', '4x4', 'camion', 'truck'],
+};
 
 @Injectable()
 export class DetectionsService {
@@ -22,94 +29,133 @@ export class DetectionsService {
     return { plate: ocr.plate, confidence: ocr.confidence };
   }
 
-  async process(dto: ProcessDetectionDto, file: Express.Multer.File | undefined, type: 'entry' | 'exit') {
+  async analyzeVehicleFile(file: Express.Multer.File | undefined) {
     if (!file) throw new BadRequestException('La imagen es obligatoria');
-
-    const stored = await this.storageService.saveImage(file);
-    const [ocr, analysis] = await Promise.all([
-      this.visionService.extractPlate(file),
+    const [analysis, stored] = await Promise.all([
       this.visionService.analyzeVehicle(file),
+      this.storageService.saveImage(file),
     ]);
+    return { ...analysis, evidenceUrl: stored.url };
+  }
 
-    if (ocr.confidence < 0.7) {
-      await this.camerasService.registerDetectionFailure(dto.cameraId);
-    }
-
-    const normalizedPlate = dto.plateOverride
-      ? dto.plateOverride.toUpperCase().replace(/[^A-Z0-9]/g, '')
-      : ocr.plate.toUpperCase();
+  async registerEntry(dto: RegisterEntryDto, file: Express.Multer.File | undefined) {
+    const placa = dto.placa.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!placa) throw new BadRequestException('Placa invalida');
     const now = new Date();
 
-    const vehicle = await this.prisma.vehicle.upsert({
-      where: { plate: normalizedPlate },
+    let evidenceUrl: string | null = null;
+    if (file) {
+      const stored = await this.storageService.saveImage(file);
+      evidenceUrl = stored.url;
+    } else if (dto.evidenceUrl) {
+      evidenceUrl = dto.evidenceUrl;
+    }
+
+    const [tipoVehiculoId, puntoAcceso] = await Promise.all([
+      dto.tipoVehiculo ? this.resolveTipoVehiculo(dto.tipoVehiculo) : Promise.resolve(null),
+      this.prisma.puntoAcceso.findFirst({ where: { camaraIngresoId: dto.cameraId }, select: { id: true } }),
+    ]);
+
+    const vehiculo = await this.prisma.vehiculo.upsert({
+      where: { placa },
       update: {
-        ...(analysis.color ? { color: analysis.color } : {}),
-        ...(analysis.model ? { model: analysis.model } : {}),
-        ...(analysis.brand ? { brand: analysis.brand } : {}),
+        ...(dto.color           ? { color: dto.color }                     : {}),
+        ...(dto.modelo          ? { modelo: dto.modelo }                   : {}),
+        ...(dto.marca           ? { marca: dto.marca }                     : {}),
+        ...(dto.caracteristicas ? { caracteristicas: dto.caracteristicas } : {}),
+        ...(tipoVehiculoId      ? { tipoVehiculoId }                       : {}),
       },
       create: {
-        plate: normalizedPlate,
-        color: analysis.color,
-        model: analysis.model,
-        brand: analysis.brand,
+        placa,
+        color: dto.color ?? null,
+        modelo: dto.modelo ?? null,
+        marca: dto.marca ?? null,
+        caracteristicas: dto.caracteristicas ?? null,
+        tipoVehiculoId,
       },
     });
 
-    if (type === 'entry') {
-      await this.prisma.accessLog.create({
-        data: {
-          vehicleId: vehicle.id,
-          ingresoCameraId: dto.cameraId,
-          ingresoAt: now,
-          evidenceUrl: stored.url,
-        },
-      });
-    } else {
-      const openLog = await this.prisma.accessLog.findFirst({
-        where: { vehicleId: vehicle.id, egresoAt: null },
-        orderBy: { ingresoAt: 'desc' },
-      });
-
-      if (openLog) {
-        await this.prisma.accessLog.update({
-          where: { id: openLog.id },
-          data: { salidaCameraId: dto.cameraId, egresoAt: now },
-        });
-      } else {
-        await this.prisma.accessLog.create({
-          data: {
-            vehicleId: vehicle.id,
-            salidaCameraId: dto.cameraId,
-            ingresoAt: now,
-            egresoAt: now,
-            evidenceUrl: stored.url,
-          },
-        });
-      }
-    }
-
-    const activeSanction = await this.prisma.sanction.findFirst({
-      where: { vehicleId: vehicle.id, OR: [{ endsAt: null }, { endsAt: { gt: now } }] },
+    const activeSanction = await this.prisma.sancion.findFirst({
+      where: { vehiculoId: vehiculo.id, OR: [{ fechaFin: null }, { fechaFin: { gt: now } }] },
     });
 
-    if (type === 'entry' && activeSanction) {
+    const estado = activeSanction ? 'denegado' : 'ingreso';
+    await this.prisma.registroAcceso.create({
+      data: {
+        vehiculoId: vehiculo.id,
+        horaIngreso: now,
+        fecha: now,
+        estado,
+        urlEvidencia: evidenceUrl,
+        ...(puntoAcceso ? { puntoAccesoIngresoId: puntoAcceso.id } : {}),
+      },
+    });
+
+    if (activeSanction) {
       await this.alertsService.createInternalAlert({
         typeName: 'sanctioned_vehicle_attempt',
-        cameraId: dto.cameraId,
+        camaraId: dto.cameraId,
       });
     }
 
-    return {
-      plate: normalizedPlate,
-      confidence: ocr.confidence,
-      brand: analysis.brand,
-      model: analysis.model,
-      color: analysis.color,
-      damageDetails: analysis.damageDetails,
-      summary: analysis.summary,
-      evidenceUrl: stored.url,
-      vehicle,
-      sanctioned: !!activeSanction,
-    };
+    return { placa, evidenceUrl, vehicle: vehiculo, sanctioned: !!activeSanction, estado };
+  }
+
+  async registerExit(dto: RegisterExitDto, file: Express.Multer.File | undefined) {
+    const placa = dto.placa.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!placa) throw new BadRequestException('Placa invalida');
+    const now = new Date();
+
+    let evidenceUrl: string | null = null;
+    if (file) {
+      const stored = await this.storageService.saveImage(file);
+      evidenceUrl = stored.url;
+    } else if (dto.evidenceUrl) {
+      evidenceUrl = dto.evidenceUrl;
+    }
+
+    const [vehiculo, puntoAcceso] = await Promise.all([
+      this.prisma.vehiculo.findUnique({ where: { placa } }),
+      this.prisma.puntoAcceso.findFirst({ where: { camaraSalidaId: dto.cameraId }, select: { id: true } }),
+    ]);
+    if (!vehiculo) throw new BadRequestException('Vehiculo no encontrado en el sistema');
+
+    const openLog = await this.prisma.registroAcceso.findFirst({
+      where: { vehiculoId: vehiculo.id, horaSalida: null, estado: 'ingreso' },
+      orderBy: { horaIngreso: 'desc' },
+    });
+
+    const puntoEgresoData = puntoAcceso ? { puntoAccesoEgresoId: puntoAcceso.id } : {};
+
+    if (openLog) {
+      await this.prisma.registroAcceso.update({
+        where: { id: openLog.id },
+        data: { horaSalida: now, estado: 'salida', urlEvidencia: evidenceUrl ?? openLog.urlEvidencia, ...puntoEgresoData },
+      });
+    } else {
+      await this.prisma.registroAcceso.create({
+        data: { vehiculoId: vehiculo.id, horaIngreso: now, horaSalida: now, fecha: now, estado: 'salida', urlEvidencia: evidenceUrl, ...puntoEgresoData },
+      });
+    }
+
+    return { placa, evidenceUrl, vehicle: vehiculo };
+  }
+
+  private async resolveTipoVehiculo(tipoStr: string): Promise<number | null> {
+    const lower = tipoStr.toLowerCase();
+    let nombre: string | null = null;
+    for (const [key, aliases] of Object.entries(TIPO_VEHICULO_MAP)) {
+      if (aliases.some((a) => lower.includes(a))) { nombre = key; break; }
+    }
+    if (!nombre) nombre = lower;
+    // Try exact match first, then contains fallback
+    const found = await this.prisma.tipoVehiculo.findFirst({
+      where: { OR: [
+        { nombre: { equals: nombre, mode: 'insensitive' } },
+        { nombre: { contains: nombre, mode: 'insensitive' } },
+      ]},
+      select: { id: true },
+    });
+    return found?.id ?? null;
   }
 }

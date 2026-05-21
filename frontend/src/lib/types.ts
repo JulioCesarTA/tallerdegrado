@@ -1,102 +1,114 @@
-export type Permission = {
+export type Permiso = {
   id: number;
-  name: string;
+  nombre: string;
 };
 
-export type Role = {
+export type Rol = {
   id: number;
-  name: string;
-  permissions: Array<{ permission: Permission }>;
+  nombre: string;
+  permisos: Array<{ permiso: Permiso }>;
 };
 
-export type User = {
+export type Usuario = {
   id: number;
-  name: string;
-  email: string;
-  roleId: number;
-  role: { id: number; name: string };
+  nombre: string;
+  correo: string;
+  rolId: number;
+  rol: { id: number; nombre: string };
+  camaraIngresoId?: number | null;
+  camaraSalidaId?: number | null;
+  camaraIngreso?: Camara | null;
+  camaraSalida?: Camara | null;
 };
 
-export type CameraType = {
+export type TipoCamara = {
   id: number;
-  name: string;
+  nombre: string;
 };
 
-export type CameraStatus = {
+export type EstadoCamara = {
   id: number;
-  name: string;
+  nombre: string;
 };
 
-export type Camera = {
+export type Camara = {
   id: number;
-  name: string;
-  location: string;
-  cameraTypeId: number;
-  cameraStatusId: number;
-  streamLink?: string | null;
-  cameraType?: CameraType | null;
-  cameraStatus?: CameraStatus | null;
+  nombre: string;
+  ubicacion: string;
+  tipoCamaraId: number;
+  estadoCamaraId: number;
+  tipoCamara?: TipoCamara | null;
+  estadoCamara?: EstadoCamara | null;
 };
 
 export type TipoVehiculo = {
   id: number;
-  name: string;
+  nombre: string;
 };
 
-export type AccessLog = {
+export type RegistroAcceso = {
   id: number;
-  vehicleId: number;
-  accessPointId?: number | null;
-  ingresoCameraId?: number | null;
-  salidaCameraId?: number | null;
-  ingresoAt: string;
-  egresoAt?: string | null;
-  evidenceUrl?: string | null;
-  vehicle?: Pick<Vehicle, 'id' | 'plate' | 'brand' | 'model' | 'color'>;
-  ingresoCamera?: { id: number; name: string } | null;
-  salidaCamera?: { id: number; name: string } | null;
+  vehiculoId: number;
+  puntoAccesoIngresoId?: number | null;
+  puntoAccesoEgresoId?: number | null;
+  horaIngreso: string;
+  horaSalida?: string | null;
+  fecha: string;
+  urlEvidencia?: string | null;
+  estado: 'ingreso' | 'salida' | 'denegado';
+  vehiculo?: Pick<Vehiculo, 'id' | 'placa' | 'marca' | 'modelo' | 'color'>;
+  puntoAccesoIngreso?: { id: number; nombre: string } | null;
+  puntoAccesoEgreso?: { id: number; nombre: string } | null;
 };
 
-export type Vehicle = {
+export type Vehiculo = {
   id: number;
-  plate: string;
-  brand?: string | null;
-  model?: string | null;
+  placa: string;
+  marca?: string | null;
+  modelo?: string | null;
   color?: string | null;
+  caracteristicas?: string | null;
   tipoVehiculoId?: number | null;
   tipoVehiculo?: TipoVehiculo | null;
-  sanctions?: Sanction[];
-  accessLogs?: AccessLog[];
+  sanciones?: Sancion[];
+  registrosAcceso?: RegistroAcceso[];
 };
 
-export type SanctionDefinition = {
+export type TipoSancion = {
   id: number;
-  name: string;
-  reason: string;
-  durationDays: number | null;
+  nombre: string;
+  motivo: string;
+  duracionDias: number | null;
 };
 
-export type Sanction = {
+export type Sancion = {
   id: number;
-  vehicleId: number;
-  sanctionDefinitionId: number;
-  startsAt: string;
-  endsAt?: string | null;
-  vehicle?: Pick<Vehicle, 'id' | 'plate' | 'brand' | 'model'>;
-  definition?: { id: number; name: string; reason: string; durationDays: number | null };
+  vehiculoId: number;
+  tipoSancionId: number;
+  fechaInicio: string;
+  fechaFin?: string | null;
+  vehiculo?: Pick<Vehiculo, 'id' | 'placa' | 'marca' | 'modelo'>;
+  tipoSancion?: { id: number; nombre: string; motivo: string; duracionDias: number | null };
 };
 
-export type AlertType = {
+export type TipoAlerta = {
   id: number;
-  name: string;
+  nombre: string;
 };
 
-export type Alert = {
+export type EstadoAlerta = {
   id: number;
-  alertTypeId: number;
-  createdAt: string;
-  alertType?: AlertType | null;
-  camera?: { id: number; name: string } | null;
+  nombre: string;
+};
+
+export type Alerta = {
+  id: number;
+  tipoAlertaId: number;
+  estadoAlertaId: number;
+  creadoEn: string;
+  tipoAlerta?: TipoAlerta | null;
+  estadoAlerta?: EstadoAlerta | null;
+  camara?: { id: number; nombre: string } | null;
 };
 
 export type DashboardSummary = {
@@ -108,31 +120,48 @@ export type DashboardSummary = {
     ingresos: number;
     salidas: number;
   };
-  recentAccess: AccessLog[];
-  recentAlerts: Alert[];
+  recentAccess: RegistroAcceso[];
+  recentAlerts: Alerta[];
 };
 
 export type ReportsOverview = {
   totals: {
-    totalVehicles: number;
-    totalCameras: number;
-    activeSanctions: number;
-    totalAlerts: number;
+    totalVehiculos: number;
+    totalCamaras: number;
+    sancionesActivas: number;
+    totalAlertas: number;
   };
-  accessByDay: { day: string; ingresos: number; salidas: number }[];
+  vehiculosAdentro: number;
+  vehiculosRechazados: number;
+  vehiculosSalidos: number;
+  sancionadosHoy: number;
+  alertasPorEstado: { pendiente: number; resuelto: number; mantenimiento: number };
+  accessByDay: { day: string; ingresos: number; salidas: number; rechazados: number }[];
   alertsByType: { type: string; count: number }[];
   topVehicles: { plate: string; count: number }[];
+  porPuntoAcceso: { nombre: string; ingresos: number; salidas: number }[];
+};
+
+export type PuntoAcceso = {
+  id: number;
+  nombre: string;
+  ubicacion: string;
+  camaraIngresoId: number;
+  camaraSalidaId: number;
+  usuarioId: number;
+  camaraIngreso?: Camara | null;
+  camaraSalida?: Camara | null;
+  usuario?: { id: number; nombre: string; correo: string } | null;
 };
 
 export type DetectionResult = {
   plate: string;
   confidence: number;
-  brand: string;
-  model: string;
+  marca: string;
+  modelo: string;
   color: string;
-  damageDetails: string;
-  summary: string;
+  caracteristicas: string;
   evidenceUrl: string;
-  vehicle: Vehicle;
+  vehicle: Vehiculo;
   sanctioned: boolean;
 };

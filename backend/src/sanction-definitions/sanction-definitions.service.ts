@@ -7,17 +7,23 @@ export class SanctionDefinitionsService {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.sanctionDefinition.findMany({ orderBy: { name: 'asc' } });
+    return this.prisma.tipoSancion.findMany({ orderBy: { nombre: 'asc' } });
   }
 
   create(dto: CreateSanctionDefinitionDto) {
-    return this.prisma.sanctionDefinition.create({ data: dto });
+    return this.prisma.tipoSancion.create({
+      data: {
+        nombre: dto.nombre,
+        motivo: dto.motivo,
+        duracionDias: dto.duracionDias,
+      },
+    });
   }
 
   async remove(id: number) {
-    const existing = await this.prisma.sanctionDefinition.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException('Sancion no encontrada');
-    await this.prisma.sanctionDefinition.delete({ where: { id } });
-    return { message: 'Sancion eliminada' };
+    const existing = await this.prisma.tipoSancion.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Tipo de sancion no encontrado');
+    await this.prisma.tipoSancion.delete({ where: { id } });
+    return { message: 'Tipo de sancion eliminado' };
   }
 }

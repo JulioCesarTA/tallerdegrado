@@ -3,21 +3,21 @@
 import { useEffect, useState } from 'react';
 import { SectionCard } from '@/components/section-card';
 import { api } from '@/lib/api';
-import { Role, User } from '@/lib/types';
+import { Rol, Usuario } from '@/lib/types';
 
 const emptyForm = { name: '', email: '', password: '', roleId: 0 };
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [form, setForm] = useState(emptyForm);
-  const [error, setError] = useState('');
+  const [users, setUsers]   = useState<Usuario[]>([]);
+  const [roles, setRoles]   = useState<Rol[]>([]);
+  const [form, setForm]     = useState(emptyForm);
+  const [error, setError]   = useState('');
 
   async function load() {
     try {
       const [usersData, rolesData] = await Promise.all([
-        api<User[]>('/users'),
-        api<Role[]>('/roles'),
+        api<Usuario[]>('/users'),
+        api<Rol[]>('/roles'),
       ]);
       setUsers(usersData);
       setRoles(rolesData);
@@ -64,16 +64,13 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="border-t border-slate-100">
-                  <td className="py-2.5 pr-4 font-medium">{user.name}</td>
-                  <td className="py-2.5 pr-4 text-slate-600">{user.email}</td>
-                  <td className="py-2.5 pr-4">{user.role.name}</td>
+              {users.map((u) => (
+                <tr key={u.id} className="border-t border-slate-100">
+                  <td className="py-2.5 pr-4 font-medium">{u.nombre}</td>
+                  <td className="py-2.5 pr-4 text-slate-600">{u.correo}</td>
+                  <td className="py-2.5 pr-4">{u.rol?.nombre}</td>
                   <td className="py-2.5">
-                    <button
-                      onClick={() => remove(user.id)}
-                      className="text-xs text-rose-500 hover:text-rose-700"
-                    >
+                    <button onClick={() => remove(u.id)} className="text-xs text-rose-500 hover:text-rose-700">
                       Eliminar
                     </button>
                   </td>
@@ -90,8 +87,8 @@ export default function UsersPage() {
           <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Correo" required />
           <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Contrasena" required />
           <select value={form.roleId} onChange={(e) => setForm({ ...form, roleId: Number(e.target.value) })}>
-            {roles.map((role) => (
-              <option key={role.id} value={role.id}>{role.name}</option>
+            {roles.map((r) => (
+              <option key={r.id} value={r.id}>{r.nombre}</option>
             ))}
           </select>
           <button className="w-full rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-medium text-white">Crear usuario</button>

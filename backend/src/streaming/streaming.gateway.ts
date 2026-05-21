@@ -7,6 +7,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { AlertsService } from '../alerts/alerts.service';
 
 @WebSocketGateway({ namespace: '/stream', cors: { origin: true, credentials: true } })
 export class StreamingGateway implements OnGatewayDisconnect {
@@ -16,10 +17,31 @@ export class StreamingGateway implements OnGatewayDisconnect {
   // cameraId → set of phone socket IDs currently streaming
   private streamers = new Map<string, Set<string>>();
 
-  handleDisconnect(client: Socket) {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  async handleDisconnect(client: Socket) {
     const cameraId = client.data.cameraId as string | undefined;
-    if (cameraId) {
-      this.streamers.get(cameraId)?.delete(client.id);
+    if (!cameraId) return;
+
+    this.streamers.get(cameraId)?.delete(client.id);
+
+    // If no more streamers for this camera, it is effectively disconnected
+    const remaining = this.streamers.get(cameraId)?.size ?? 0;
+    if (remaining === 0) {
+      const alert = await this.alertsService.createInternalAlert({
+        typeName: 'camera_disconnected',
+        camaraId: Number(cameraId),
+      });
+
+      if (alert) {
+        // Notify all dashboard clients watching this camera
+        this.server.emit('alert:new', {
+          id: alert.id,
+          cameraId: Number(cameraId),
+          type: 'camera_disconnected',
+          creadoEn: alert.creadoEn,
+        });
+      }
     }
   }
 
@@ -45,7 +67,6 @@ export class StreamingGateway implements OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: { cameraId: string; frame: string },
   ) {
-    // Relay JPEG base64 frame to all operators watching this camera (excluding the sender)
     client.to(`camera:${payload.cameraId}`).emit('stream:frame', payload);
   }
 }

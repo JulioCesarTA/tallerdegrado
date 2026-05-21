@@ -7,146 +7,193 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Permission {
-  id    Int              @id @default(autoincrement())
-  name  String           @unique @db.VarChar(100)
-  roles RolePermission[]
+model Permiso {
+  id      Int          @id @default(autoincrement())
+  nombre  String       @unique @db.VarChar(100) @map("nombre")
+  roles   RolPermiso[]
+
+  @@map("Permiso")
 }
 
-model Role {
-  id          Int              @id @default(autoincrement())
-  name        String           @unique @db.VarChar(100)
-  users       User[]
-  permissions RolePermission[]
+model Rol {
+  id          Int          @id @default(autoincrement())
+  nombre      String       @unique @db.VarChar(100) @map("nombre")
+  usuarios    Usuario[]
+  permisos    RolPermiso[]
+
+  @@map("Rol")
 }
 
-model RolePermission {
-  roleId       Int
-  permissionId Int
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+model RolPermiso {
+  rolId      Int    @map("rolId")
+  permisoId  Int    @map("permisoId")
+  rol        Rol    @relation(fields: [rolId], references: [id], onDelete: Cascade)
+  permiso    Permiso @relation(fields: [permisoId], references: [id], onDelete: Cascade)
 
-  @@id([roleId, permissionId])
+  @@id([rolId, permisoId])
+  @@map("RolPermiso")
 }
 
-model User {
-  id           Int           @id @default(autoincrement())
-  name         String        @db.VarChar(150)
-  email        String        @unique @db.VarChar(254)
-  password     String        @db.VarChar(255)
-  roleId       Int
-  role         Role          @relation(fields: [roleId], references: [id])
-  accessPoints AccessPoint[]
+model Usuario {
+  id          Int           @id @default(autoincrement())
+  nombre      String        @db.VarChar(50)  @map("nombre")
+  correo      String        @unique @db.VarChar(50) @map("correo")
+  password    String        @db.VarChar(255)
+  rolId       Int           @map("rolId")
+  rol         Rol           @relation(fields: [rolId], references: [id])
+  puntosAcceso PuntoAcceso[]
+  backups     Backup[]
+
+  @@map("Usuario")
 }
 
-model CameraType {
+model TipoCamara {
   id      Int      @id @default(autoincrement())
-  name    String   @unique @db.VarChar(50)
-  cameras Camera[]
+  nombre  String   @unique @db.VarChar(50) @map("nombre")
+  camaras Camara[]
+
+  @@map("TipoCamara")
 }
 
-model CameraStatus {
+model EstadoCamara {
   id      Int      @id @default(autoincrement())
-  name    String   @unique @db.VarChar(50)
-  cameras Camera[]
+  nombre  String   @unique @db.VarChar(50) @map("nombre")
+  camaras Camara[]
+
+  @@map("EstadoCamara")
 }
 
-model Camera {
-  id                Int           @id @default(autoincrement())
-  name              String        @db.VarChar(150)
-  location          String        @db.VarChar(255)
-  cameraTypeId      Int
-  cameraStatusId    Int
-  streamLink        String?       @db.VarChar(500)
-  cameraType        CameraType    @relation(fields: [cameraTypeId], references: [id])
-  cameraStatus      CameraStatus  @relation(fields: [cameraStatusId], references: [id])
-  entryAccessPoints AccessPoint[] @relation("EntryCamera")
-  exitAccessPoints  AccessPoint[] @relation("ExitCamera")
-  ingresoLogs       AccessLog[]   @relation("IngresoCamera")
-  salidaLogs        AccessLog[]   @relation("SalidaCamera")
-  alerts            Alert[]
+model Camara {
+  id              Int           @id @default(autoincrement())
+  nombre          String        @db.VarChar(50)  @map("nombre")
+  ubicacion       String        @db.VarChar(100) @map("ubicacion")
+  tipoCamaraId    Int           @map("tipoCamaraId")
+  estadoCamaraId  Int           @map("estadoCamaraId")
+  tipoCamara      TipoCamara    @relation(fields: [tipoCamaraId], references: [id])
+  estadoCamara    EstadoCamara  @relation(fields: [estadoCamaraId], references: [id])
+  puntosIngresoAcceso PuntoAcceso[] @relation("CamaraIngreso")
+  puntosSalidaAcceso  PuntoAcceso[] @relation("CamaraSalida")
+  alertas         Alerta[]
+
+  @@map("Camara")
 }
 
 model TipoVehiculo {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique @db.VarChar(50)
-  vehicles Vehicle[]
+  id        Int        @id @default(autoincrement())
+  nombre    String     @unique @db.VarChar(50) @map("nombre")
+  vehiculos Vehiculo[]
+
+  @@map("TipoVehiculo")
 }
 
-model Vehicle {
-  id             Int           @id @default(autoincrement())
-  plate          String        @unique @db.VarChar(20)
-  brand          String?       @db.VarChar(100)
-  model          String?       @db.VarChar(100)
-  tipoVehiculoId Int?
-  color          String?       @db.VarChar(50)
-  tipoVehiculo   TipoVehiculo? @relation(fields: [tipoVehiculoId], references: [id])
-  sanctions      Sanction[]
-  accessLogs     AccessLog[]
+model Vehiculo {
+  id              Int              @id @default(autoincrement())
+  placa           String           @unique @db.VarChar(20) @map("placa")
+  marca           String?          @db.VarChar(100) @map("marca")
+  modelo          String?          @db.VarChar(100) @map("modelo")
+  tipoVehiculoId  Int?             @map("tipoVehiculoId")
+  color           String?          @db.VarChar(50) @map("color")
+  caracteristicas String?          @db.VarChar(500) @map("caracteristicas")
+  tipoVehiculo    TipoVehiculo?    @relation(fields: [tipoVehiculoId], references: [id])
+  sanciones       Sancion[]
+  registrosAcceso RegistroAcceso[]
 
-  @@index([plate])
+  @@index([placa])
+  @@map("Vehiculo")
 }
 
-model AccessPoint {
-  id            Int         @id @default(autoincrement())
-  name          String      @db.VarChar(150)
-  location      String      @db.VarChar(255)
-  entryCameraId Int         @unique
-  exitCameraId  Int         @unique
-  userId        Int
-  entryCamera   Camera      @relation("EntryCamera", fields: [entryCameraId], references: [id])
-  exitCamera    Camera      @relation("ExitCamera", fields: [exitCameraId], references: [id])
-  user          User        @relation(fields: [userId], references: [id])
-  accessLogs    AccessLog[]
+model PuntoAcceso {
+  id               Int              @id @default(autoincrement())
+  nombre           String           @db.VarChar(100) @map("nombre")
+  ubicacion        String           @db.VarChar(255) @map("ubicacion")
+  camaraIngresoId  Int              @unique @map("camaraIngresoId")
+  camaraSalidaId   Int              @unique @map("camaraSalidaId")
+  usuarioId        Int              @map("usuarioId")
+  camaraIngreso    Camara           @relation("CamaraIngreso", fields: [camaraIngresoId], references: [id])
+  camaraSalida     Camara           @relation("CamaraSalida", fields: [camaraSalidaId], references: [id])
+  usuario          Usuario          @relation(fields: [usuarioId], references: [id])
+  registrosIngreso RegistroAcceso[] @relation("PuntoAccesoIngreso")
+  registrosEgreso  RegistroAcceso[] @relation("PuntoAccesoEgreso")
+
+  @@map("PuntoAcceso")
 }
 
-model AccessLog {
-  id              Int          @id @default(autoincrement())
-  vehicleId       Int
-  accessPointId   Int?
-  ingresoCameraId Int?
-  salidaCameraId  Int?
-  ingresoAt       DateTime     @default(now())
-  egresoAt        DateTime?
-  evidenceUrl     String?      @db.VarChar(500)
-  vehicle         Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  accessPoint     AccessPoint? @relation(fields: [accessPointId], references: [id], onDelete: SetNull)
-  ingresoCamera   Camera?      @relation("IngresoCamera", fields: [ingresoCameraId], references: [id], onDelete: SetNull)
-  salidaCamera    Camera?      @relation("SalidaCamera", fields: [salidaCameraId], references: [id], onDelete: SetNull)
+model RegistroAcceso {
+  id                   Int          @id @default(autoincrement())
+  vehiculoId           Int          @map("vehiculoId")
+  puntoAccesoIngresoId Int?         @map("puntoAccesoIngresoId")
+  puntoAccesoEgresoId  Int?         @map("puntoAccesoEgresoId")
+  horaIngreso          DateTime     @map("horaIngreso")
+  horaSalida           DateTime?    @map("horaSalida")
+  fecha                DateTime     @default(now()) @map("fecha")
+  urlEvidencia         String?      @db.VarChar(500) @map("urlEvidencia")
+  estado               String       @db.VarChar(20) @map("estado")
+  vehiculo             Vehiculo     @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+  puntoAccesoIngreso   PuntoAcceso? @relation("PuntoAccesoIngreso", fields: [puntoAccesoIngresoId], references: [id], onDelete: SetNull)
+  puntoAccesoEgreso    PuntoAcceso? @relation("PuntoAccesoEgreso", fields: [puntoAccesoEgresoId], references: [id], onDelete: SetNull)
 
-  @@index([vehicleId])
-  @@index([ingresoAt])
+  @@index([vehiculoId])
+  @@index([fecha])
+  @@map("RegistroAcceso")
 }
 
-model Sanction {
-  id                   Int                @id @default(autoincrement())
-  vehicleId            Int
-  sanctionDefinitionId Int
-  startsAt             DateTime           @default(now())
-  endsAt               DateTime?
-  vehicle              Vehicle            @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  definition           SanctionDefinition @relation(fields: [sanctionDefinitionId], references: [id])
+model Backup {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @map("usuarioId")
+  fecha     DateTime @default(now()) @map("fecha")
+  url       String   @db.VarChar(500) @map("url")
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@map("Backup")
 }
 
-model SanctionDefinition {
-  id           Int        @id @default(autoincrement())
-  name         String     @db.VarChar(150)
-  reason       String     @db.VarChar(500)
-  durationDays Int
-  sanctions    Sanction[]
+model TipoSancion {
+  id           Int       @id @default(autoincrement())
+  nombre       String    @db.VarChar(100) @map("nombre")
+  motivo       String    @db.VarChar(200) @map("motivo")
+  duracionDias Int       @map("duracionDias")
+  sanciones    Sancion[]
+
+  @@map("TipoSancion")
 }
 
-model AlertType {
-  id     Int     @id @default(autoincrement())
-  name   String  @unique @db.VarChar(100)
-  alerts Alert[]
+model Sancion {
+  id            Int          @id @default(autoincrement())
+  vehiculoId    Int          @map("vehiculoId")
+  tipoSancionId Int          @map("tipoSancionId")
+  fechaInicio   DateTime     @default(now()) @map("fechaInicio")
+  fechaFin      DateTime?    @map("fechaFin")
+  vehiculo      Vehiculo     @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+  tipoSancion   TipoSancion  @relation(fields: [tipoSancionId], references: [id])
+
+  @@map("Sancion")
 }
 
-model Alert {
-  id          Int       @id @default(autoincrement())
-  alertTypeId Int
-  cameraId    Int?
-  createdAt   DateTime  @default(now())
-  alertType   AlertType @relation(fields: [alertTypeId], references: [id])
-  camera      Camera?   @relation(fields: [cameraId], references: [id], onDelete: SetNull)
+model TipoAlerta {
+  id      Int      @id @default(autoincrement())
+  nombre  String   @unique @db.VarChar(100) @map("nombre")
+  alertas Alerta[]
+
+  @@map("TipoAlerta")
+}
+
+model EstadoAlerta {
+  id      Int      @id @default(autoincrement())
+  nombre  String   @unique @db.VarChar(50) @map("nombre")
+  alertas Alerta[]
+
+  @@map("EstadoAlerta")
+}
+
+model Alerta {
+  id             Int          @id @default(autoincrement())
+  tipoAlertaId   Int          @map("tipoAlertaId")
+  camaraId       Int?         @map("camaraId")
+  creadoEn       DateTime     @default(now()) @map("creadoEn")
+  estadoAlertaId Int          @map("estadoAlertaId")
+  tipoAlerta     TipoAlerta   @relation(fields: [tipoAlertaId], references: [id])
+  camara         Camara?      @relation(fields: [camaraId], references: [id], onDelete: SetNull)
+  estadoAlerta   EstadoAlerta @relation(fields: [estadoAlertaId], references: [id])
+
+  @@map("Alerta")
 }

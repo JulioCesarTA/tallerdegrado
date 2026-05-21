@@ -15,76 +15,85 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email.toLowerCase() },
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { correo: dto.email.toLowerCase() },
       include: {
-        role: { include: { permissions: { include: { permission: true } } } },
+        rol: { include: { permisos: { include: { permiso: true } } } },
       },
     });
 
-    if (!user) throw new UnauthorizedException('Credenciales invalidas');
+    if (!usuario) throw new UnauthorizedException('Credenciales invalidas');
 
-    const validPassword = await bcrypt.compare(dto.password, user.password);
+    const validPassword = await bcrypt.compare(dto.password, usuario.password);
     if (!validPassword) throw new UnauthorizedException('Credenciales invalidas');
 
-    return this.buildSession(user);
+    return this.buildSession(usuario);
   }
 
   async me(userId: number) {
-    const user = await this.prisma.user.findUnique({
+    const usuario = await this.prisma.usuario.findUnique({
       where: { id: userId },
       select: {
         id: true,
-        name: true,
-        email: true,
-        role: {
+        nombre: true,
+        correo: true,
+        rol: {
           select: {
             id: true,
-            name: true,
-            permissions: { include: { permission: { select: { id: true, name: true } } } },
+            nombre: true,
+            permisos: { include: { permiso: { select: { id: true, nombre: true } } } },
           },
         },
       },
     });
 
-    if (!user) throw new UnauthorizedException('Usuario no encontrado');
-    return { ...user, permissions: user.role.permissions.map((item) => item.permission) };
+    if (!usuario) throw new UnauthorizedException('Usuario no encontrado');
+    return { ...usuario, permissions: usuario.rol.permisos.map((item) => item.permiso) };
   }
 
   async bootstrapAdmin(dto: BootstrapAdminDto) {
-    const totalUsers = await this.prisma.user.count();
+    const totalUsers = await this.prisma.usuario.count();
     if (totalUsers > 0) throw new BadRequestException('El administrador inicial ya fue creado');
 
     await this.accessService.seedDefaults();
-    const adminRole = await this.prisma.role.findUnique({
-      where: { name: 'Administrador' },
+    const adminRol = await this.prisma.rol.findUnique({
+      where: { nombre: 'Administrador' },
       select: { id: true },
     });
 
-    if (!adminRole) throw new BadRequestException('No se pudo inicializar el rol administrador');
+    if (!adminRol) throw new BadRequestException('No se pudo inicializar el rol administrador');
 
     const password = await bcrypt.hash(dto.password, 10);
-    const user = await this.prisma.user.create({
-      data: { name: dto.name, email: dto.email.toLowerCase(), password, roleId: adminRole.id },
-      include: { role: { include: { permissions: { include: { permission: true } } } } },
+    const usuario = await this.prisma.usuario.create({
+      data: { nombre: dto.name, correo: dto.email.toLowerCase(), password, rolId: adminRol.id },
+      include: { rol: { include: { permisos: { include: { permiso: true } } } } },
     });
 
-    return this.buildSession(user);
+    return this.buildSession(usuario);
   }
 
-  private buildSession(user: {
+  private buildSession(usuario: {
     id: number;
-    name: string;
-    email: string;
-    role: { name: string; permissions: Array<{ permission: { name: string } }> };
+    nombre: string;
+    correo: string;
+    rol: { nombre: string; permisos: Array<{ permiso: { nombre: string } }> };
   }) {
-    const permissions = user.role.permissions.map((item) => item.permission.name);
+    const permissions = usuario.rol.permisos.map((item) => item.permiso.nombre);
     const accessToken = this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-      role: user.role.name,
+      sub: usuario.id,
+      email: usuario.correo,
+      role: usuario.rol.nombre,
       permissions,
     });
-    return { accessToken, user: { id: user.id, name: user.name, email: user.email, role: user.role.name, permissions } };
+    return {
+      accessToken,
+      user: {
+        id: usuario.id,
+        name: usuario.nombre,
+        email: usuario.correo,
+        role: usuario.rol.nombre,
+        permissions,
+      },
+    };
   }
 }
