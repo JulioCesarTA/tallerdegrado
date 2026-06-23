@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreatePuntoAccesoDto {
   @IsString()
@@ -8,15 +8,26 @@ export class CreatePuntoAccesoDto {
   @IsString()
   ubicacion: string;
 
-  @IsInt()
-  @Type(() => Number)
-  camaraIngresoId: number;
+  @IsOptional()
+  @IsString()
+  descripcion?: string;
 
-  @IsInt()
-  @Type(() => Number)
-  camaraSalidaId: number;
+  @IsOptional()
+  @IsString()
+  estado?: string;
 
+  @IsOptional()
   @IsInt()
   @Type(() => Number)
-  usuarioId: number;
+  camaraIngresoId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  camaraSalidaId?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  usuarioId?: number;
 }

@@ -1,10 +1,12 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { AccessService } from '../access/access.service';
+import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { BootstrapAdminDto } from './dto/bootstrap-admin.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +14,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly accessService: AccessService,
+    private readonly auditService: AuditService,
   ) {}
 
   async login(dto: LoginDto) {
@@ -27,6 +30,7 @@ export class AuthService {
     const validPassword = await bcrypt.compare(dto.password, usuario.password);
     if (!validPassword) throw new UnauthorizedException('Credenciales invalidas');
 
+    void this.auditService.log(usuario.id, 'Inicio de sesion', 'Autenticacion', usuario.correo);
     return this.buildSession(usuario);
   }
 
@@ -49,6 +53,40 @@ export class AuthService {
 
     if (!usuario) throw new UnauthorizedException('Usuario no encontrado');
     return { ...usuario, permissions: usuario.rol.permisos.map((item) => item.permiso) };
+  }
+
+  async updateProfile(userId: number, dto: UpdateProfileDto) {
+    const usuario = await this.prisma.usuario.findUnique({ where: { id: userId } });
+    if (!usuario) throw new UnauthorizedException('Usuario no encontrado');
+
+    const data: Record<string, unknown> = {};
+
+    if (dto.name) data.nombre = dto.name;
+
+    if (dto.email && dto.email.toLowerCase() !== usuario.correo) {
+      const exists = await this.prisma.usuario.findUnique({
+        where: { correo: dto.email.toLowerCase() },
+        select: { id: true },
+      });
+      if (exists) throw new ConflictException('El correo ya esta en uso');
+      data.correo = dto.email.toLowerCase();
+    }
+
+    if (dto.newPassword) {
+      if (!dto.currentPassword) throw new BadRequestException('Debes indicar tu contrasena actual');
+      const validPassword = await bcrypt.compare(dto.currentPassword, usuario.password);
+      if (!validPassword) throw new UnauthorizedException('Contrasena actual incorrecta');
+      data.password = await bcrypt.hash(dto.newPassword, 10);
+    }
+
+    const updated = await this.prisma.usuario.update({
+      where: { id: userId },
+      data,
+      include: { rol: { include: { permisos: { include: { permiso: true } } } } },
+    });
+
+    void this.auditService.log(userId, 'Actualizar', 'Mi perfil', dto.newPassword ? 'Datos y contrasena' : 'Datos de perfil');
+    return this.buildSession(updated);
   }
 
   async bootstrapAdmin(dto: BootstrapAdminDto) {

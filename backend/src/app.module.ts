@@ -5,6 +5,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AccessModule } from './access/access.module';
 import { AlertsModule } from './alerts/alerts.module';
+import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { BackupsModule } from './backups/backups.module';
 import { CamerasModule } from './cameras/cameras.module';
@@ -30,6 +31,7 @@ import { VehiclesModule } from './vehicles/vehicles.module';
     AccessModule,
     StorageModule,
     AlertsModule,
+    AuditModule,
     AuthModule,
     UsersModule,
     CamerasModule,

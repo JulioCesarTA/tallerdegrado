@@ -74,11 +74,11 @@ export default function AlertsPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="text-lg font-semibold">
-                    {typeLabel[alert.tipoAlerta?.nombre ?? ''] ?? alert.tipoAlerta?.nombre ?? 'Alerta'}
+                    {typeLabel[alert.tipoAlerta] ?? alert.tipoAlerta ?? 'Alerta'}
                   </h4>
                   {alert.estadoAlerta && (
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${estadoColor[alert.estadoAlerta.nombre] ?? 'bg-slate-100 text-slate-600'}`}>
-                      {alert.estadoAlerta.nombre}
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${estadoColor[alert.estadoAlerta] ?? 'bg-slate-100 text-slate-600'}`}>
+                      {alert.estadoAlerta}
                     </span>
                   )}
                 </div>
@@ -98,7 +98,7 @@ export default function AlertsPage() {
                         key={est}
                         onClick={() => updateStatus(alert.id, est)}
                         className={`rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors ${
-                          alert.estadoAlerta?.nombre === est
+                          alert.estadoAlerta === est
                             ? estadoColor[est] + ' ring-2 ring-offset-1 ring-current'
                             : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-400'
                         }`}

@@ -7,11 +7,18 @@ import { VisionService } from '../vision/vision.service';
 import { RegisterEntryDto } from './dto/register-entry.dto';
 import { RegisterExitDto } from './dto/register-exit.dto';
 
-// Keys must match exact TipoVehiculo.nombre values in the DB
 const TIPO_VEHICULO_MAP: Record<string, string[]> = {
   moto: ['motocicleta', 'moto'],
   auto: ['automovil', 'auto', 'sedan', 'carro', 'camioneta', 'pickup', 'suv', '4x4', 'camion', 'truck'],
 };
+
+function resolveTipoVehiculo(tipoStr: string): string {
+  const lower = tipoStr.toLowerCase();
+  for (const [key, aliases] of Object.entries(TIPO_VEHICULO_MAP)) {
+    if (aliases.some((a) => lower.includes(a))) return key;
+  }
+  return lower;
+}
 
 @Injectable()
 export class DetectionsService {
@@ -51,10 +58,11 @@ export class DetectionsService {
       evidenceUrl = dto.evidenceUrl;
     }
 
-    const [tipoVehiculoId, puntoAcceso] = await Promise.all([
-      dto.tipoVehiculo ? this.resolveTipoVehiculo(dto.tipoVehiculo) : Promise.resolve(null),
-      this.prisma.puntoAcceso.findFirst({ where: { camaraIngresoId: dto.cameraId }, select: { id: true } }),
-    ]);
+    const tipoVehiculo = dto.tipoVehiculo ? resolveTipoVehiculo(dto.tipoVehiculo) : null;
+    const puntoAcceso = await this.prisma.puntoAcceso.findFirst({
+      where: { camaraIngresoId: dto.cameraId },
+      select: { id: true },
+    });
 
     const vehiculo = await this.prisma.vehiculo.upsert({
       where: { placa },
@@ -63,7 +71,7 @@ export class DetectionsService {
         ...(dto.modelo          ? { modelo: dto.modelo }                   : {}),
         ...(dto.marca           ? { marca: dto.marca }                     : {}),
         ...(dto.caracteristicas ? { caracteristicas: dto.caracteristicas } : {}),
-        ...(tipoVehiculoId      ? { tipoVehiculoId }                       : {}),
+        ...(tipoVehiculo        ? { tipoVehiculo }                         : {}),
       },
       create: {
         placa,
@@ -71,7 +79,7 @@ export class DetectionsService {
         modelo: dto.modelo ?? null,
         marca: dto.marca ?? null,
         caracteristicas: dto.caracteristicas ?? null,
-        tipoVehiculoId,
+        tipoVehiculo,
       },
     });
 
@@ -139,23 +147,5 @@ export class DetectionsService {
     }
 
     return { placa, evidenceUrl, vehicle: vehiculo };
-  }
-
-  private async resolveTipoVehiculo(tipoStr: string): Promise<number | null> {
-    const lower = tipoStr.toLowerCase();
-    let nombre: string | null = null;
-    for (const [key, aliases] of Object.entries(TIPO_VEHICULO_MAP)) {
-      if (aliases.some((a) => lower.includes(a))) { nombre = key; break; }
-    }
-    if (!nombre) nombre = lower;
-    // Try exact match first, then contains fallback
-    const found = await this.prisma.tipoVehiculo.findFirst({
-      where: { OR: [
-        { nombre: { equals: nombre, mode: 'insensitive' } },
-        { nombre: { contains: nombre, mode: 'insensitive' } },
-      ]},
-      select: { id: true },
-    });
-    return found?.id ?? null;
   }
 }

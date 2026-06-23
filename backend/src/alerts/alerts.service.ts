@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+export const ALERT_STATUSES = ['pendiente', 'mantenimiento', 'resuelto'] as const;
+
 @Injectable()
 export class AlertsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -10,24 +12,16 @@ export class AlertsService {
       orderBy: { creadoEn: 'desc' },
       include: {
         camara: { select: { id: true, nombre: true } },
-        tipoAlerta: { select: { id: true, nombre: true } },
-        estadoAlerta: { select: { id: true, nombre: true } },
       },
     });
   }
 
-  async createInternalAlert(data: { typeName: string; camaraId?: number }) {
-    const tipoAlerta = await this.prisma.tipoAlerta.findFirst({ where: { nombre: data.typeName } });
-    if (!tipoAlerta) return;
-
-    const estadoPendiente = await this.prisma.estadoAlerta.findFirst({ where: { nombre: 'pendiente' } });
-    if (!estadoPendiente) return;
-
+  createInternalAlert(data: { typeName: string; camaraId?: number }) {
     return this.prisma.alerta.create({
       data: {
-        tipoAlertaId: tipoAlerta.id,
+        tipoAlerta: data.typeName,
         camaraId: data.camaraId ?? null,
-        estadoAlertaId: estadoPendiente.id,
+        estadoAlerta: 'pendiente',
       },
     });
   }
@@ -36,19 +30,14 @@ export class AlertsService {
     const alerta = await this.prisma.alerta.findUnique({ where: { id }, select: { id: true } });
     if (!alerta) throw new NotFoundException('Alerta no encontrada');
 
-    const estado = await this.prisma.estadoAlerta.findFirst({
-      where: { nombre: { equals: estadoNombre, mode: 'insensitive' } },
-      select: { id: true },
-    });
+    const estado = ALERT_STATUSES.find((e) => e.toLowerCase() === estadoNombre.toLowerCase());
     if (!estado) throw new NotFoundException(`Estado "${estadoNombre}" no existe`);
 
     return this.prisma.alerta.update({
       where: { id },
-      data: { estadoAlertaId: estado.id },
+      data: { estadoAlerta: estado },
       include: {
-        camara:      { select: { id: true, nombre: true } },
-        tipoAlerta:  { select: { id: true, nombre: true } },
-        estadoAlerta: { select: { id: true, nombre: true } },
+        camara: { select: { id: true, nombre: true } },
       },
     });
   }

@@ -1,0 +1,188 @@
+
+
+Herramientas para el Desarrollo
+
+En esta sección se describen las principales herramientas tecnológicas empleadas para la implementación del sistema de la Videoteca Universitaria del Canal 11 TVU – UAGRM. Estas herramientas comprenden los lenguajes de programación, librerías, frameworks, sistema gestor de base de datos, lenguaje de modelado y protocolos de comunicación utilizados durante la fase de construcción del software. La correcta selección de estas tecnologías permitió garantizar un desarrollo eficiente, seguro, escalable y alineado con los estándares actuales de la ingeniería de software.
+Lenguajes de programación
+
+Python (Backend)
+
+Python constituye el lenguaje principal utilizado para el desarrollo del backend del sistema. Su uso se centra en la implementación de la lógica del servidor, la construcción de la API REST, el manejo de la base de datos mediante el ORM de Django y la integración de los módulos de inteligencia artificial. El proyecto utiliza el framework Django versión 5.2.7, configurado en el archivo settings.py, el cual permite una arquitectura robusta basada en el patrón Modelo–Vista–Controlador (MVC).
+Durante la implementación se identificó el uso de un entorno virtual con Python 3.13, registrado en el archivo pyvenv.cfg. No obstante, en la documentación técnica, diagramas y recomendaciones de despliegue se establece como versión objetivo Python 3.11, por su mayor estabilidad y soporte extendido en entornos de producción.
+
+Entre los archivos más relevantes del backend se encuentran manage.py, settings.py y el conjunto de módulos de inteligencia artificial ubicados en la ruta backend/IA/, donde se ejecutan los procesos de inferencia, clasificación y búsqueda semántica.
+JavaScript / JSX (Frontend)
+
+El desarrollo del frontend se realizó empleando JavaScript moderno con soporte JSX, utilizando el framework React versión 19, verificado en el archivo package.json. La interfaz de usuario se construyó bajo el paradigma de componentes reutilizables, lo que permite una estructura modular, mantenible y altamente interactiva.
+El código se encuentra organizado bajo el estándar de ES Modules, con componentes distribuidos en las carpetas frontend/src/, pages, services y hooks. Para el entorno de desarrollo se utiliza el servidor Vite, configurado en los archivos vite.config.js y en los scripts de package.json, permitiendo recarga en tiempo real y una compilación rápida.
+Entre los archivos más relevantes del frontend se encuentran main.jsx y package.json, los cuales definen la estructura base de la aplicación y sus dependencias.
+HTML / CSS (Presentación Visual)
+
+La estructura visual del sistema se basa en HTML5 para la organización semántica del contenido y CSS3 para la presentación gráfica. El diseño de la interfaz se implementó empleando Tailwind CSS versión 3.x, configurado mediante los archivos tailwind.config.js, postcss.config.js y las dependencias declaradas en package.json.
+
+Todos los componentes utilizan clases utilitarias de Tailwind, lo que permite un diseño moderno, responsivo y consistente en todos los dispositivos, garantizando compatibilidad con computadoras de escritorio, laptops, tablets y teléfonos móviles.
+Librerías
+
+Las librerías utilizadas en el desarrollo de la Videoteca Universitaria constituyen componentes fundamentales que extienden las capacidades del sistema tanto en el backend como en el frontend. Estas permiten implementar seguridad, procesamiento multimedia, inteligencia artificial, visualización de datos, comunicación cliente–servidor y gestión avanzada de información.
+Librerías del Backend (Python)
+
+Django
+Es la librería base del sistema backend. Proporciona un entorno completo para el desarrollo de aplicaciones web seguras, robustas y escalables. Incluye manejo de rutas, autenticación, ORM para bases de datos, administración automática y control de sesiones. Es el núcleo sobre el cual se construyen todas las funcionalidades de la Videoteca.
+Django REST Framework (DRF)
+Esta librería permite construir APIs REST de forma estructurada y segura. Facilita la serialización de datos, validación de información, control de permisos, autenticación por tokens y exposición de endpoints para que el frontend pueda consumir los servicios del sistema.
+
+djangorestframework-simplejwt
+Implementa la autenticación mediante JSON Web Tokens (JWT). Permite generar, renovar y validar tokens de acceso, asegurando que solo los usuarios autenticados puedan acceder a los servicios protegidos del sistema.
+django-cors-headers
+Se utiliza para permitir solicitudes entre dominios distintos (CORS). Gracias a esta librería, el frontend desarrollado en React puede comunicarse con el backend sin restricciones de seguridad del navegador.
+django-filter
+Proporciona un sistema avanzado de filtrado de datos en los endpoints REST. Permite realizar búsquedas, filtros por campos, rangos de fechas, categorías y otros parámetros sin sobrecargar la base de datos.
+psycopg2-binary
+Es el controlador que permite la conexión entre Django y la base de datos PostgreSQL. Garantiza una comunicación rápida, estable y segura entre la aplicación y el motor de base de datos.
+python-dotenv
+Permite cargar variables de entorno desde archivos .env. Se utiliza para ocultar configuraciones sensibles como claves API, contraseñas y parámetros de conexión, mejorando la seguridad del sistema.
+Groq
+Es la librería que conecta el sistema con los modelos de inteligencia artificial de Groq. Se utiliza para ejecutar tareas de transcripción automática mediante
+
+Whisper, búsqueda semántica y generación de resultados inteligentes usando modelos de lenguaje como Llama.
+OpenCV (opencv-python)
+Se utiliza para el procesamiento de imágenes y validación de contenido multimedia. Permite analizar fotogramas de video, verificar formatos, generar miniaturas y aplicar filtros de control visual.
+Pillow
+Es una librería especializada en el procesamiento de imágenes. Permite la creación, edición, redimensionamiento y optimización de miniaturas utilizadas en el catálogo de la videoteca.
+MoviePy
+Se utiliza para el tratamiento de archivos audiovisuales. Permite extraer audio de los videos, generar clips, procesar segmentos y preparar archivos para su análisis mediante inteligencia artificial.
+NumPy
+Proporciona soporte matemático de alto rendimiento para el procesamiento de matrices, vectores y operaciones numéricas requeridas en los algoritmos de IA.
+Pandas
+
+Se utiliza para el análisis, transformación y limpieza de datos. Permite organizar la información de usuarios, visualizaciones, interacciones y métricas antes de su procesamiento con modelos de aprendizaje automático.
+Scikit-learn
+Se emplea para entrenar y ejecutar modelos de Machine Learning relacionados
+
+con la clasificación de contenido, agrupamiento de usuarios y análisis de patrones.
+TensorFlow
+Es el framework principal de inteligencia artificial utilizado para el entrenamiento y despliegue de modelos de recomendación de contenido. Permite cargar modelos entrenados y realizar inferencias en tiempo real.
+Joblib
+Se utiliza para serializar y deserializar objetos de Machine Learning, como modelos entrenados y estructuras de datos, optimizando el rendimiento en los procesos de inferencia.
+Librerías del Frontend (JavaScript)
+
+React
+Es la librería base para la construcción de la interfaz de usuario. Permite crear una aplicación web de tipo SPA (Single Page Application) basada en componentes reutilizables, logrando una experiencia de usuario fluida e interactiva.
+React DOM
+Es el motor que permite renderizar los componentes de React dentro del navegador, conectando la lógica de la interfaz con el árbol DOM del sistema.
+React Router DOM
+Se utiliza para gestionar la navegación entre vistas del sistema sin recargar la página. Permite definir rutas públicas y privadas, control de acceso y navegación dinámica.
+
+Axios
+Es una librería especializada en la realización de peticiones HTTP. Se utiliza para conectar el frontend con la API REST del backend, enviando solicitudes GET, POST, PUT y DELETE de forma segura y eficiente.
+@tanstack/react-query
+Permite gestionar el consumo de datos desde la API optimizando el manejo de caché, sincronización automática, reintentos de conexión y actualización de información en tiempo real.
+Recharts
+Es una librería de visualización de datos que permite generar gráficos interactivos utilizados en los módulos de reportes y analítica del sistema.
+FontAwesome
+Se utiliza para incorporar íconos gráficos en la interfaz de usuario, mejorando la experiencia visual y la usabilidad del sistema.
+Tailwind	CSS
+Es una librería de estilos utilitarios que permite diseñar interfaces modernas, responsivas y consistentes mediante clases predefinidas, eliminando la necesidad de escribir grandes hojas de estilos personalizadas.
+PostCSS
+Es una herramienta que permite transformar estilos CSS, optimizarlos y asegurar compatibilidad entre navegadores modernos.
+
+Autoprefixer
+Agrega automáticamente los prefijos necesarios a las reglas CSS para garantizar compatibilidad entre distintos navegadores.
+Vite
+Se utiliza como servidor de desarrollo y sistema de construcción del frontend. Permite recarga instantánea de cambios, compilación optimizada y alto rendimiento en entornos de desarrollo.
+Frameworks
+Los frameworks utilizados en el desarrollo de la Videoteca Universitaria del Canal 11 TVU – UAGRM constituyen la base estructural sobre la cual se construye toda la arquitectura del sistema. Estos frameworks permiten acelerar el desarrollo, garantizar estándares de calidad, facilitar el mantenimiento del software y asegurar la escalabilidad de la plataforma tanto en el backend como en el frontend, además de soportar las funcionalidades avanzadas de inteligencia artificial y procesamiento multimedia.
+Django (Framework Backend)
+
+Django es el framework principal utilizado en el desarrollo del backend del sistema. Se trata de un framework web de alto nivel escrito en Python que sigue el patrón de diseño Modelo–Vista–Controlador (MVC), adaptado en Django como Modelo–Vista–Template (MVT). Django proporciona un entorno completo para el desarrollo seguro, rápido y estructurado de aplicaciones web.
+En el proyecto de la Videoteca Universitaria, Django se encarga de gestionar la
+
+autenticación de usuarios, el control de permisos, la definición de modelos de base de
+
+datos mediante su ORM, la administración de sesiones, la validación de formularios, la seguridad contra ataques comunes (CSRF, XSS, SQL Injection) y la gestión general de la lógica del negocio. Asimismo, facilita la administración del sistema mediante su panel administrativo integrado, permitiendo al personal autorizado controlar videos, usuarios, categorías, anuncios y reportes.
+El uso de Django garantiza una arquitectura robusta, escalable y mantenible, alineada con las buenas prácticas de desarrollo de software moderno.
+Django REST Framework (DRF)
+
+Django REST Framework es el framework especializado que permite transformar el backend en una API REST completa. Este framework extiende las capacidades de Django para exponer servicios web mediante endpoints que el frontend puede consumir utilizando peticiones HTTP.
+En la Videoteca Universitaria, DRF se utiliza para la gestión de usuarios, el catálogo de videos, las recomendaciones basadas en inteligencia artificial, la subida de contenido, los comentarios, reacciones, reportes, anuncios y métricas. Proporciona mecanismos avanzados de serialización de datos, validación de entradas, control de autenticación, autorización por roles y manejo de permisos.
+Gracias a DRF, el sistema puede operar bajo una arquitectura desacoplada, donde el frontend y el backend funcionan de manera independiente pero conectados a través de servicios REST seguros y estandarizados.
+React (Framework Frontend)
+
+React es el framework utilizado para el desarrollo de la interfaz de usuario de la plataforma. Es un framework JavaScript orientado a la construcción de aplicaciones web de tipo SPA (Single Page Application), basado en componentes reutilizables y renderizado eficiente.
+En la Videoteca Universitaria, React se emplea para construir todas las vistas del sistema: inicio, catálogo, búsqueda, reproducción de videos, gestión de usuarios, panel administrativo, analítica, anuncios, favoritos y playlists. Su arquitectura basada en estados y componentes permite una interacción dinámica con el usuario, actualizando la información sin necesidad de recargar la página.
+React permite una experiencia de usuario fluida, moderna y altamente interactiva, facilitando la navegación rápida y el consumo eficiente del contenido audiovisual.
+Tailwind CSS (Framework de Estilos)
+
+Tailwind CSS es el framework de estilos utilizado para el diseño visual del sistema. Se basa en un enfoque de clases utilitarias que permiten construir interfaces modernas, responsivas y consistentes de forma rápida y eficiente.
+En el proyecto, Tailwind se utiliza para estructurar los layouts, tipografías, colores, botones, formularios, tarjetas, modales y componentes visuales del sistema. Su integración con React permite mantener una identidad visual uniforme en toda la plataforma.
+El uso de Tailwind CSS garantiza adaptabilidad a diferentes dispositivos, compatibilidad con navegadores modernos y una experiencia visual profesional alineada con estándares actuales de diseño web.
+
+Framework de Servicios de IA – Groq Cloud
+
+Groq actúa como el framework externo de servicios de inteligencia artificial basado en la nube. A través de su SDK, el sistema accede a modelos avanzados de procesamiento de lenguaje natural como Whisper para transcripción automática de audio y Llama para búsqueda semántica y análisis contextual de contenido.
+En el proyecto, Groq se utiliza para transformar audio en texto, generar subtítulos automáticos, mejorar los sistemas de búsqueda y ofrecer resultados semánticos inteligentes. Este framework externo complementa los modelos locales implementados con TensorFlow.
+Sistema gestor de Base de Datos
+
+La Videoteca Universitaria del Canal 11 TVU – UAGRM utiliza como sistema gestor de base de datos a PostgreSQL, el cual es uno de los motores de base de datos relacionales más robustos, seguros y escalables en la actualidad. PostgreSQL es un sistema de código abierto que cumple con los estándares SQL y ofrece un alto rendimiento en aplicaciones que requieren manejar grandes volúmenes de información, como es el caso de una plataforma audiovisual con miles de registros de videos, usuarios, interacciones y métricas.
+En el sistema, PostgreSQL se integra directamente con el backend desarrollado en Django mediante su ORM (Object Relational Mapping), lo que permite manejar la persistencia de datos de forma segura, estructurada y eficiente, sin necesidad de escribir consultas SQL complejas de manera manual. Esta integración facilita la creación,
+
+modificación, consulta y eliminación de datos a través de los modelos definidos en la aplicación.
+Función de PostgreSQL en la Videoteca Universitaria
+
+PostgreSQL es el encargado de almacenar de forma estructurada toda la información crítica del sistema, entre la que se incluye:
+Los datos de los usuarios (estudiantes, docentes, egresados, administradores y personal institucional),
+La información completa de los videos (título, descripción, duración, autor, fecha de grabación, estado, etiquetas y categorías),
+Los registros de interacción social (comentarios, reacciones, playlists y favoritos), Los datos relacionados con las recomendaciones inteligentes y métricas de uso, Los anuncios, comunicados y eventos institucionales del Canal 11 TVU.
+Este sistema garantiza la integridad referencial de la información, evitando duplicidades, inconsistencias o pérdida de datos, mediante el uso de claves primarias, claves foráneas, restricciones y validaciones definidas a nivel de base de datos.
+Configuración e Integración con el Backend
+
+En la configuración actual del proyecto, PostgreSQL se encuentra definido como motor principal de base de datos en el archivo settings.py de Django, utilizando el driver psycopg2-binary, que actúa como conector entre Python y PostgreSQL. Esta configuración permite una comunicación eficiente entre la aplicación y la base de datos, garantizando velocidad en las consultas y estabilidad en las transacciones.
+
+En el entorno de desarrollo se utiliza una base de datos local con los siguientes parámetros generales: nombre de la base de datos videoteca_db, usuario postgres, puerto estándar 5432 y host local. Para el entorno de producción, se contempla el uso de PostgreSQL versión 15 sobre servidores en la nube, tal como se refleja en los diagramas de despliegue del sistema.
+Ventajas del Uso de PostgreSQL en el Proyecto
+
+El uso de PostgreSQL en la Videoteca Universitaria presenta múltiples beneficios técnicos y operativos, entre los cuales se destacan:
+Alta confiabilidad y estabilidad para aplicaciones de misión crítica,
+
+Soporte nativo para grandes volúmenes de datos multimedia mediante referencias a almacenamiento externo,
+Compatibilidad total con Django y su ORM,
+
+Capacidad de realizar consultas complejas y análisis estadístico, Soporte para transacciones seguras,
+Escalabilidad vertical y horizontal,
+
+Amplia comunidad de soporte y actualizaciones constantes.
+
+Estas características permiten garantizar que el sistema pueda crecer progresivamente sin comprometer el rendimiento ni la seguridad de la información almacenada.
+
+Lenguaje de Modelado de Software
+
+Durante el desarrollo del sistema Videoteca Universitaria del Canal 11 TVU – UAGRM, se utilizó como lenguaje de modelado principal el UML (Unified Modeling Language), el cual constituye un estándar internacional ampliamente adoptado en la ingeniería de software para la especificación, visualización, construcción y documentación de sistemas informáticos (Object Management Group, 2023).
+El uso de UML permitió representar de manera clara tanto la estructura como el comportamiento del sistema, facilitando una comprensión común entre analistas, diseñadores, desarrolladores y evaluadores del software. Para la elaboración de los diagramas se emplearon herramientas especializadas de modelado como StarUML y Enterprise Architect, las cuales permitieron diseñar los modelos de forma ordenada, precisa y conforme a estándares profesionales.
+En el proyecto de la Videoteca Universitaria se aplicaron los siguientes tipos de diagramas UML:
+Diagramas de casos de uso: Representan las funcionalidades del sistema desde el punto de vista de los actores involucrados, tales como administradores, docentes, estudiantes, usuarios generales y el módulo de inteligencia artificial.
+Diagramas de clases: Muestran las entidades principales del sistema, sus atributos, métodos y las relaciones existentes entre las diferentes clases que conforman la estructura interna del software.
+
+Diagramas de componentes: Representan la arquitectura del sistema dividida en capas (presentación, lógica de negocio, servicios de inteligencia artificial y datos), así como la interconexión entre los diferentes módulos.
+Diagramas de secuencia: Modelan la interacción temporal entre los objetos y componentes del sistema durante la ejecución de los principales casos de uso, como el proceso de autenticación, subida de videos, generación de subtítulos automáticos y búsqueda semántica.
+Se adoptó la versión más reciente del estándar UML publicada por el Object Management Group (OMG), lo que permitió mantener una documentación técnica formal, coherente, interoperable y alineada con las buenas prácticas del diseño orientado a objetos, garantizando así la calidad estructural del sistema.
+Protocolo de Comunicación
+
+El sistema Videoteca Universitaria del Canal 11 TVU – UAGRM implementa una arquitectura cliente-servidor basada en comunicación mediante el protocolo HTTP, utilizando el estándar de servicios RESTful API para el intercambio de datos entre el frontend desarrollado en React y el backend desarrollado en Django con Django REST Framework (MDN Web Docs, 2025).
+Este enfoque permite una comunicación segura, estructurada y escalable entre los distintos componentes del sistema, facilitando la transferencia de información entre los usuarios y la plataforma, así como la integración con los servicios de inteligencia artificial.
+
+Los datos se transmiten en formato JSON (JavaScript Object Notation) tanto en las solicitudes como en las respuestas, lo que garantiza compatibilidad multiplataforma, eficiencia en la comunicación y facilidad de integración con servicios externos.
+Características clave del protocolo de comunicación:
+
+Protocolo: HTTP / HTTPS
+Métodos utilizados: GET, POST, PUT, DELETE
+
+Formato de intercambio de datos: JSON
+Autenticación: Basada en tokens mediante JWT (JSON Web Token)
+Seguridad: Uso del protocolo HTTPS para el cifrado de los datos en tránsito Puertos utilizados:
+Puerto 80 (HTTP) en entorno de desarrollo
+
+Puerto 443 (HTTPS) en entorno de producción Comunicación externa:
+Además del intercambio interno entre cliente y servidor, el sistema establece comunicación con servicios externos de inteligencia artificial mediante la plataforma Groq Cloud, utilizando el mismo protocolo HTTP bajo conexiones seguras HTTPS. La autenticación hacia estos servicios se realiza mediante claves privadas a través de encabezados personalizados del tipo Authorization: Bearer.
+Este enfoque basado en protocolos estándar garantiza la compatibilidad del sistema con navegadores modernos, herramientas de análisis de red, plataformas de almacenamiento
+
+en la nube y servicios externos de inteligencia artificial, permitiendo además su futura expansión e integración con nuevos módulos tecnológicos.

@@ -9,9 +9,9 @@ const links = [
   { href: '/dashboard',       label: 'Dashboard'       },
   { href: '/users',           label: 'Usuarios'        },
   { href: '/roles',           label: 'Roles'           },
-  { href: '/permissions',     label: 'Permisos'        },
   { href: '/cameras',         label: 'Camaras'         },
-  { href: '/access-points',   label: 'Puntos de acceso' },
+  { href: '/access-points',        label: 'Puntos de acceso'    },
+  { href: '/access-points-config', label: 'Config. de accesos'  },
   { href: '/detections',      label: 'Detecciones'     },
   { href: '/events',          label: 'Historial'       },
   { href: '/sanctions',       label: 'Sanciones'       },
@@ -19,6 +19,7 @@ const links = [
   { href: '/alerts',          label: 'Alertas'         },
   { href: '/reports',         label: 'Reportes'        },
   { href: '/backups',         label: 'Backups'         },
+  { href: '/system-logs',     label: 'Logs del sistema' },
 ];
 
 function SidebarContent() {
@@ -42,7 +43,7 @@ function SidebarContent() {
       {/* Nav */}
       <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 10px' }}>
         {links.map((link) => {
-          const active = pathname.startsWith(link.href);
+          const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
           return (
             <Link
               key={link.href}
@@ -58,6 +59,9 @@ function SidebarContent() {
                 color: active ? '#ffffff' : '#cbd5e1',
                 background: active ? '#10b981' : 'transparent',
                 textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
               onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; }}
               onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
@@ -71,7 +75,10 @@ function SidebarContent() {
       {/* User footer */}
       {user && (
         <div style={{ padding: '14px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+          <Link
+            href="/profile"
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', textDecoration: 'none' }}
+          >
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
               {user.name.charAt(0).toUpperCase()}
             </div>
@@ -79,7 +86,13 @@ function SidebarContent() {
               <p style={{ fontSize: 13, fontWeight: 600, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</p>
               <p style={{ fontSize: 11, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
             </div>
-          </div>
+          </Link>
+          <Link
+            href="/profile"
+            style={{ display: 'block', textAlign: 'center', width: '100%', padding: '8px', marginBottom: '6px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', color: '#cbd5e1', fontSize: 12, fontWeight: 500, textDecoration: 'none' }}
+          >
+            Mi perfil
+          </Link>
           <button
             onClick={logout}
             style={{ width: '100%', padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', color: '#94a3b8', fontSize: 12, fontWeight: 500, border: 'none', cursor: 'pointer' }}
@@ -100,7 +113,8 @@ export function AppShell({ children }: PropsWithChildren) {
     pathname === '/login' ||
     pathname.startsWith('/stream');
 
-  const pageTitle = links.find((l) => pathname.startsWith(l.href))?.label ?? 'Sistema';
+  const pageTitle = links.find((l) => pathname.startsWith(l.href))?.label
+    ?? (pathname.startsWith('/profile') ? 'Mi perfil' : 'Sistema');
 
   if (!isPublic && !getToken()) {
     router.replace('/login');

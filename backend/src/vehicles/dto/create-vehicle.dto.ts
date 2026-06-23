@@ -1,5 +1,4 @@
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateVehicleDto {
   @IsString()
@@ -18,7 +17,6 @@ export class CreateVehicleDto {
   color?: string;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  tipoVehiculoId?: number;
+  @IsString()
+  vehicleType?: string;
 }

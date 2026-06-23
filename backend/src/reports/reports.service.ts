@@ -40,7 +40,7 @@ export class ReportsService {
         where: { fecha: { gte: sevenDaysAgo } },
         select: { horaIngreso: true, horaSalida: true, estado: true, puntoAccesoIngresoId: true, puntoAccesoEgresoId: true },
       }),
-      this.prisma.alerta.findMany({ include: { tipoAlerta: { select: { nombre: true } } } }),
+      this.prisma.alerta.findMany({ select: { tipoAlerta: true } }),
       this.prisma.registroAcceso.groupBy({
         by: ['vehiculoId'],
         _count: { id: true },
@@ -60,13 +60,13 @@ export class ReportsService {
         where: { fechaInicio: { gte: todayStart } },
       }),
       this.prisma.alerta.count({
-        where: { estadoAlerta: { nombre: 'pendiente' } },
+        where: { estadoAlerta: 'pendiente' },
       }),
       this.prisma.alerta.count({
-        where: { estadoAlerta: { nombre: 'resuelto' } },
+        where: { estadoAlerta: 'resuelto' },
       }),
       this.prisma.alerta.count({
-        where: { estadoAlerta: { nombre: 'mantenimiento' } },
+        where: { estadoAlerta: 'mantenimiento' },
       }),
       this.prisma.puntoAcceso.findMany({
         select: { id: true, nombre: true },
@@ -96,7 +96,7 @@ export class ReportsService {
     // Build alerts by type
     const alertCounts: Record<string, number> = {};
     for (const alert of allAlerts) {
-      const typeName = alert.tipoAlerta.nombre;
+      const typeName = alert.tipoAlerta;
       alertCounts[typeName] = (alertCounts[typeName] || 0) + 1;
     }
     const alertsByType = Object.entries(alertCounts).map(([type, count]) => ({ type, count }));

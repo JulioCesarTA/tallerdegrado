@@ -5,7 +5,7 @@ import { SectionCard } from '@/components/section-card';
 import { api } from '@/lib/api';
 import { Rol, Usuario } from '@/lib/types';
 
-const emptyForm = { name: '', email: '', password: '', roleId: 0 };
+const emptyForm = { name: '', lastName: '', ci: '', email: '', password: '', roleId: 0 };
 
 export default function UsersPage() {
   const [users, setUsers]   = useState<Usuario[]>([]);
@@ -58,6 +58,8 @@ export default function UsersPage() {
             <thead className="text-left text-xs text-slate-500 uppercase">
               <tr>
                 <th className="pb-3 pr-4">Nombre</th>
+                <th className="pb-3 pr-4">Apellido</th>
+                <th className="pb-3 pr-4">CI</th>
                 <th className="pb-3 pr-4">Correo</th>
                 <th className="pb-3 pr-4">Rol</th>
                 <th className="pb-3"></th>
@@ -67,6 +69,8 @@ export default function UsersPage() {
               {users.map((u) => (
                 <tr key={u.id} className="border-t border-slate-100">
                   <td className="py-2.5 pr-4 font-medium">{u.nombre}</td>
+                  <td className="py-2.5 pr-4 text-slate-600">{u.apellido || '—'}</td>
+                  <td className="py-2.5 pr-4 text-slate-600">{u.ci || '—'}</td>
                   <td className="py-2.5 pr-4 text-slate-600">{u.correo}</td>
                   <td className="py-2.5 pr-4">{u.rol?.nombre}</td>
                   <td className="py-2.5">
@@ -83,7 +87,9 @@ export default function UsersPage() {
 
       <SectionCard title="Nuevo usuario">
         <form action={onSubmit} className="space-y-3">
-          <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nombre completo" required />
+          <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nombre" required />
+          <input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} placeholder="Apellido" />
+          <input value={form.ci} onChange={(e) => setForm({ ...form, ci: e.target.value })} placeholder="CI" />
           <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Correo" required />
           <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Contrasena" required />
           <select value={form.roleId} onChange={(e) => setForm({ ...form, roleId: Number(e.target.value) })}>

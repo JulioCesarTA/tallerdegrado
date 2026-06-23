@@ -4,7 +4,6 @@ import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 
 const vehiculoInclude = {
-  tipoVehiculo: { select: { id: true, nombre: true } },
   sanciones: {
     include: { tipoSancion: { select: { id: true, nombre: true, motivo: true } } },
     orderBy: { fechaInicio: 'desc' as const },
@@ -52,7 +51,7 @@ export class VehiclesService {
         marca: dto.brand,
         modelo: dto.model,
         color: dto.color,
-        tipoVehiculoId: dto.tipoVehiculoId,
+        tipoVehiculo: dto.vehicleType,
       },
       include: vehiculoInclude,
     });
@@ -67,7 +66,7 @@ export class VehiclesService {
         ...(dto.brand !== undefined ? { marca: dto.brand } : {}),
         ...(dto.model !== undefined ? { modelo: dto.model } : {}),
         ...(dto.color !== undefined ? { color: dto.color } : {}),
-        ...(dto.tipoVehiculoId !== undefined ? { tipoVehiculoId: dto.tipoVehiculoId } : {}),
+        ...(dto.vehicleType !== undefined ? { tipoVehiculo: dto.vehicleType } : {}),
       },
       include: vehiculoInclude,
     });

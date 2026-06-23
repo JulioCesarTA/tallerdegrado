@@ -74,7 +74,7 @@ export default function AssignSanctionPage() {
               <p className="text-sm text-slate-500">{vehicle.marca} {vehicle.modelo} · {vehicle.color}</p>
             )}
             {vehicle.tipoVehiculo && (
-              <p className="text-sm text-slate-400 capitalize">{vehicle.tipoVehiculo.nombre}</p>
+              <p className="text-sm text-slate-400 capitalize">{vehicle.tipoVehiculo}</p>
             )}
           </div>
           <form action={onSubmit} className="space-y-3">

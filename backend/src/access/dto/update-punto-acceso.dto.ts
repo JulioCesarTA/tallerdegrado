@@ -11,6 +11,14 @@ export class UpdatePuntoAccesoDto {
   ubicacion?: string;
 
   @IsOptional()
+  @IsString()
+  descripcion?: string;
+
+  @IsOptional()
+  @IsString()
+  estado?: string;
+
+  @IsOptional()
   @IsInt()
   @Type(() => Number)
   camaraIngresoId?: number;

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AlertsService } from '../alerts/alerts.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CAMERA_STATUSES, CAMERA_TYPES } from './cameras.constants';
 import { CreateCameraDto } from './dto/create-camera.dto';
 import { UpdateCameraDto } from './dto/update-camera.dto';
 
@@ -13,16 +14,12 @@ export class CamerasService {
 
   findAll() {
     return this.prisma.camara.findMany({
-      include: { tipoCamara: true, estadoCamara: true },
       orderBy: { nombre: 'asc' },
     });
   }
 
   async findOne(id: number) {
-    const camara = await this.prisma.camara.findUnique({
-      where: { id },
-      include: { tipoCamara: true, estadoCamara: true },
-    });
+    const camara = await this.prisma.camara.findUnique({ where: { id } });
     if (!camara) throw new NotFoundException('Camara no encontrada');
     return camara;
   }
@@ -32,10 +29,9 @@ export class CamerasService {
       data: {
         nombre: dto.nombre,
         ubicacion: dto.ubicacion,
-        tipoCamaraId: dto.tipoCamaraId,
-        estadoCamaraId: dto.estadoCamaraId,
+        tipoCamara: dto.tipoCamara,
+        estado: dto.estado,
       },
-      include: { tipoCamara: true, estadoCamara: true },
     });
   }
 
@@ -44,7 +40,6 @@ export class CamerasService {
     return this.prisma.camara.update({
       where: { id },
       data: dto,
-      include: { tipoCamara: true, estadoCamara: true },
     });
   }
 
@@ -55,11 +50,11 @@ export class CamerasService {
   }
 
   findTypes() {
-    return this.prisma.tipoCamara.findMany({ orderBy: { nombre: 'asc' } });
+    return CAMERA_TYPES;
   }
 
   findStatuses() {
-    return this.prisma.estadoCamara.findMany({ orderBy: { nombre: 'asc' } });
+    return CAMERA_STATUSES;
   }
 
   async registerDetectionFailure(camaraId: number) {

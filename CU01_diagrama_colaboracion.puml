@@ -1,0 +1,25 @@
+@startuml CU01_Diagrama_Colaboracion
+
+title Diagrama de Colaboracion - CU01: Iniciar y Cerrar Sesion
+
+left to right direction
+
+object "Usuario" as Usuario
+object "Interfaz de Sesion" as Interfaz
+object "GestorDeSesion" as Gestor
+object "AuthService" as Control
+object "Usuario (BD)" as EntUsuario
+object "Sesion (nueva)" as Sesion
+
+Usuario --> Interfaz : "1: ingresar credenciales\n10: mostrar dashboard\n11: clic en cerrar sesion\n14: mostrar login"
+Interfaz --> Control : "2: login(correo, contrasena)\n8: sesion creada"
+Control --> EntUsuario : "3: buscarPorCorreo(correo)\n4: datos (rol, permisos)"
+Control --> Sesion : "6: crear()\n7: token generado"
+Interfaz --> Gestor : "9: guardarSesion(token, usuario)\n12: eliminarSesion()"
+Gestor --> Sesion : "13: destruir()"
+
+note right of Control
+  5: validarContrasena(contrasena, hash)
+end note
+
+@enduml

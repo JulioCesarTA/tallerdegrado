@@ -1,0 +1,52 @@
+@startuml CU01_Iniciar_Cerrar_Sesion
+
+title CU01: Iniciar y Cerrar Sesion
+
+actor Usuario
+participant "LoginPage\n(frontend/login)" as Login
+participant "AppShell\n(sidebar)" as Shell
+participant "api()\n(lib/api.ts)" as Api
+participant "AuthController\n(/api/auth)" as Controller
+participant "AuthService" as Service
+participant "PrismaService" as Prisma
+database "PostgreSQL\n(Usuario, Rol, Permiso)" as BD
+
+== Iniciar Sesion ==
+
+Usuario -> Login : ingresa correo y contrasena
+Login -> Api : api('/auth/login', POST, {email, password})
+Api -> Controller : POST /api/auth/login
+Controller -> Service : login(dto)
+Service -> Prisma : usuario.findUnique({correo})\ninclude rol + permisos
+Prisma -> BD : SELECT Usuario JOIN Rol JOIN RolPermiso JOIN Permiso
+BD --> Prisma : usuario + rol + permisos
+
+alt usuario no existe
+    Service --> Controller : UnauthorizedException
+    Controller --> Api : 401 Credenciales invalidas
+    Api --> Login : Error
+    Login --> Usuario : muestra mensaje de error
+else usuario existe
+    Service -> Service : bcrypt.compare(password, usuario.password)
+    alt password incorrecta
+        Service --> Controller : UnauthorizedException
+        Controller --> Api : 401 Credenciales invalidas
+        Api --> Login : Error
+        Login --> Usuario : muestra mensaje de error
+    else password correcta
+        Service -> Service : buildSession()\nfirma JWT (sub, email, role, permissions)
+        Service --> Controller : { accessToken, user }
+        Controller --> Api : 200 OK { accessToken, user }
+        Api --> Login : SessionResponse
+        Login -> Login : setSession(accessToken, user)\n(localStorage)
+        Login --> Usuario : redirige a /dashboard
+    end
+end
+
+== Cerrar Sesion ==
+
+Usuario -> Shell : clic en "Cerrar sesion"
+Shell -> Shell : clearSession()\n(borra token y usuario de localStorage)
+Shell --> Usuario : redirige a /login
+
+@enduml

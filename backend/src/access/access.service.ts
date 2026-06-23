@@ -55,37 +55,6 @@ export class AccessService implements OnModuleInit {
       }
     }
 
-    const tipoCamaras = ['entrada', 'salida'];
-    for (const nombre of tipoCamaras) {
-      await this.prisma.tipoCamara.upsert({ where: { nombre }, update: {}, create: { nombre } });
-    }
-
-    const estadoCamaras = ['activa', 'inactiva', 'falla', 'mantenimiento'];
-    for (const nombre of estadoCamaras) {
-      await this.prisma.estadoCamara.upsert({ where: { nombre }, update: {}, create: { nombre } });
-    }
-
-    const tipoAlertas = [
-      'camera_disconnected',
-      'camera_error',
-      'detection_failure',
-      'sanctioned_vehicle_attempt',
-      'network_failure',
-      'system_interruption',
-    ];
-    for (const nombre of tipoAlertas) {
-      await this.prisma.tipoAlerta.upsert({ where: { nombre }, update: {}, create: { nombre } });
-    }
-
-    const estadoAlertas = ['pendiente', 'mantenimiento', 'resuelto'];
-    for (const nombre of estadoAlertas) {
-      await this.prisma.estadoAlerta.upsert({ where: { nombre }, update: {}, create: { nombre } });
-    }
-
-    const tipoVehiculos = ['moto', 'auto'];
-    for (const nombre of tipoVehiculos) {
-      await this.prisma.tipoVehiculo.upsert({ where: { nombre }, update: {}, create: { nombre } });
-    }
   }
 
   findPermissions() {
@@ -228,6 +197,8 @@ export class AccessService implements OnModuleInit {
         data: {
           nombre: dto.nombre,
           ubicacion: dto.ubicacion,
+          descripcion: dto.descripcion,
+          estado: dto.estado,
           camaraIngresoId: dto.camaraIngresoId,
           camaraSalidaId: dto.camaraSalidaId,
           usuarioId: dto.usuarioId,

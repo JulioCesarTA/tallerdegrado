@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import { SectionCard } from '@/components/section-card';
 import { api } from '@/lib/api';
-import { Camara, TipoCamara, EstadoCamara } from '@/lib/types';
+import { Camara } from '@/lib/types';
 
-const emptyForm = { nombre: '', ubicacion: '', tipoCamaraId: 0, estadoCamaraId: 0 };
+const emptyForm = { nombre: '', ubicacion: '', tipoCamara: '', estado: '' };
 
 export default function CamerasPage() {
   const [cameras, setCameras]           = useState<Camara[]>([]);
-  const [tipos, setTipos]               = useState<TipoCamara[]>([]);
-  const [estados, setEstados]           = useState<EstadoCamara[]>([]);
+  const [tipos, setTipos]               = useState<string[]>([]);
+  const [estados, setEstados]           = useState<string[]>([]);
   const [form, setForm]                 = useState(emptyForm);
   const [editingId, setEditingId]       = useState<number | null>(null);
   const [error, setError]               = useState('');
@@ -19,16 +19,16 @@ export default function CamerasPage() {
     try {
       const [cams, ts, es] = await Promise.all([
         api<Camara[]>('/cameras'),
-        api<TipoCamara[]>('/cameras/types'),
-        api<EstadoCamara[]>('/cameras/statuses'),
+        api<string[]>('/cameras/types'),
+        api<string[]>('/cameras/statuses'),
       ]);
       setCameras(cams);
       setTipos(ts);
       setEstados(es);
       setForm((f) => ({
         ...f,
-        tipoCamaraId: f.tipoCamaraId || ts[0]?.id || 0,
-        estadoCamaraId: f.estadoCamaraId || es[0]?.id || 0,
+        tipoCamara: f.tipoCamara || ts[0] || '',
+        estado: f.estado || es[0] || '',
       }));
       setError('');
     } catch (err) {
@@ -43,14 +43,14 @@ export default function CamerasPage() {
     setForm({
       nombre: cam.nombre,
       ubicacion: cam.ubicacion,
-      tipoCamaraId: cam.tipoCamaraId,
-      estadoCamaraId: cam.estadoCamaraId,
+      tipoCamara: cam.tipoCamara,
+      estado: cam.estado,
     });
   }
 
   function cancelEdit() {
     setEditingId(null);
-    setForm({ ...emptyForm, tipoCamaraId: tipos[0]?.id ?? 0, estadoCamaraId: estados[0]?.id ?? 0 });
+    setForm({ ...emptyForm, tipoCamara: tipos[0] ?? '', estado: estados[0] ?? '' });
   }
 
   async function onSubmit() {
@@ -62,7 +62,7 @@ export default function CamerasPage() {
       } else {
         await api('/cameras', { method: 'POST', body: form });
       }
-      setForm({ ...emptyForm, tipoCamaraId: tipos[0]?.id ?? 0, estadoCamaraId: estados[0]?.id ?? 0 });
+      setForm({ ...emptyForm, tipoCamara: tipos[0] ?? '', estado: estados[0] ?? '' });
       loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo guardar la camara');
@@ -121,10 +121,10 @@ export default function CamerasPage() {
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs capitalize text-slate-600">
-                  {cam.tipoCamara?.nombre ?? '—'}
+                  {cam.tipoCamara}
                 </span>
-                <span className={`rounded-full px-2.5 py-0.5 text-xs capitalize ${estadoColor[cam.estadoCamara?.nombre ?? ''] ?? 'bg-slate-100 text-slate-500'}`}>
-                  {cam.estadoCamara?.nombre ?? '—'}
+                <span className={`rounded-full px-2.5 py-0.5 text-xs capitalize ${estadoColor[cam.estado] ?? 'bg-slate-100 text-slate-500'}`}>
+                  {cam.estado}
                 </span>
               </div>
             </article>
@@ -149,22 +149,22 @@ export default function CamerasPage() {
           <div>
             <label className="mb-1 block text-xs text-slate-500">Tipo de camara</label>
             <select
-              value={form.tipoCamaraId}
-              onChange={(e) => setForm({ ...form, tipoCamaraId: Number(e.target.value) })}
+              value={form.tipoCamara}
+              onChange={(e) => setForm({ ...form, tipoCamara: e.target.value })}
             >
               {tipos.map((t) => (
-                <option key={t.id} value={t.id}>{t.nombre}</option>
+                <option key={t} value={t}>{t}</option>
               ))}
             </select>
           </div>
           <div>
             <label className="mb-1 block text-xs text-slate-500">Estado</label>
             <select
-              value={form.estadoCamaraId}
-              onChange={(e) => setForm({ ...form, estadoCamaraId: Number(e.target.value) })}
+              value={form.estado}
+              onChange={(e) => setForm({ ...form, estado: e.target.value })}
             >
               {estados.map((s) => (
-                <option key={s.id} value={s.id}>{s.nombre}</option>
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </div>

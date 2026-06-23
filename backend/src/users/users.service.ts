@@ -7,6 +7,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 const usuarioSelect = {
   id: true,
   nombre: true,
+  apellido: true,
+  ci: true,
   correo: true,
   rolId: true,
   rol: { select: { id: true, nombre: true } },
@@ -60,6 +62,8 @@ export class UsersService {
     return this.prisma.usuario.create({
       data: {
         nombre: dto.name,
+        apellido: dto.lastName,
+        ci: dto.ci,
         correo: dto.email.toLowerCase(),
         password,
         rolId: dto.roleId,
@@ -74,6 +78,8 @@ export class UsersService {
 
     const data: Record<string, unknown> = {};
     if (dto.name) data.nombre = dto.name;
+    if (dto.lastName !== undefined) data.apellido = dto.lastName;
+    if (dto.ci !== undefined) data.ci = dto.ci;
     if (dto.email) data.correo = dto.email.toLowerCase();
     if (dto.roleId) data.rolId = dto.roleId;
     if (dto.password) data.password = await bcrypt.hash(dto.password, 10);

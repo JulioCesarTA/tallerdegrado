@@ -3,42 +3,22 @@
 import { useEffect, useState } from 'react';
 import { SectionCard } from '@/components/section-card';
 import { api } from '@/lib/api';
-import { Camara, PuntoAcceso, Usuario } from '@/lib/types';
+import { PuntoAcceso } from '@/lib/types';
 
-const emptyForm = {
-  nombre: '',
-  ubicacion: '',
-  camaraIngresoId: 0,
-  camaraSalidaId: 0,
-  usuarioId: 0,
-};
+const ESTADOS = ['activo', 'inactivo', 'mantenimiento'];
+
+const emptyForm = { nombre: '', ubicacion: '', descripcion: '', estado: ESTADOS[0] };
 
 export default function AccessPointsPage() {
   const [accessPoints, setAccessPoints] = useState<PuntoAcceso[]>([]);
-  const [camaras, setCamaras]           = useState<Camara[]>([]);
-  const [usuarios, setUsuarios]         = useState<Usuario[]>([]);
   const [form, setForm]                 = useState(emptyForm);
   const [editingId, setEditingId]       = useState<number | null>(null);
   const [error, setError]               = useState('');
 
   async function loadData() {
     try {
-      const [aps, cams, users] = await Promise.all([
-        api<PuntoAcceso[]>('/access-points'),
-        api<Camara[]>('/cameras'),
-        api<Usuario[]>('/users'),
-      ]);
+      const aps = await api<PuntoAcceso[]>('/access-points');
       setAccessPoints(aps);
-      setCamaras(cams);
-      setUsuarios(users);
-      if (!form.camaraIngresoId && cams.length) {
-        setForm((f) => ({
-          ...f,
-          camaraIngresoId: cams[0].id,
-          camaraSalidaId: cams[0].id,
-          usuarioId: users[0]?.id ?? 0,
-        }));
-      }
       setError('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudieron cargar los datos');
@@ -52,20 +32,14 @@ export default function AccessPointsPage() {
     setForm({
       nombre: ap.nombre,
       ubicacion: ap.ubicacion,
-      camaraIngresoId: ap.camaraIngresoId,
-      camaraSalidaId: ap.camaraSalidaId,
-      usuarioId: ap.usuarioId,
+      descripcion: ap.descripcion ?? '',
+      estado: ap.estado,
     });
   }
 
   function cancelEdit() {
     setEditingId(null);
-    setForm({
-      ...emptyForm,
-      camaraIngresoId: camaras[0]?.id ?? 0,
-      camaraSalidaId: camaras[0]?.id ?? 0,
-      usuarioId: usuarios[0]?.id ?? 0,
-    });
+    setForm(emptyForm);
   }
 
   async function onSubmit() {
@@ -76,12 +50,7 @@ export default function AccessPointsPage() {
       } else {
         await api('/access-points', { method: 'POST', body: form });
       }
-      setForm({
-        ...emptyForm,
-        camaraIngresoId: camaras[0]?.id ?? 0,
-        camaraSalidaId: camaras[0]?.id ?? 0,
-        usuarioId: usuarios[0]?.id ?? 0,
-      });
+      setForm(emptyForm);
       loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo guardar el punto de acceso');
@@ -100,7 +69,7 @@ export default function AccessPointsPage() {
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-      <SectionCard title="Puntos de acceso">
+      <SectionCard title="Puntos de acceso" description="Alta, edicion y eliminacion de puntos de acceso">
         {error && <div className="mb-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</div>}
         {accessPoints.length === 0 ? (
           <p className="text-sm text-slate-400">No hay puntos de acceso registrados.</p>
@@ -115,6 +84,7 @@ export default function AccessPointsPage() {
                   <div className="min-w-0">
                     <p className="font-medium truncate">{ap.nombre}</p>
                     <p className="text-xs text-slate-500 truncate">{ap.ubicacion}</p>
+                    {ap.descripcion && <p className="text-xs text-slate-400 truncate mt-0.5">{ap.descripcion}</p>}
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button
@@ -131,16 +101,15 @@ export default function AccessPointsPage() {
                     </button>
                   </div>
                 </div>
-                <div className="mt-2 space-y-0.5">
-                  <p className="text-xs text-slate-500">
-                    Ingreso: <span className="text-slate-700">{ap.camaraIngreso?.nombre ?? ap.camaraIngresoId}</span>
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Salida: <span className="text-slate-700">{ap.camaraSalida?.nombre ?? ap.camaraSalidaId}</span>
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Usuario: <span className="text-slate-700">{ap.usuario?.nombre ?? ap.usuarioId}</span>
-                  </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs capitalize text-slate-600">
+                    {ap.estado}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {ap.camaraIngresoId || ap.camaraSalidaId || ap.usuarioId
+                      ? 'Configurado'
+                      : 'Sin configurar (faltan camaras/personal)'}
+                  </span>
                 </div>
               </article>
             ))}
@@ -162,36 +131,19 @@ export default function AccessPointsPage() {
             placeholder="Ubicacion"
             required
           />
+          <input
+            value={form.descripcion}
+            onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+            placeholder="Descripcion (opcional)"
+          />
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Camara de ingreso</label>
+            <label className="mb-1 block text-xs text-slate-500">Estado</label>
             <select
-              value={form.camaraIngresoId}
-              onChange={(e) => setForm({ ...form, camaraIngresoId: Number(e.target.value) })}
+              value={form.estado}
+              onChange={(e) => setForm({ ...form, estado: e.target.value })}
             >
-              {camaras.map((c) => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-slate-500 mb-1">Camara de salida</label>
-            <select
-              value={form.camaraSalidaId}
-              onChange={(e) => setForm({ ...form, camaraSalidaId: Number(e.target.value) })}
-            >
-              {camaras.map((c) => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-slate-500 mb-1">Usuario asignado</label>
-            <select
-              value={form.usuarioId}
-              onChange={(e) => setForm({ ...form, usuarioId: Number(e.target.value) })}
-            >
-              {usuarios.map((u) => (
-                <option key={u.id} value={u.id}>{u.nombre}</option>
+              {ESTADOS.map((s) => (
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </div>

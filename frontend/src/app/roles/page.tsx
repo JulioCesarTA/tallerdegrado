@@ -6,9 +6,13 @@ import { api } from '@/lib/api';
 import { Permiso, Rol } from '@/lib/types';
 
 export default function RolesPage() {
-  const [roles, setRoles]           = useState<Rol[]>([]);
+  const [roles, setRoles]             = useState<Rol[]>([]);
   const [permissions, setPermissions] = useState<Permiso[]>([]);
-  const [form, setForm]             = useState({ name: '', permissionIds: [] as number[] });
+  const [selectedId, setSelectedId]   = useState<number | null>(null);
+  const [name, setName]               = useState('');
+  const [permissionIds, setPermissionIds] = useState<number[]>([]);
+  const [error, setError]             = useState('');
+  const [success, setSuccess]         = useState('');
 
   async function load() {
     const [rolesData, permsData] = await Promise.all([
@@ -21,25 +25,55 @@ export default function RolesPage() {
 
   useEffect(() => { load(); }, []);
 
-  async function onSubmit() {
-    await api('/roles', { method: 'POST', body: form });
-    setForm({ name: '', permissionIds: [] });
-    load();
+  function selectRole(rol: Rol) {
+    setSelectedId(rol.id);
+    setName(rol.nombre);
+    setPermissionIds(rol.permisos.map((item) => item.permiso.id));
+    setError(''); setSuccess('');
   }
 
   function togglePerm(id: number, checked: boolean) {
-    setForm((f) => ({
-      ...f,
-      permissionIds: checked ? [...f.permissionIds, id] : f.permissionIds.filter((x) => x !== id),
-    }));
+    setPermissionIds((ids) => (checked ? [...ids, id] : ids.filter((x) => x !== id)));
   }
+
+  async function onSubmit() {
+    if (selectedId === null) return;
+    setError(''); setSuccess('');
+    try {
+      await api(`/roles/${selectedId}`, { method: 'PATCH', body: { name } });
+      await api(`/roles/${selectedId}/permissions`, { method: 'PATCH', body: { permissionIds } });
+      setSuccess('Rol actualizado correctamente');
+      load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo actualizar el rol');
+    }
+  }
+
+  async function onDelete() {
+    if (selectedId === null) return;
+    if (!confirm('¿Eliminar este rol?')) return;
+    setError(''); setSuccess('');
+    try {
+      await api(`/roles/${selectedId}`, { method: 'DELETE' });
+      setSelectedId(null);
+      load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo eliminar el rol');
+    }
+  }
+
+  const selected = roles.find((r) => r.id === selectedId) ?? null;
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
       <SectionCard title="Roles">
         <div className="space-y-3">
           {roles.map((rol) => (
-            <article key={rol.id} className="rounded-2xl border border-slate-200 p-4">
+            <button
+              key={rol.id}
+              onClick={() => selectRole(rol)}
+              className={`block w-full text-left rounded-2xl border p-4 transition-colors ${selectedId === rol.id ? 'border-emerald-400 bg-emerald-50' : 'border-slate-200 hover:bg-slate-50'}`}
+            >
               <div className="flex items-center justify-between gap-2">
                 <p className="font-medium">{rol.nombre}</p>
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
@@ -53,29 +87,38 @@ export default function RolesPage() {
                   </span>
                 ))}
               </div>
-            </article>
+            </button>
           ))}
         </div>
       </SectionCard>
 
-      <SectionCard title="Nuevo rol">
-        <form action={onSubmit} className="space-y-3">
-          <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nombre" required />
-          <div className="space-y-1 max-h-56 overflow-y-auto">
-            {permissions.map((p) => (
-              <label key={p.id} className="flex items-center gap-2.5 rounded-xl border border-slate-100 p-2.5 cursor-pointer hover:bg-slate-50">
-                <input
-                  type="checkbox"
-                  checked={form.permissionIds.includes(p.id)}
-                  onChange={(e) => togglePerm(p.id, e.target.checked)}
-                  className="h-4 w-4"
-                />
-                <span className="text-sm">{p.nombre}</span>
-              </label>
-            ))}
-          </div>
-          <button className="w-full rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-medium text-white">Guardar</button>
-        </form>
+      <SectionCard title={selected ? `Editar: ${selected.nombre}` : 'Editar rol'}>
+        {!selected ? (
+          <p className="text-sm text-slate-400">Selecciona un rol de la lista.</p>
+        ) : (
+          <form action={onSubmit} className="space-y-3">
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre" required />
+            <div className="space-y-1 max-h-56 overflow-y-auto">
+              {permissions.map((p) => (
+                <label key={p.id} className="flex items-center gap-2.5 rounded-xl border border-slate-100 p-2.5 cursor-pointer hover:bg-slate-50">
+                  <input
+                    type="checkbox"
+                    checked={permissionIds.includes(p.id)}
+                    onChange={(e) => togglePerm(p.id, e.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  <span className="text-sm">{p.nombre}</span>
+                </label>
+              ))}
+            </div>
+            {error && <p className="text-sm text-rose-600">{error}</p>}
+            {success && <p className="text-sm text-emerald-600">{success}</p>}
+            <button className="w-full rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-medium text-white">Guardar</button>
+            <button type="button" onClick={onDelete} className="w-full rounded-xl bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700 hover:bg-rose-100">
+              Eliminar rol
+            </button>
+          </form>
+        )}
       </SectionCard>
     </div>
   );

@@ -110,7 +110,7 @@ export default function EventsPage() {
                   </div>
                   <div>
                     <span className="text-slate-400 text-xs">Tipo</span>
-                    <p className="font-medium text-slate-700 capitalize">{v.tipoVehiculo?.nombre || '—'}</p>
+                    <p className="font-medium text-slate-700 capitalize">{v.tipoVehiculo || '—'}</p>
                   </div>
                 </div>
 

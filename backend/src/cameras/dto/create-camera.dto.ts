@@ -1,5 +1,5 @@
-import { Type } from 'class-transformer';
-import { IsInt, IsString } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
+import { CAMERA_STATUSES, CAMERA_TYPES } from '../cameras.constants';
 
 export class CreateCameraDto {
   @IsString()
@@ -8,11 +8,10 @@ export class CreateCameraDto {
   @IsString()
   ubicacion: string;
 
-  @Type(() => Number)
-  @IsInt()
-  tipoCamaraId: number;
+  @IsIn(CAMERA_TYPES)
+  tipoCamara: string;
 
-  @Type(() => Number)
-  @IsInt()
-  estadoCamaraId: number;
+  @IsOptional()
+  @IsIn(CAMERA_STATUSES)
+  estado?: string;
 }

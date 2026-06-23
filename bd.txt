@@ -1,0 +1,107 @@
+Permiso
+id: INTEGER
+nombre: VARCHAR(100)
+
+Rol
+id: INTEGER
+nombre: VARCHAR(100)
+
+RolPermiso
+rolId: INTEGER
+permisoId: INTEGER
+
+Usuario
+id: INTEGER
+nombre: VARCHAR(50)
+correo: VARCHAR(50)
+password: VARCHAR(255)
+rolId: INTEGER
+
+LogSistema
+id: INTEGER
+usuarioId: INTEGER
+accion: VARCHAR(20)
+modulo: VARCHAR(100)
+detalle: VARCHAR(500)
+fecha: TIMESTAMP
+
+TipoCamara
+id: INTEGER
+nombre: VARCHAR(50)
+
+EstadoCamara
+id: INTEGER
+nombre: VARCHAR(50)
+
+Camara
+id: INTEGER
+nombre: VARCHAR(50)
+ubicacion: VARCHAR(100)
+tipoCamaraId: INTEGER
+estadoCamaraId: INTEGER
+
+TipoVehiculo
+id: INTEGER
+nombre: VARCHAR(50)
+
+Vehiculo
+id: INTEGER
+placa: VARCHAR(20)
+marca: VARCHAR(100)
+modelo: VARCHAR(100)
+tipoVehiculoId: INTEGER
+color: VARCHAR(50)
+caracteristicas: VARCHAR(500)
+
+PuntoAcceso
+id: INTEGER
+nombre: VARCHAR(100)
+ubicacion: VARCHAR(255)
+camaraIngresoId: INTEGER
+camaraSalidaId: INTEGER
+usuarioId: INTEGER
+
+RegistroAcceso
+id: INTEGER
+vehiculoId: INTEGER
+puntoAccesoIngresoId: INTEGER
+puntoAccesoEgresoId: INTEGER
+horaIngreso: TIMESTAMP
+horaSalida: TIMESTAMP
+fecha: TIMESTAMP
+urlEvidencia: VARCHAR(500)
+estado: VARCHAR(20)
+
+Backup
+id: INTEGER
+usuarioId: INTEGER
+fecha: TIMESTAMP
+url: VARCHAR(500)
+
+TipoSancion
+id: INTEGER
+nombre: VARCHAR(100)
+motivo: VARCHAR(200)
+duracionDias: INTEGER
+
+Sancion
+id: INTEGER
+vehiculoId: INTEGER
+tipoSancionId: INTEGER
+fechaInicio: TIMESTAMP
+fechaFin: TIMESTAMP
+
+TipoAlerta
+id: INTEGER
+nombre: VARCHAR(100)
+
+EstadoAlerta
+id: INTEGER
+nombre: VARCHAR(50)
+
+Alerta
+id: INTEGER
+tipoAlertaId: INTEGER
+camaraId: INTEGER
+creadoEn: TIMESTAMP
+estadoAlertaId: INTEGER

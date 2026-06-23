@@ -12,6 +12,8 @@ export type Rol = {
 export type Usuario = {
   id: number;
   nombre: string;
+  apellido?: string | null;
+  ci?: string | null;
   correo: string;
   rolId: number;
   rol: { id: number; nombre: string };
@@ -21,29 +23,12 @@ export type Usuario = {
   camaraSalida?: Camara | null;
 };
 
-export type TipoCamara = {
-  id: number;
-  nombre: string;
-};
-
-export type EstadoCamara = {
-  id: number;
-  nombre: string;
-};
-
 export type Camara = {
   id: number;
   nombre: string;
   ubicacion: string;
-  tipoCamaraId: number;
-  estadoCamaraId: number;
-  tipoCamara?: TipoCamara | null;
-  estadoCamara?: EstadoCamara | null;
-};
-
-export type TipoVehiculo = {
-  id: number;
-  nombre: string;
+  tipoCamara: string;
+  estado: string;
 };
 
 export type RegistroAcceso = {
@@ -68,8 +53,7 @@ export type Vehiculo = {
   modelo?: string | null;
   color?: string | null;
   caracteristicas?: string | null;
-  tipoVehiculoId?: number | null;
-  tipoVehiculo?: TipoVehiculo | null;
+  tipoVehiculo?: string | null;
   sanciones?: Sancion[];
   registrosAcceso?: RegistroAcceso[];
 };
@@ -91,23 +75,11 @@ export type Sancion = {
   tipoSancion?: { id: number; nombre: string; motivo: string; duracionDias: number | null };
 };
 
-export type TipoAlerta = {
-  id: number;
-  nombre: string;
-};
-
-export type EstadoAlerta = {
-  id: number;
-  nombre: string;
-};
-
 export type Alerta = {
   id: number;
-  tipoAlertaId: number;
-  estadoAlertaId: number;
+  tipoAlerta: string;
+  estadoAlerta: string;
   creadoEn: string;
-  tipoAlerta?: TipoAlerta | null;
-  estadoAlerta?: EstadoAlerta | null;
   camara?: { id: number; nombre: string } | null;
 };
 
@@ -146,11 +118,23 @@ export type PuntoAcceso = {
   id: number;
   nombre: string;
   ubicacion: string;
-  camaraIngresoId: number;
-  camaraSalidaId: number;
-  usuarioId: number;
+  descripcion?: string | null;
+  estado: string;
+  camaraIngresoId: number | null;
+  camaraSalidaId: number | null;
+  usuarioId: number | null;
   camaraIngreso?: Camara | null;
   camaraSalida?: Camara | null;
+  usuario?: { id: number; nombre: string; correo: string } | null;
+};
+
+export type LogSistema = {
+  id: number;
+  usuarioId: number | null;
+  accion: string;
+  modulo: string;
+  detalle?: string | null;
+  fecha: string;
   usuario?: { id: number; nombre: string; correo: string } | null;
 };
 
