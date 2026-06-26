@@ -1,0 +1,79 @@
+RESULTADOS
+
+• Implementación del Sistema
+
+La implementación del Sistema de Control Vehicular UAGRM permite alcanzar un conjunto de resultados orientados a optimizar el control de acceso vehicular, fortalecer la seguridad institucional y modernizar la gestión de la información de ingresos, salidas y sanciones. Entre los principales resultados logrados se encuentran:
+
+1. Optimización en el Control de Acceso Vehicular
+    o Registro automático de ingresos y salidas mediante reconocimiento óptico de caracteres (OCR).
+    o Registro estructurado de cada vehículo con datos completos (placa, marca, modelo, color, tipo).
+    o Control centralizado de todos los puntos de acceso de la universidad.
+
+2. Mejora en la Organización y Búsqueda de Información
+    o Búsqueda inmediata de un vehículo por placa y consulta de su historial completo de accesos.
+    o Detección automática de vehículos con sanciones activas antes de permitir su ingreso.
+    o Reducción del tiempo requerido para localizar el historial de un vehículo.
+
+3. Incremento en la Eficiencia Operativa
+    o Automatización del reconocimiento de placas y del análisis de características del vehículo mediante inteligencia artificial (Amazon Rekognition y Claude).
+    o Menor carga de trabajo para el personal de seguridad en los puntos de acceso.
+    o Optimización del proceso de registro frente a la bitácora manual en papel.
+
+4. Fortalecimiento de la Seguridad en los Puntos de Acceso
+    o Visualización de la transmisión de las cámaras en tiempo real.
+    o Notificación inmediata al personal de seguridad cuando una cámara se desconecta.
+    o Generación automática de alertas ante el intento de ingreso de un vehículo sancionado.
+
+5. Mejora en la Toma de Decisiones
+    o Reportes con analítica e indicadores de uso del sistema en tiempo real (ingresos, salidas, sanciones, alertas por tipo).
+    o Identificación de los puntos de acceso y vehículos con mayor frecuencia de movimiento.
+    o Datos útiles para planificar la asignación de personal y cámaras en los puntos de acceso.
+    o Exportación de reportes para su uso en reuniones institucionales.
+
+6. Fortalecimiento de la Seguridad y la Trazabilidad de la Información
+    o Generación de respaldos (backups) del sistema de forma centralizada.
+    o Control de accesos mediante roles, permisos y autenticación segura (JWT).
+    o Bitácora de auditoría que registra cada acción realizada por los usuarios del sistema.
+
+**Tabla 1.** *Situación Actual vs Situación Esperada con el Sistema de Control Vehicular*
+
+| Aspecto | Situación Actual (Antes del Sistema) | Situación Esperada (Con el Sistema) |
+|---|---|---|
+| **Registro de Ingresos y Salidas** | Registro manual en bitácora física por cada vehículo. Proceso lento y propenso a errores de transcripción. | Registro digital automático mediante OCR, centralizado y trazable desde una plataforma unificada. |
+| **Búsqueda y Localización de Vehículos** | La búsqueda depende de la memoria del personal o de revisar cuadernos físicos; proceso manual y lento. | Búsqueda inmediata por placa, con historial completo de ingresos, salidas y sanciones. Resultados inmediatos y precisos. |
+| **Detección de Vehículos Sancionados** | No existe verificación automática; el personal debe recordar manualmente qué vehículos están sancionados. | Verificación automática en cada ingreso, con bloqueo del registro y generación de alerta inmediata al personal de seguridad. |
+| **Procesos de Registro y Análisis del Vehículo** | Registro de datos del vehículo no estandarizado; depende de la observación manual del personal. | Flujo digital: OCR detecta la placa, la IA analiza marca/modelo/color/estado del vehículo, y el sistema registra el resultado. |
+| **Monitoreo de Cámaras y Puntos de Acceso** | Sin visibilidad centralizada; una cámara desconectada podía pasar desapercibida. | Visualización en tiempo real de la transmisión y alertas automáticas ante la desconexión de una cámara. |
+| **Procesos Automatizados mediante IA** | No existían automatizaciones; el reconocimiento de placas y la identificación del vehículo se hacían a simple vista. | Reconocimiento automático de placas (OCR) y análisis de características del vehículo mediante inteligencia artificial. |
+| **Analítica y Toma de Decisiones** | No había métricas sobre los accesos: se desconocía el flujo vehicular por punto de acceso u horario. | Dashboard con estadísticas, reportes de ingresos/salidas/sanciones y alertas por tipo, para decisiones informadas. |
+| **Preservación y Resguardo de la Información** | Riesgo alto de pérdida de los registros físicos (bitácoras) por daño, extravío o deterioro. | Resguardo seguro mediante respaldos automáticos del sistema y bitácora de auditoría de cada operación. |
+
+---
+
+CONCLUSIONES
+
+La implementación del Sistema de Control Vehicular UAGRM permitió levantar y estructurar de manera adecuada los requisitos funcionales y no funcionales del sistema, definiendo con claridad los roles de usuario, los niveles de acceso y las restricciones de seguridad, lo que proporcionó una base sólida para el diseño y desarrollo de la plataforma. Asimismo, se logró diseñar la arquitectura lógica y el modelo de datos del sistema, garantizando una correcta organización y trazabilidad tanto de los registros de acceso vehicular como de los usuarios, cámaras, sanciones y alertas gestionadas.
+
+Se concretó la implementación de un flujo de registro de ingreso y salida vehicular basado en reconocimiento óptico de caracteres (OCR), optimizando la captura de la placa y la verificación automática de sanciones activas antes de permitir el acceso. De igual manera, se desarrollaron los módulos de gestión de usuarios, roles, permisos, cámaras y puntos de acceso, permitiendo administrar de forma centralizada quién puede acceder al sistema y qué acciones puede realizar. También se incorporó un módulo de gestión de sanciones, fortaleciendo el control sobre los vehículos con restricciones de ingreso.
+
+El proyecto incorporó funcionalidades de inteligencia artificial, como el reconocimiento automático de placas mediante Amazon Rekognition y el análisis de características del vehículo (marca, modelo, color y estado visible) mediante la API de Claude, mejorando la precisión y la rapidez del registro frente al proceso manual. Asimismo, se integró un sistema de transmisión de cámaras en tiempo real y de alertas automáticas, permitiendo monitorear el estado de los puntos de acceso y reaccionar de forma inmediata ante eventos como la desconexión de una cámara o el intento de ingreso de un vehículo sancionado.
+
+Finalmente, se implementaron mecanismos de seguridad, respaldo y auditoría —autenticación basada en JWT, contraseñas cifradas, control de acceso por roles y permisos, y una bitácora que registra automáticamente cada acción realizada en el sistema— garantizando la protección de la información, la continuidad operativa del sistema y la integridad de los datos.
+
+En conjunto, los resultados obtenidos permiten concluir que el Sistema de Control Vehicular UAGRM es técnico y operativamente viable, fortalece la seguridad y el control de acceso vehicular de la universidad, y sienta las bases para futuras ampliaciones tecnológicas dentro del entorno institucional.
+
+---
+
+RECOMENDACIONES
+
+Se recomienda implementar un programa de capacitación continua dirigido al personal de seguridad de la UAGRM, orientado al uso correcto del sistema de control vehicular, el registro de ingresos y salidas mediante OCR, la gestión de sanciones y la aplicación de buenas prácticas digitales, con el objetivo de garantizar un uso adecuado, seguro y permanente de la plataforma.
+
+Se sugiere incorporar un módulo de notificaciones automatizadas mediante correo electrónico y mensajes SMS o push, que permita alertar al personal de seguridad y a los administradores cuando se generen eventos importantes, como el intento de ingreso de un vehículo sancionado, la desconexión de una cámara o fallas en la detección, mejorando la capacidad de reacción ante incidentes.
+
+Se recomienda extender progresivamente el sistema a otros puntos de acceso de la Universidad Autónoma Gabriel René Moreno, con el fin de ampliar su cobertura institucional, fortalecer el control vehicular a nivel universitario y beneficiar a un mayor número de facultades y sedes.
+
+Se aconseja realizar auditorías periódicas de seguridad informática, orientadas a evaluar vulnerabilidades, controlar accesos, verificar la integridad de los datos y actualizar los mecanismos de protección frente a nuevas amenazas, garantizando la confidencialidad, disponibilidad y confiabilidad de la información gestionada por el sistema.
+
+Se propone desarrollar una versión móvil del sistema, ya sea mediante una aplicación nativa o un diseño web progresivo (PWA), que facilite al personal de seguridad el registro de ingresos y salidas, la consulta de alertas y la visualización de cámaras desde dispositivos móviles, mejorando la usabilidad y el alcance del sistema dentro del entorno universitario.
+
+Finalmente, se recomienda mantener un enfoque de mejora continua del sistema, incorporando gradualmente nuevas funcionalidades basadas en inteligencia artificial, como el reconocimiento facial del conductor para procesos de verificación adicionales, análisis estadísticos más avanzados en el módulo de reportes, mejoras en la precisión del reconocimiento de placas en condiciones de poca luz, y la optimización de los procesos de detección y alerta, fortaleciendo así el carácter innovador y la proyección tecnológica del Sistema de Control Vehicular UAGRM.

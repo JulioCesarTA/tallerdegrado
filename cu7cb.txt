@@ -1,0 +1,62 @@
+9.3.2. Pruebas de Caja Blanca
+
+CU07: Registrar Salida Vehicular con OCR
+
+registerExit Detecciones:
+
+async registerExit(dto: RegisterExitDto, file: Express.Multer.File | undefined) {
+    (1) const placa = dto.placa.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+    (2) if (!placa) {
+    (F)     throw new BadRequestException('Placa invalida');
+        }
+
+        const now = new Date();
+
+        let evidenceUrl: string | null = null;
+
+    (3) if (file) {
+    (4)     const stored = await this.storageService.saveImage(file);
+            evidenceUrl = stored.url;
+        }
+    (5) else if (dto.evidenceUrl) {
+            evidenceUrl = dto.evidenceUrl;
+        }
+
+    (6) const [vehiculo, puntoAcceso] = await Promise.all([
+            this.prisma.vehiculo.findUnique({ where: { placa } }),
+            this.prisma.puntoAcceso.findFirst({ where: { camaraSalidaId: dto.cameraId }, select: { id: true } }),
+        ]);
+
+    (7) if (!vehiculo) {
+    (F)     throw new BadRequestException('Vehiculo no encontrado en el sistema');
+        }
+
+    (8) const openLog = await this.prisma.registroAcceso.findFirst({
+            where: { vehiculoId: vehiculo.id, horaSalida: null, estado: 'ingreso' },
+            orderBy: { horaIngreso: 'desc' },
+        });
+
+    (9) const puntoEgresoData = puntoAcceso ? { puntoAccesoEgresoId: puntoAcceso.id } : {};
+
+    (10) if (openLog) {
+    (11)     await this.prisma.registroAcceso.update({
+                where: { id: openLog.id },
+                data: { horaSalida: now, estado: 'salida', urlEvidencia: evidenceUrl ?? openLog.urlEvidencia, ...puntoEgresoData },
+            });
+         } else {
+    (12)     await this.prisma.registroAcceso.create({
+                data: { vehiculoId: vehiculo.id, horaIngreso: now, horaSalida: now, fecha: now, estado: 'salida', urlEvidencia: evidenceUrl, ...puntoEgresoData },
+            });
+         }
+
+    (F) return { placa, evidenceUrl, vehicle: vehiculo };
+}
+
+
+| **CAMINO**                                       | **ENTRADA SIMULADA**                                                       | **SALIDA ESPERADA**                                                                                                       |
+| ------------------------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **1, 2, F**                                       | PlacaValida = F<br>placa = "----"                                            | El sistema rechaza el registro de salida por una placa invalida y muestra un mensaje de error. No se almacena nada.        |
+| **1, 2, 3, 5, 6, 7, F**                           | PlacaValida = V<br>File = F<br>EvidenceUrl = F<br>VehiculoEncontrado = F      | El sistema rechaza la salida porque la placa no corresponde a ningun vehiculo registrado en el sistema.                    |
+| **1, 2, 3, 4, 6, 7, 8, 9, 10, 11, F**              | PlacaValida = V<br>File = V<br>VehiculoEncontrado = V<br>OpenLog = V          | El sistema cierra el registro de ingreso abierto (actualiza horaSalida y estado = "salida") sin crear un registro nuevo.   |
+| **1, 2, 3, 5, 6, 7, 8, 9, 10, 12, F**              | PlacaValida = V<br>File = F<br>EvidenceUrl = V<br>VehiculoEncontrado = V<br>OpenLog = F | El sistema crea un registro de acceso nuevo con horaIngreso = horaSalida = now y estado = "salida" (caso borde: salida sin ingreso previo). |

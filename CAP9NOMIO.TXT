@@ -1,0 +1,760 @@
+
+
+Costos
+
+La estimación de costos del sistema de videoteca se ha realizado a partir de los recursos definidos en el perfil del proyecto: equipamiento de hardware, software y herramientas, infraestructura en la nube, personal técnico y gastos logísticos. Los montos se expresan en bolivianos (Bs) y consideran un horizonte de implementación de aproximadamente seis meses, de acuerdo al cronograma planteado anteriormente.
+
+Estimación de costos
+
+En la tabla siguiente se presenta un resumen de los costos agrupados por categoría:
+
+Estimación de Costos para el sistema de la Videoteca del canal 11 TVU
+
+Categoría
+Descripción general
+Subtotal (Bs)
+Hardware
+Equipos de cómputo
+5.800
+
+
+Teléfonos celulares
+5.000
+
+
+Servidores dedicados (opcionales)
+480
+
+
+Subtotal
+11.280
+Software y licencias
+Sistemas operativos
+920
+
+
+Herramientas para el desarrollo
+0
+
+
+Herramientas para gestión
+0
+
+
+Licencias
+150
+
+
+
+
+
+
+Subtotal
+1.070
+Infraestructura
+Servicio de Internet
+1145
+
+
+Dominio
+0
+
+
+servicios asociados Cuentas Redes Sociales
+45
+
+
+Subtotal
+1190
+Personal técnico
+Programador Full Stock
+7500
+
+
+Gestor de proyecto/documentación
+6000
+
+
+Subtotal
+13500
+Logística,	materiales	y servicios
+materiales	de	oficina,	transporte	y refrigerios
+
+
+
+
+Subtotal
+500
+Total, general estimado
+Inversión total del proyecto de videoteca
+27.540
+
+
+
+Nota. La tabla presenta una estimación preliminar de los costos por tipo de recurso, considerando hardware, software, personal, infraestructura y materiales necesarios para el desarrollo e implementación del sistema. Elaboración propia
+
+Hardware
+
+Costos de los equipos de computación para el desarrollo del sistema.
+
+Ítem
+Descripción
+Unidad
+Cantidad
+Precio Unitario (Bs)
+Subtotal (Bs)
+1
+Laptop Hp Pavilion 15 (8 Gb Ram, Ryzen 5,
+Ssd 512 Gb)
+Pieza
+1
+5800
+5600
+2
+Teclado	y	mouse inalámbrico
+Pieza
+1
+200
+200
+
+
+Totales
+
+
+2
+
+
+5800
+
+
+
+Nota. La tabla muestra los equipos de cómputo estimados como necesarios para el desarrollo del sistema, considerando un entorno de programación con herramientas modernas. Los precios fueron calculados en base a valores promedio del mercado local y representan un costo referencial.
+Elaboración propia.
+
+Estimación de Costos de Teléfonos Celulares
+
+Ítem
+Descripción
+Unidad
+Cantidad
+Precio Unitario (Bs)
+Subtotal (Bs)
+1
+Iphone	12	Pro	Max 256GB
+Pieza
+1
+5800
+5000
+
+
+Totales
+
+
+
+
+
+
+5000
+
+
+
+Nota. El teléfono celular incluido en la tabla fue considerado necesario para realizar pruebas de compatibilidad, diseño responsive, interacción con videos y simulaciones en entorno móvil. El modelo es representativo del rango de dispositivos utilizados por los usuarios finales. Elaboración propia
+Estimación de Costos de Servidores
+
+Ítem
+Descripción
+Unidad
+Cantidad
+Precio Unitario (Bs)
+Subtotal (Bs)
+1
+Servidor	virtual (DigitalOcean 2 GB RAM)
+Pieza
+2
+100
+200
+
+
+
+
+2
+Dominio web (.org) en nic.bo
+Pieza
+1
+280
+280
+
+
+Totales
+
+
+2
+
+
+480
+
+
+
+Software
+
+Estimación de Costos del Software para la videoteca Canal 11 TVU
+
+Ítem
+Descripción
+Unidad
+Cantidad
+Precio	Unitario (Bs)
+Subtotal (Bs)
+1
+Licencias Windows 11 Pro
+
+para los equipos
+Licencia
+2
+460
+920
+2
+Ubuntu Server 22.04 LTS, (software libre)
+Licencia
+1
+0
+0
+3
+Django, Django REST Framework,	React, PostgreSQL y Node.js
+Paquete
+1
+0
+0
+4
+Visual	Studio	Code, Postman, Git y Docker
+Paquete
+1
+0
+0
+
+
+Total
+
+
+5
+
+
+920
+
+
+
+Nota. Esta tabla presenta los sistemas operativos utilizados en el desarrollo y pruebas del sistema. La licencia de Windows se estima como valor referencial.
+Elaboración propia
+
+Estimación de Costos de herramientas de desarrollo
+
+Ítem
+Descripción
+Unidad
+Cantidad
+Precio	Unitario (Bs)
+Subtotal (Bs)
+1
+GitHub (repositorio privado de desarrollo)
+Usuario/ Mes
+2	×	5
+
+meses
+0
+0
+2
+Girra (gestión de tareas por tableros)
+Usuario/ Mes
+2	×	5
+
+meses
+0
+0
+3
+Google Drive (documentación compartida)
+Usuario/ Mes
+2	×	5
+
+meses
+0
+0
+
+
+Total
+
+
+
+
+
+
+0
+
+
+
+Nota. Las herramientas de gestión incluidas fueron utilizadas para la organización, planificación y control del proyecto. Se usaron versiones gratuitas sin costo, pero con todas las funcionalidades necesarias para el equipo de trabajo. Elaboración propia.
+Estimación de Costos de herramientas para la gestión
+
+
+Ítem
+Descripción
+Unidad
+Cantidad
+Precio Unitario (Bs)
+Subtotal (Bs)
+1
+Visual Studio Code (IDE)
+Usuario
+2
+0
+0
+2
+Postman (pruebas de API REST)
+Usuario
+2
+0
+0
+3
+XAMPP (servidor local PHP + MySQL)
+Usuario
+2
+0
+0
+4
+PgAdmin (gestor visual de base de datos PostgreSQL)
+Usuario
+2
+0
+0
+5
+Composer y NPM (gestores de paquetes PHP y JS)
+Usuario
+2
+0
+0
+
+
+Total
+
+
+
+
+
+
+0
+
+
+
+Nota. Las herramientas de gestión fueron utilizadas durante todo el semestre por los dos integrantes del equipo, para coordinar tareas, compartir documentación y mantener el control de versiones. Se usaron versiones gratuitas sin costo directo para el proyecto. Elaboración propia.
+
+Estimación de Costos de Licencias
+
+Ítem
+Descripción
+Unidad
+Cantidad
+Precio Unitario (Bs)
+Subtotal (Bs)
+1
+Tailwind CSS y shadcn/ui (bibliotecas para el diseño de la interfaz visual)
+Proyecto
+1
+0
+0
+2
+StarUML (licencia individual para modelado UML del sistema)
+Proyecto
+1
+150
+150
+3
+Plantillas para diseño visual (íconos, recursos UI online y mockups)
+Proyecto
+1
+0
+0
+
+
+Total
+
+
+3
+
+
+150
+
+
+
+Nota. Las licencias detalladas corresponden a librerías, extensiones y servicios utilizados en funciones específicas del sistema, como exportación a PDF, integración con IA y personalización visual. Los precios son estimativos y podrían variar según el proveedor o condiciones de uso. Elaboración propia.
+
+Personal
+
+Estimación de Costos para el personal de desarrollo
+
+Ítem
+Descripción
+Unidad
+Cantidad
+Precio Unitario (Bs)
+Subtotal (Bs)
+1
+Programador	Full	Stack (Estudiante)
+Bs/proyecto
+5 meses
+1500
+7500
+2
+Gestor	de	proyecto	y documentación (Estudiante)
+Bs/proyecto
+5 meses
+1200
+6000
+
+
+Total
+
+
+2
+
+
+13500
+
+
+
+Nota. La tabla muestra los costos estimados del personal técnico asignado al desarrollo de la videoteca inteligente del Canal 11 TVU – UAGRM. Elaboración propia.
+Infraestructura
+
+Estimación de Costos para la Infraestructura
+
+Ítem
+Descripción
+Unidad
+Cantidad
+Precio Unitario (Bs)
+Subtotal (Bs)
+1
+Servicio	de	Internet	para desarrollo y pruebas
+Mes
+5
+229
+1145
+2
+Servicios asociados a cuentas en
+
+redes sociales
+Proyecto
+1
+45
+45
+
+
+
+
+Total
+6
+1190
+
+
+
+Nota. La tabla presenta los costos estimados de la infraestructura necesaria para el acceso y operación en línea de la videoteca inteligente del Canal 11 TVU – UAGRM. Elaboración propia.
+Material y refrigerio
+
+Estimación de Costos para el Material y Refrigerio
+
+Ítem
+Descripción
+Unidad
+Cantidad
+Precio Unitario (Bs)
+Subtotal (Bs)
+1
+Material de oficina e impresiones para documentación del sistema
+Proyecto
+1
+200
+200
+2
+Transporte para reuniones y visitas técnicas al Canal 11 TVU
+Proyecto
+1
+200
+200
+3
+Refrigerios durante sesiones de trabajo y validación con usuarios
+Proyecto
+1
+100
+100
+
+
+Total
+
+
+3
+
+
+500
+
+
+
+Nota. La tabla detalla los costos estimados de materiales de oficina, transporte y refrigerios utilizados durante el desarrollo del proyecto de videoteca. Elaboración propia.
+
+Retorno de la Inversión (ROI)
+
+Incremento en ventas por el uso del sistema
+
+En el Canal Once las “ventas” se relacionan principalmente con la comercialización de espacios publicitarios y la producción de contenidos para terceros.
+la videoteca el canal puede reutilizar con mayor facilidad su archivo audiovisual, se pueden ofrecer campañas adicionales usando material ya existente.
+2 campañas publicitarias adicionales al mes (institucionales o comerciales).
+
+Cada campaña genera en promedio 800 Bs de ingreso.
+
+Entonces proyectamos para 12 meses:
+
+Ventas adicionales por uso del sistema = 2 campañas / mes ×800 Bs ×12 meses = 19.200
+
+Redondeando, se considera un incremento anual en ventas de 20.000 Bs por el uso de la videoteca.
+Incremento en ventas por el análisis de datos
+
+El sistema de videoteca incorpora un módulo de analítica y métricas, que permite conocer:
+
+qué programas tienen mayor audiencia,
+
+en qué horarios se obtienen mejores resultados,
+
+qué contenidos generan más interacción.
+
+Con esta información el canal puede diseñar campañas y paquetes publicitarios dirigidos, lo que se traduce en más ingresos.
+
+El análisis de datos permite concretar:
+
+1 paquete publicitario adicional por trimestre,
+
+con un ingreso promedio de 2.500 Bs por paquete entonces:
+Ventas adicionales por análisis de datos = 2.500Bs ×4 trimestres = 10.000 Bs/anuales
+
+Se estima así un incremento anual en ventas de 10.000 Bs atribuible al uso de la analítica del sistema.
+Reducción de costos
+
+Además del aumento en ventas, la videoteca genera ahorros en la operación del canal.
+
+Ahorro en tiempo del personal técnico
+
+Antes: la búsqueda de videos en cintas, discos o carpetas dispersas consume mucho tiempo.
+
+Ahora: el material está centralizado y catalogado en la videoteca.
+
+Si se estima que el personal ahorra:
+
+50 horas de trabajo al mes,
+
+con un costo promedio de 50 Bs/hora, entonces:
+Ahorro por tiempo = 50 hrs / mes ×12 meses × 50 Bs/h = 30.000Bs/anual
+
+Reducción de costos de preservación física y almacenamiento
+
+Se disminuye la compra de cintas, DVDs, discos externos y el uso de espacio físico.
+
+Se estima un ahorro global de 1.000 Bs mensuales en estos conceptos.
+
+Entonces:
+
+Ahorro en preservación física = 1.000 / mes ×12 meses = 12.000Bs/anual El total de reducción de costos es: 30.000 + 12.000 Bs = 42.000 Bs/anual
+
+
+Tabla de Reducción de costos de preservación física y almacenamiento
+
+
+
+
+Concepto
+Cálculo
+Valor (Bs)
+
+/ (%)
+Costo	de	la inversión
+Incremento de ventas por uso del sistemas + incremento de ventas por análisis de datos + reducción de costos operativos.
+27.540 Bs
+Beneficios totales anuales
+20.000 + 10.000 + 42.000
+72.000 Bs
+Beneficio neto
+Beneficio totales anuales – costo de inversion
+44.460 Bs
+ROI (%)
+(BN / CI) × 100
+161,44 %
+
+
+
+la implementación de la videoteca permitiría recuperar la inversión en aproximadamente un año y obtener un retorno del 161 %, además de los beneficios cualitativos de preservar y aprovechar mejor el patrimonio audiovisual del Canal Once – UAGRM.
+
+Riesgos y plan de respuesta
+
+Durante el desarrollo, implementación y operación del sistema, se identificaron diversos riesgos que podrían afectar el cumplimiento de los objetivos del proyecto. A continuación, se presenta un análisis de los principales riesgos junto con sus estrategias de mitigación o respuesta:
+Tabla de Riesgos y Plan de Respuesta
+
+Descripción
+Probabilidad (%)
+Impacto
+Plan de respuesta al Riesgo
+Monitoreo y Control
+Riesgos Técnicos
+
+
+
+
+
+
+
+
+Indisponibilidad de los servicios en la nube o del servidor de la videoteca
+40
+Alto
+Configurar respaldos automáticos, servidor alterno y planes	de
+contingencia	para fallas prolongadas.
+Revisar periódicamente	el uptime del servidor, alertas	de	caída		y reportes de proveedor de la nube.
+Pérdida	o
+
+corrupción		de información audiovisual	en		la base de datos
+30
+Crítico
+Implementar copias de seguridad diarias y pruebas de restauración; definir políticas de
+Auditorías mensuales de	respaldos, verificación		de integridad y registro de incidentes de pérdida de datos.
+
+
+
+
+
+
+
+
+
+
+respaldo de videos y metadatos.
+
+
+Vulnerabilidades de seguridad lógica (accesos		no autorizados,	fuga de datos)
+25
+Alto
+Aplicar autenticación robusta,	roles		y permisos,		uso
+obligatorio	de
+HTTPS	y
+
+actualización continua	del software.
+Revisión de logs de acceso, escaneos de seguridad periódicos y reporte de intentos de intrusión.
+Riesgos de Gestión
+
+
+
+
+
+
+
+
+Retrasos en la digitalización y carga de material audiovisual
+50
+Alto
+Planificar cronograma realista,	priorizar material crítico y gestionar apoyo de pasantes o personal de apoyo.
+Seguimiento quincenal del avance, comparación	con	el cronograma y ajustes de recursos cuando sea necesario.
+Baja adopción del
+
+sistema  por  parte
+40
+Alto
+Realizar
+
+capacitaciones,
+Encuestas	de
+
+satisfacción, métricas
+
+
+
+
+del	personal	del Canal Once
+
+
+
+
+elaborar manuales de	usuario		y socializar beneficios	de	la videoteca.
+de uso (usuarios activos, búsquedas, visualizaciones)   y
+reuniones	de retroalimentación.
+Riesgos Institucionales
+Cambios	en políticas de TI o presupuesto que afecten		la
+operación	del sistema
+20
+Medio
+Mantener coordinación con el área	de	TI	y autoridades; documentar dependencias	 y justificar el valor del sistema.
+Reuniones periódicas con TI y dirección, revisión anual de políticas	y
+actualización del plan de sostenibilidad.
+
+Nota. La tabla presenta los principales riesgos identificados para la Videoteca Inteligente del Canal Once – UAGRM, junto con su plan de respuesta y mecanismos de monitoreo. Elaboración propia.
+Seguridad
+La seguridad de la información busca proteger la confidencialidad, integridad y disponibilidad de los activos de información, conocida como la tríada CIA (Confidentiality, Integrity, Availability) (Stallings & Brown, 2018). En la Videoteca Inteligente del Canal Once UAGRM esto implica resguardar tanto la infraestructura física como los datos y servicios lógicos que componen el sistema.
+
+Seguridad física
+
+La seguridad física se ocupa de proteger los equipos, instalaciones y medios de almacenamiento frente a daños, robos o accesos no autorizados. La norma ISO/IEC 27002 recomienda controles de acceso físico, condiciones ambientales adecuadas y protección de los soportes de información como parte de las buenas prácticas de seguridad (ISO/IEC, 2022).
+Control de acceso a equipos y salas
+Los computadores de desarrollo, los dispositivos de administración y posibles servidores dedicados se ubican en oficinas o laboratorios con acceso restringido al personal autorizado del Canal Once y de la UAGRM. Se recomienda llevar un registro de las personas que ingresan a estas áreas, tal como sugieren los controles físicos de ISO/IEC 27002 (ISO/IEC, 2022).
+Protección eléctrica y ambiental
+Se utilizan sistemas de alimentación ininterrumpida (UPS) para mitigar cortes de energía y variaciones de voltaje, evitando daños en los equipos y pérdida de información.
+Además, las salas con equipamiento se mantienen con ventilación, limpieza y temperatura adecuadas.
+Custodia de copias de respaldo
+Las copias de seguridad almacenadas en discos externos se guardan bajo llave y en un lugar distinto al de los equipos principales. Estas copias se complementan con respaldos en la nube, lo cual está alineado con las recomendaciones de redundancia y continuidad del negocio de ISO/IEC 27002 (ISO/IEC, 2022).
+
+Seguridad en las áreas del Canal Once
+Las áreas de archivo, edición y producción cuentan con controles de ingreso (llaves, credenciales internas), para evitar la manipulación no autorizada del material audiovisual original y de sus soportes físicos.
+Gestión de equipos en desuso y plan de contingencia
+Antes de dar de baja un equipo o disco duro se realiza un borrado seguro de la información. Además, se define un procedimiento básico ante incendios, inundaciones o robos, priorizando el resguardo de respaldos y la recuperación del servicio.
+Figura 124. Esquema de Seguridad física
+
+
+
+Seguridad lógica
+
+La seguridad lógica agrupa los controles de software, políticas de acceso y mecanismos criptográficos que protegen los sistemas de información frente a ataques o usos indebidos (Stallings & Brown, 2018).Dado que la videoteca es una aplicación web, también se consideran las vulnerabilidades identificadas por el estándar OWASP Top 10, que resume los riesgos más críticos en aplicaciones web (OWASP Foundation, 2021).
+Figura 125. Esquema de Seguridad Lógica
+
+
+
+Seguridad a nivel de peticiones (Capa 1)
+
+Las peticiones que realizan los usuarios desde el frontend en React hacia el backend en Django REST Framework se validan antes de ser procesadas:
+Se verifican formato y rangos de los datos enviados en formularios (registro, inicio de sesión, carga de videos, comentarios).Se utilizan las capacidades del ORM de Django y las recomendaciones de
+
+OWASP para reducir riesgos de inyección SQL, XSS y CSRF (OWASP Foundation, 2021).Se limita el tipo y tamaño de archivos que se pueden subir, reduciendo la posibilidad de ataques por sobrecarga o carga de contenido malicioso.
+Riesgos y solución:
+
+Peticiones maliciosas o automatizadas: se mitigan con validaciones estrictas, mensajes de error controlados y registro de eventos sospechosos.
+Sobrecarga del servidor: se emplea paginación en listados y se contempla la implementación de límites de frecuencia (rate limiting) para ciertas operaciones.
+Seguridad a nivel de autenticación y autorización (Capa 2)
+
+En esta capa se controla quién accede al sistema y qué acciones puede realizar:
+
+La autenticación se realiza mediante usuario y contraseña, almacenando las claves con algoritmos de hash seguro (por ejemplo, PBKDF2 o Argon2), como recomiendan los textos de seguridad de sistemas (Stallings & Brown, 2018).
+Se definen roles y permisos:
+
+Administrador: gestiona usuarios, videos, categorías, anuncios y reportes.
+
+Usuario general: consulta y visualiza contenidos, e interactúa mediante comentarios y listas de reproducción según los permisos otorgados.
+Se usan tokens de autenticación (JWT) con tiempos de expiración definidos; al cerrar sesión o cambiar credenciales, el token se invalida.
+
+Riesgos y solución:
+
+Robo de credenciales: se atenúa exigiendo contraseñas robustas y evitando su almacenamiento en texto plano.
+Escalada de privilegios: se previene aplicando controles de acceso por rol en cada endpoint, en línea con la categoría de “Broken Access Control” de OWASP Top 10 (OWASP Foundation, 2021).
+Secuestro de sesión: se reduce utilizando exclusivamente HTTPS y configurando tiempos de expiración razonables para los tokens.
+Seguridad a nivel de datos y almacenamiento (Capa 3)
+
+Por último, se protege la información almacenada en la base de datos PostgreSQL y en los servicios de almacenamiento de archivos:
+Se aplica el principio de mínimo privilegio en las cuentas de base de datos, tal como sugieren los estándares de control de acceso (ISO/IEC, 2022; Stallings & Brown, 2018).
+Se realizan copias de seguridad periódicas de la base de datos y del repositorio de videos, almacenadas tanto en dispositivos físicos como en la nube.
+El uso de transacciones del ORM de Django contribuye a mantener la integridad de los datos aun ante fallos durante las operaciones.
+Toda comunicación entre frontend, backend y servicios externos se realiza mediante
+HTTPS, protegiendo la confidencialidad de credenciales y tokens en tránsito.
+
+Riesgos y solución:
+
+Pérdida o corrupción de información: se mitiga con políticas de respaldo, pruebas de restauración y monitoreo de logs.
+Fuga de datos sensibles: se reduce mediante el cifrado de contraseñas, el control de permisos sobre carpetas/volúmenes y la restricción de acceso al personal técnico.

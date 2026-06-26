@@ -1,0 +1,19 @@
+2.1. Identificación y estructuración del Procedimiento de Prueba
+
+Diseñar la estructura de los datos que se manejarán al aplicar el método de la caja negra, y describir cada dato.
+
+Por ejemplo:
+
+• Nombre de caso de prueba: Especificar el nombre completo del caso de uso a realizar la prueba.
+
+• Descripción: Breve resumen del Caso de Uso evaluado, destacando aspectos funcionales que se van a evaluar.
+
+• Precondición: Estado o condición que debe cumplirse antes de ejecutar la prueba. Estas precondiciones garantizan que el entorno y los datos iniciales sean adecuados para la evaluación.
+
+• Entrada: Información que requiere el caso de uso para producir o genera resultados que sean significativos para el usuario.
+
+• Condición de ejecución: Cuando el caso de prueba presente alguna restricción para demostrar su correcto funcionamiento.
+
+• Resultado obtenido: Transcribir lo que dio como respuesta el software para su validación o corrección si fuese necesario.
+
+• Resultado esperado: Detalle del resultado previsto al finalizar la prueba, ya sea exitoso o fallido. En este punto se establece si el sistema se comporta según lo especificado.

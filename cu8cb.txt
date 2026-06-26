@@ -1,0 +1,57 @@
+9.3.2. Pruebas de Caja Blanca
+
+CU08: Analizar Caracteristicas Vehiculares con IA
+
+analyzeVehicleFile Detecciones + analyzeVehicle Vision:
+
+async analyzeVehicleFile(file: Express.Multer.File | undefined) {
+    (1) if (!file) {
+    (F)     throw new BadRequestException('La imagen es obligatoria');
+        }
+        const [analysis, stored] = await Promise.all([
+            this.visionService.analyzeVehicle(file),
+            this.storageService.saveImage(file),
+        ]);
+        return { ...analysis, evidenceUrl: stored.url };
+}
+
+async analyzeVehicle(file: Express.Multer.File): Promise<VehicleAnalysis> {
+    (2) if (!this.claudeApiKey) {
+    (F)     throw new InternalServerErrorException('Claude API key no configurada');
+        }
+
+    (3) const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'x-api-key': this.claudeApiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+            body: JSON.stringify({ model: this.claudeModel, max_tokens: 512, messages: [...] }),
+        });
+
+    (4) if (!response.ok) {
+            const errBody = await response.json().catch(() => ({}));
+    (5)     if (response.status === 429) {
+    (F)         throw new InternalServerErrorException('Limite de Claude alcanzado, espera unos segundos e intenta de nuevo');
+            }
+    (F)     throw new InternalServerErrorException(errBody?.error?.message ?? 'Error al llamar a Claude');
+        }
+
+    (6) const data = await response.json();
+        const rawText = data.content?.find((c) => c.type === 'text')?.text ?? '';
+        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+
+    (7) if (!jsonMatch) {
+    (F)     throw new InternalServerErrorException('Respuesta invalida de Claude');
+        }
+
+    (8) const parsed = JSON.parse(jsonMatch[0]);
+    (F) return { tipoVehiculo: parsed.tipoVehiculo || 'desconocido', marca: parsed.marca || 'desconocido', modelo: parsed.modelo || 'desconocido', color: parsed.color || 'desconocido', caracteristicas: parsed.caracteristicas || 'Sin observaciones.' };
+}
+
+
+| **CAMINO**                 | **ENTRADA SIMULADA**                                              | **SALIDA ESPERADA**                                                                                          |
+| --------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **1, F**                   | File = F (sin imagen adjunta)                                       | El sistema rechaza la solicitud con "La imagen es obligatoria" y no llama a la API de Claude.                   |
+| **1, 2, F**                 | File = V<br>ClaudeApiKey = F                                         | El sistema responde con error de servidor "Claude API key no configurada"; no se realiza la peticion HTTP.      |
+| **1, 2, 3, 4, 5, F**        | File = V<br>ClaudeApiKey = V<br>ResponseOk = F<br>Status = 429       | El sistema responde "Limite de Claude alcanzado, espera unos segundos e intenta de nuevo".                      |
+| **1, 2, 3, 4, 5, F**        | File = V<br>ClaudeApiKey = V<br>ResponseOk = F<br>Status = 500       | El sistema responde con el mensaje de error devuelto por Claude (o "Error al llamar a Claude" si no hay detalle). |
+| **1, 2, 3, 4, 6, 7, F**     | File = V<br>ClaudeApiKey = V<br>ResponseOk = V<br>JsonMatch = F      | El sistema responde "Respuesta invalida de Claude" porque el texto devuelto no contiene un JSON valido.         |
+| **1, 2, 3, 4, 6, 7, 8, F**  | File = V<br>ClaudeApiKey = V<br>ResponseOk = V<br>JsonMatch = V      | El sistema retorna tipoVehiculo, marca, modelo, color y caracteristicas junto con evidenceUrl (imagen subida).  |

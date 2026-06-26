@@ -1,0 +1,117 @@
+CU01. Iniciar Sesión y Cerrar Sesion
+
+const handleSubmit = async (e) => {
+e.preventDefault();
+setIsSubmitting(true);
+setAlert(null);
+
+
+const newErrors = {};
+if (!formData.username.trim()) {
+newErrors.username = "El nombre de usuario es requerido";
+}
+if (!formData.password) {
+newErrors.password = "La contraseña es requerida";
+}
+
+
+if (Object.keys(newErrors).length > 0) { setErrors(newErrors); setIsSubmitting(false);
+(F) return;  // Corte por validación de formulario
+}
+
+
+try {
+const result = await login({ username: formData.username, password: formData.password,
+});
+
+if (result?.success) {
+// Detección robusta del rol en la respuesta
+const rol = result?.usuario?.rol || result?.user?.rol || result?.data?.usuario?.rol || result?.rol || result?.Usuario?.rol ||
+null;
+
+
+const rolNorm = typeof rol === "string" ? rol.toUpperCase() : "";
+
+
+setAlert({ type: "success", message:
+rolNorm === "ADMIN"
+? "¡Bienvenido, administrador! Redirigiendo a tu panel…"
+: "¡Inicio de sesión exitoso! Redirigiendo…",
+});
+
+
+// Redirección según rol
+setTimeout(() => {
+if (rolNorm === "ADMIN") { navigate("/admin");
+} else {
+navigate("/catalog");
+
+}
+}, 800);
+
+
+(F) // Flujo exitoso: usuario autenticado y redirigido
+
+
+} else {
+// Credenciales inválidas u otro error lógico del backend
+setAlert({ type: "error",
+message: result?.message || "Credenciales inválidas",
+});
+(F) // Flujo de error funcional (credenciales o lógica)
+}
+
+
+} catch (error) {
+// Error de red / excepción en login()
+setAlert({ type: "error",
+message: "Error de conexión. Intenta nuevamente.",
+});
+(F) // Flujo de error técnico (excepción)
+} finally {
+setIsSubmitting(false);
+}
+};
+
+
+
+
+
+
+
+
+
+
+CAMINO
+ENTRADA SIMULADA
+SALIDA ESPERADA
+1 → 7 → (F)
+Usuario y contraseña vacíos
+Se muestran errores de validación y no se ejecuta login().
+1 → 7 → (F)
+Usuario válido, contraseña vacía
+Se muestra error en contraseña y se detiene el proceso.
+1 → 9 → 12 → 13
+
+→ (F)
+Credenciales	válidas,	rol ADMIN
+Inicio  exitoso  y  redirección  al  panel
+
+/admin.
+
+
+
+
+1 → 9 → 12 → 13
+
+→ (F)
+Credenciales	válidas,	rol USUARIO
+Inicio exitoso y redirección a /catalog.
+1 → 9 → 14 → (F)
+Credenciales incorrectas
+Mensaje de “Credenciales inválidas”, sin redirección.
+1 → 15 → 16 → (F)
+Error de conexión en login()
+Mensaje de “Error de conexión”, sin redirección.
+
+

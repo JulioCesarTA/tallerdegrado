@@ -1,0 +1,53 @@
+9.3.2. Pruebas de Caja Blanca
+
+CU11: Sancionar Vehiculo
+
+create Sanctions:
+
+async create(dto: CreateSanctionDto) {
+    (1) const vehiculoId = dto.vehiculoId ?? (await this.findVehicleIdByPlate(dto.placa));
+
+        [dentro de findVehicleIdByPlate(placa):]
+
+    (2) if (!placa) {
+    (F)     throw new BadRequestException('Se requiere vehiculoId o placa');
+        }
+    (3) const vehiculo = await this.prisma.vehiculo.findUnique({
+            where: { placa: placa.toUpperCase() },
+            select: { id: true },
+        });
+    (4) if (!vehiculo) {
+    (F)     throw new NotFoundException('Vehiculo no encontrado');
+        }
+        return vehiculo.id;
+
+        [continua en create:]
+
+    (5) const tipoSancion = await this.prisma.tipoSancion.findUnique({
+            where: { id: dto.tipoSancionId },
+            select: { duracionDias: true },
+        });
+
+    (6) if (!tipoSancion) {
+    (F)     throw new NotFoundException('Tipo de sancion no encontrado');
+        }
+
+    (7) const fechaFin = tipoSancion.duracionDias
+            ? new Date(Date.now() + tipoSancion.duracionDias * 86_400_000)
+            : undefined;
+
+    (8) return this.prisma.sancion.create({
+            data: { vehiculoId, tipoSancionId: dto.tipoSancionId, fechaInicio: new Date(), fechaFin },
+            include: sancionInclude,
+        });
+    (F)
+}
+
+
+| **CAMINO**                | **ENTRADA SIMULADA**                                                          | **SALIDA ESPERADA**                                                                                  |
+| --------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **1, 5, 6, 7, 8, F**        | VehiculoIdProvisto = V<br>TipoSancionExiste = V                                   | Se crea la sancion directamente usando el vehiculoId recibido, sin pasar por la busqueda por placa.      |
+| **1, 2, F**                 | VehiculoIdProvisto = F<br>Placa = vacia                                           | El sistema rechaza la solicitud con "Se requiere vehiculoId o placa".                                    |
+| **1, 2, 3, 4, F**           | VehiculoIdProvisto = F<br>Placa = "ZZZ999" (inexistente)                          | El sistema rechaza la solicitud con "Vehiculo no encontrado".                                            |
+| **1, 2, 3, 4, 5, 6, F**     | VehiculoIdProvisto = F<br>Placa = "ABC123" (existente)<br>TipoSancionExiste = F    | El sistema rechaza la solicitud con "Tipo de sancion no encontrado".                                     |
+| **1, 2, 3, 4, 5, 6, 7, 8, F** | VehiculoIdProvisto = F<br>Placa = "ABC123" (existente)<br>TipoSancionExiste = V<br>DuracionDias = V | Se crea la sancion con fechaFin calculada (fechaInicio + duracionDias); la respuesta incluye vehiculo y tipoSancion. |

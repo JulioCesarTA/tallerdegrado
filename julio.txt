@@ -1,0 +1,339 @@
+CAPÍTULO 10. COSTOS, RIESGOS Y SEGURIDAD
+
+En este capítulo se presentan los costos asociados al desarrollo e implementación del "Sistema de Control Vehicular UAGRM", así como el análisis del retorno de la inversión (ROI) considerando los beneficios operativos e institucionales que generará el sistema. Asimismo, se identifican los principales riesgos del proyecto junto con su plan de respuesta y se describen los mecanismos de seguridad lógica y física necesarios para garantizar la integridad, confidencialidad y disponibilidad de la información de usuarios, vehículos, registros de acceso y sanciones gestionada por el sistema.
+
+---
+
+## 10.1. Costos
+
+La estimación de costos del sistema se ha realizado a partir de los recursos definidos en el perfil del proyecto: equipamiento de hardware, software y herramientas, infraestructura en la nube (AWS), personal técnico y gastos logísticos. Los montos se expresan en bolivianos (Bs) y consideran un horizonte de implementación de aproximadamente cinco meses, de acuerdo al cronograma planteado anteriormente.
+
+### 10.1.1. Estimación de costos
+
+En la tabla siguiente se presenta un resumen de los costos agrupados por categoría:
+
+**Tabla 1.** *Estimación de Costos para el Sistema de Control Vehicular UAGRM*
+
+| Categoría | Descripción general | Subtotal (Bs) |
+|---|---|---|
+| Hardware | Equipos de cómputo | 5.800 |
+| | Cámaras IP y dispositivo móvil de pruebas | 3.400 |
+| | Equipos de red para puntos de acceso (opcionales) | 480 |
+| | **Subtotal** | **9.680** |
+| Software y licencias | Sistemas operativos | 920 |
+| | Herramientas para el desarrollo | 0 |
+| | Herramientas para gestión | 0 |
+| | Licencias | 150 |
+| | **Subtotal** | **1.070** |
+| Infraestructura | Servidor AWS EC2, S3, Rekognition, Claude API | 1.225 |
+| | Servicio de Internet | 1.000 |
+| | **Subtotal** | **2.225** |
+| Personal técnico | Programador Full Stack | 7.500 |
+| | Gestor de proyecto/documentación | 6.000 |
+| | **Subtotal** | **13.500** |
+| Logística, materiales y servicios | Materiales de oficina, transporte y refrigerios | — |
+| | **Subtotal** | **550** |
+| **Total general estimado** | **Inversión total del proyecto de control vehicular** | **27.025** |
+
+*Nota.* La tabla presenta una estimación preliminar de los costos por tipo de recurso, considerando hardware, software, personal, infraestructura en la nube y materiales necesarios para el desarrollo e implementación del sistema. Elaboración propia.
+
+### 10.1.2. Hardware
+
+Costos de los equipos de computación para el desarrollo del sistema.
+
+**Tabla 2.** *Costos de los equipos de computación para el desarrollo del sistema*
+
+| Ítem | Descripción | Unidad | Cantidad | Precio Unitario (Bs) | Subtotal (Bs) |
+|---|---|---|---|---|---|
+| 1 | Laptop HP Pavilion 15 (8 GB RAM, Ryzen 5, SSD 512 GB) | Pieza | 1 | 5.600 | 5.600 |
+| 2 | Teclado y mouse inalámbrico | Pieza | 1 | 200 | 200 |
+| | | | **Totales** | **2** | **5.800** |
+
+*Nota.* La tabla muestra los equipos de cómputo estimados como necesarios para el desarrollo del sistema, considerando un entorno de programación con herramientas modernas (NestJS, Next.js, Docker). Los precios fueron calculados en base a valores promedio del mercado local y representan un costo referencial. Elaboración propia.
+
+**Tabla 3.** *Estimación de Costos de Cámaras IP y dispositivo móvil de pruebas*
+
+| Ítem | Descripción | Unidad | Cantidad | Precio Unitario (Bs) | Subtotal (Bs) |
+|---|---|---|---|---|---|
+| 1 | Cámara IP con visión nocturna (pruebas de OCR en puntos de acceso) | Pieza | 2 | 600 | 1.200 |
+| 2 | Smartphone (pruebas de captura, diseño responsive y simulación de cámara móvil) | Pieza | 1 | 2.200 | 2.200 |
+| | | | **Totales** | **3** | **3.400** |
+
+*Nota.* Las cámaras IP y el dispositivo móvil incluidos en la tabla fueron considerados necesarios para validar el flujo real de registro de ingreso y salida vehicular con OCR (CU06, CU07) bajo distintas condiciones de luz y distancia. Elaboración propia.
+
+**Tabla 4.** *Estimación de Costos de Equipos de Red para Puntos de Acceso*
+
+| Ítem | Descripción | Unidad | Cantidad | Precio Unitario (Bs) | Subtotal (Bs) |
+|---|---|---|---|---|---|
+| 1 | Router/switch portátil para conectividad en garitas (pruebas) | Pieza | 2 | 100 | 200 |
+| 2 | Dominio web (.org) en NIC.bo (referencial) | Pieza | 1 | 280 | 280 |
+| | | | **Totales** | **3** | **480** |
+
+*Nota.* Equipos opcionales considerados para asegurar la conectividad de las cámaras en los puntos de acceso durante las pruebas de campo. Elaboración propia.
+
+### 10.1.3. Software
+
+**Tabla 5.** *Estimación de Costos del Software para el Sistema de Control Vehicular*
+
+| Ítem | Descripción | Unidad | Cantidad | Precio Unitario (Bs) | Subtotal (Bs) |
+|---|---|---|---|---|---|
+| 1 | Licencias Windows 11 Pro para los equipos | Licencia | 2 | 460 | 920 |
+| 2 | Ubuntu Server 22.04 LTS (software libre) | Licencia | 1 | 0 | 0 |
+| 3 | NestJS, Next.js, PostgreSQL, Prisma y Docker | Paquete | 1 | 0 | 0 |
+| 4 | Visual Studio Code, Postman, Git y Docker Desktop | Paquete | 1 | 0 | 0 |
+| | | | **Total** | **5** | **920** |
+
+*Nota.* Esta tabla presenta los sistemas operativos y el stack principal utilizado en el desarrollo y pruebas del sistema. La licencia de Windows se estima como valor referencial; el resto del stack (NestJS, Next.js, Prisma, PostgreSQL) es software libre. Elaboración propia.
+
+**Tabla 6.** *Estimación de Costos de herramientas de desarrollo*
+
+| Ítem | Descripción | Unidad | Cantidad | Precio Unitario (Bs) | Subtotal (Bs) |
+|---|---|---|---|---|---|
+| 1 | GitHub (repositorio privado de desarrollo) | Usuario/Mes | 2 × 5 meses | 0 | 0 |
+| 2 | Trello/Jira (gestión de tareas por tableros) | Usuario/Mes | 2 × 5 meses | 0 | 0 |
+| 3 | Google Drive (documentación compartida) | Usuario/Mes | 2 × 5 meses | 0 | 0 |
+| | | | **Total** | | **0** |
+
+*Nota.* Las herramientas de desarrollo incluidas fueron utilizadas para el control de versiones, la organización de tareas y la documentación compartida del proyecto. Se usaron versiones gratuitas sin costo, pero con todas las funcionalidades necesarias para el equipo de trabajo. Elaboración propia.
+
+**Tabla 7.** *Estimación de Costos de herramientas para la gestión*
+
+| Ítem | Descripción | Unidad | Cantidad | Precio Unitario (Bs) | Subtotal (Bs) |
+|---|---|---|---|---|---|
+| 1 | Visual Studio Code (IDE) | Usuario | 2 | 0 | 0 |
+| 2 | Postman (pruebas de API REST) | Usuario | 2 | 0 | 0 |
+| 3 | Docker Desktop (contenedores locales) | Usuario | 2 | 0 | 0 |
+| 4 | pgAdmin / Prisma Studio (gestor visual de base de datos PostgreSQL) | Usuario | 2 | 0 | 0 |
+| 5 | npm (gestor de paquetes de Node.js) | Usuario | 2 | 0 | 0 |
+| | | | **Total** | | **0** |
+
+*Nota.* Las herramientas de gestión fueron utilizadas durante todo el semestre por los integrantes del equipo, para coordinar tareas, compartir documentación y mantener el control de versiones. Se usaron versiones gratuitas sin costo directo para el proyecto. Elaboración propia.
+
+**Tabla 8.** *Estimación de Costos de Licencias*
+
+| Ítem | Descripción | Unidad | Cantidad | Precio Unitario (Bs) | Subtotal (Bs) |
+|---|---|---|---|---|---|
+| 1 | Tailwind CSS (biblioteca para el diseño de la interfaz visual) | Proyecto | 1 | 0 | 0 |
+| 2 | PlantUML / StarUML (licencia individual para modelado UML del sistema) | Proyecto | 1 | 150 | 150 |
+| 3 | Íconos y recursos UI online | Proyecto | 1 | 0 | 0 |
+| | | | **Total** | **3** | **150** |
+
+*Nota.* Las licencias detalladas corresponden a librerías, extensiones y herramientas utilizadas en funciones específicas del sistema, como el diseño de la interfaz, el modelado UML y la personalización visual del panel administrativo. Los precios son estimativos y podrían variar según el proveedor o condiciones de uso. Elaboración propia.
+
+### 10.1.4. Personal
+
+**Tabla 9.** *Estimación de Costos para el personal de desarrollo*
+
+| Ítem | Descripción | Unidad | Cantidad | Precio Unitario (Bs) | Subtotal (Bs) |
+|---|---|---|---|---|---|
+| 1 | Programador Full Stack (Estudiante) | Bs/proyecto | 5 meses | 1.500 | 7.500 |
+| 2 | Gestor de proyecto y documentación (Estudiante) | Bs/proyecto | 5 meses | 1.200 | 6.000 |
+| | | | **Total** | **2** | **13.500** |
+
+*Nota.* La tabla muestra los costos estimados del personal técnico asignado al desarrollo del Sistema de Control Vehicular UAGRM. Elaboración propia.
+
+### 10.1.5. Infraestructura
+
+**Tabla 10.** *Estimación de Costos para la Infraestructura*
+
+| Ítem | Descripción | Unidad | Cantidad | Precio Unitario (Bs) | Subtotal (Bs) |
+|---|---|---|---|---|---|
+| 1 | Servidor AWS EC2 (instancia t3.small, Ubuntu 22.04) | Mes | 5 | 90 | 450 |
+| 2 | Almacenamiento AWS S3 (evidencias e imágenes, backups) | Mes | 5 | 25 | 125 |
+| 3 | AWS Rekognition (OCR de placas vehiculares) | Mes | 5 | 60 | 300 |
+| 4 | API de Claude / Anthropic (análisis de características del vehículo) | Mes | 5 | 70 | 350 |
+| 5 | Servicio de Internet para desarrollo y pruebas | Mes | 5 | 200 | 1.000 |
+| | | | **Total** | **6** | **2.225** |
+
+*Nota.* La tabla presenta los costos estimados de la infraestructura necesaria para el acceso y operación en línea del Sistema de Control Vehicular UAGRM. A diferencia de un sistema sin componentes de IA, este proyecto depende de servicios en la nube de pago por uso (AWS Rekognition para OCR y la API de Claude para el análisis de características vehiculares), por lo que su costo varía según el volumen de detecciones procesadas. Elaboración propia.
+
+### 10.1.6. Material y refrigerio
+
+**Tabla 11.** *Estimación de Costos para el Material y Refrigerio*
+
+| Ítem | Descripción | Unidad | Cantidad | Precio Unitario (Bs) | Subtotal (Bs) |
+|---|---|---|---|---|---|
+| 1 | Material de oficina e impresiones para documentación del sistema | Proyecto | 1 | 200 | 200 |
+| 2 | Transporte para reuniones y visitas técnicas a los puntos de acceso de la UAGRM | Proyecto | 1 | 250 | 250 |
+| 3 | Refrigerios durante sesiones de trabajo y validación con el personal de seguridad | Proyecto | 1 | 100 | 100 |
+| | | | **Total** | **3** | **550** |
+
+*Nota.* La tabla detalla los costos estimados de materiales de oficina, transporte y refrigerios utilizados durante el desarrollo y las pruebas de campo del proyecto de control vehicular. Elaboración propia.
+
+---
+
+## 10.2. Retorno de la Inversión (ROI)
+
+A diferencia de un sistema comercial, el Sistema de Control Vehicular UAGRM no genera ingresos directos por ventas: su retorno se mide en ahorro de tiempo del personal de seguridad, reducción de incidentes de seguridad y reducción de costos operativos por materiales físicos de registro.
+
+### 10.2.1. Ahorro por automatización del registro de ingreso y salida
+
+Antes del sistema, el registro de cada vehículo se realizaba de forma manual en una bitácora física en cada garita.
+
+Con el Sistema de Control Vehicular, el registro se realiza automáticamente mediante OCR (CU06, CU07), reduciendo el tiempo de atención por vehículo.
+
+- Antes: 2 minutos en promedio por registro (anotar placa, hora, datos del vehículo a mano).
+- Ahora: 20 segundos en promedio por registro (escaneo automático de placa + confirmación).
+- Ahorro promedio por registro: 1,67 minutos.
+- Promedio estimado de registros diarios (ingresos + salidas) en los puntos de acceso de la universidad: 200.
+
+Entonces proyectamos para 12 meses:
+
+Ahorro diario = 1,67 min × 200 registros = 334 min/día ≈ 5,6 horas/día
+
+Ahorro mensual (22 días laborales) = 5,6 horas/día × 22 días ≈ 123 horas/mes
+
+Con un costo promedio de personal de seguridad de 15 Bs/hora:
+
+Ahorro de tiempo del personal = 123 horas/mes × 12 meses × 15 Bs/hora = 22.140 Bs/anual
+
+Se considera así un **ahorro anual de 22.140 Bs** por la automatización del registro de ingreso y salida vehicular.
+
+### 10.2.2. Reducción de incidentes por vehículos sancionados o no autorizados
+
+El sistema incorpora un módulo de detección automática que permite:
+
+- Bloquear y marcar como "denegado" el ingreso de vehículos con sanciones activas (CU06).
+- Generar una alerta inmediata al personal de seguridad ante un intento de ingreso sancionado (CU11, CU13).
+- Mantener un historial centralizado de accesos por placa (CU09, CU21), antes disperso en bitácoras físicas.
+
+Con esta información el personal de seguridad puede actuar de forma preventiva ante vehículos sancionados o no autorizados, reduciendo incidentes que antes pasaban desapercibidos por depender del reconocimiento manual.
+
+- Antes: se estima que ocurrían 3 incidentes de seguridad al mes relacionados con vehículos sancionados o no autorizados que ingresaban sin ser detectados.
+- Costo institucional promedio por incidente (gestión, investigación, daños): 500 Bs.
+- Con el sistema se estima una reducción del 80 % de estos incidentes.
+
+Entonces:
+
+Incidentes evitados al año = 3 incidentes/mes × 12 meses × 0,80 ≈ 29 incidentes/anuales
+
+Ahorro por reducción de incidentes = 29 incidentes × 500 Bs = 14.500 Bs/anual
+
+Se estima así un **ahorro anual de 14.500 Bs** atribuible a la detección automática de vehículos sancionados.
+
+### 10.2.3. Reducción de costos de materiales físicos de registro
+
+Además del ahorro en tiempo y la reducción de incidentes, el sistema genera ahorros en la operación de los puntos de acceso.
+
+- Antes: compra mensual de cuadernos de bitácora, formularios impresos y materiales de registro manual.
+- Ahora: el registro es 100 % digital, almacenado en la base de datos del sistema.
+
+Se estima un ahorro global de 150 Bs mensuales en estos conceptos.
+
+Entonces:
+
+Ahorro en materiales de registro = 150 Bs/mes × 12 meses = 1.800 Bs/anual
+
+El total de reducción de costos es: 22.140 + 14.500 + 1.800 = **38.440 Bs/anual**
+
+**Tabla 12.** *Cálculo del Retorno de la Inversión*
+
+| Concepto | Cálculo | Valor (Bs) / (%) |
+|---|---|---|
+| Costo de la inversión | Total general estimado (Tabla 1) | 27.025 Bs |
+| Beneficios totales anuales | Ahorro de tiempo + reducción de incidentes + reducción de materiales | 38.440 Bs |
+| Beneficio neto | Beneficios totales anuales − Costo de inversión | 11.415 Bs |
+| ROI (%) | (Beneficio neto / Costo de inversión) × 100 | 42,24 % |
+
+La implementación del Sistema de Control Vehicular UAGRM permitiría recuperar la inversión en aproximadamente dos años y obtener un retorno del 42 %, además de los beneficios cualitativos de mayor seguridad, trazabilidad y control en el acceso vehicular a la universidad.
+
+---
+
+## 10.3. Riesgos y plan de respuesta
+
+Durante el desarrollo, implementación y operación del sistema se identificaron diversos riesgos que podrían afectar el cumplimiento de los objetivos del proyecto. A continuación se presenta un análisis de los principales riesgos junto con sus estrategias de mitigación o respuesta:
+
+**Tabla 13.** *Tabla de Riesgos y Plan de Respuesta*
+
+| Descripción | Probabilidad (%) | Impacto | Plan de respuesta al Riesgo | Monitoreo y Control |
+|---|---|---|---|---|
+| **Riesgos Técnicos** | | | | |
+| Indisponibilidad de AWS Rekognition, S3 o de la API de Claude | 35 | Alto | Permitir el registro manual de la placa cuando el OCR/IA no esté disponible; definir reintentos automáticos y mensajes claros de error al personal de seguridad. | Revisar logs de errores de Rekognition/Claude, alertas de consumo de cuota y reportes del proveedor cloud. |
+| Pérdida de conectividad a internet en los puntos de acceso (garitas) | 30 | Alto | Definir conexión de respaldo (datos móviles) en los puntos críticos; establecer un protocolo de registro manual temporal mientras se restablece el servicio. | Monitorear las alertas automáticas de "cámara desconectada" (CU13) generadas por el propio sistema en tiempo real. |
+| Baja precisión del OCR por poca luz, lluvia o placas dañadas/sucias | 40 | Medio | Permitir la corrección manual de la placa detectada antes de confirmar el registro; mejorar la iluminación de los puntos de acceso. | Revisar el nivel de confianza (confidence) promedio del OCR y la tasa de correcciones manuales por punto de acceso. |
+| Pérdida o corrupción de la base de datos del sistema | 25 | Crítico | Generar backups periódicos automáticos (CU15) almacenados en AWS S3; realizar pruebas de restauración. | Auditorías periódicas de los backups generados, verificación de integridad y registro de incidentes de pérdida de datos. |
+| **Riesgos de Gestión** | | | | |
+| Resistencia del personal de seguridad a adoptar el nuevo sistema | 35 | Alto | Realizar capacitaciones, elaborar manuales de usuario y acompañar al personal durante los primeros meses de operación. | Encuestas de satisfacción y métricas de uso (registros realizados por usuario, frecuencia de uso). |
+| Retrasos en la instalación y configuración de cámaras en los puntos de acceso | 30 | Medio | Priorizar los puntos de acceso principales; definir un cronograma de instalación por fases y gestionar apoyo técnico adicional si es necesario. | Seguimiento quincenal del avance de instalación, comparación con el cronograma y ajuste de recursos cuando sea necesario. |
+| **Riesgos Institucionales** | | | | |
+| Cambios en políticas de seguridad o presupuesto de la UAGRM que afecten la operación del sistema | 20 | Medio | Mantener coordinación con la Dirección de Seguridad Universitaria y el área de TI; documentar dependencias y justificar el valor del sistema. | Reuniones periódicas con TI y dirección, revisión anual de políticas y actualización del plan de sostenibilidad. |
+
+*Nota.* La tabla presenta los principales riesgos identificados para el Sistema de Control Vehicular UAGRM, junto con su plan de respuesta y mecanismos de monitoreo. Elaboración propia.
+
+---
+
+## 10.4. Seguridad
+
+La seguridad de la información busca proteger la confidencialidad, integridad y disponibilidad de los activos de información, conocida como la tríada CIA (Confidentiality, Integrity, Availability) (Stallings & Brown, 2018). En el Sistema de Control Vehicular UAGRM esto implica resguardar tanto la infraestructura física (cámaras, puntos de acceso, servidores) como los datos y servicios lógicos (usuarios, vehículos, sanciones, alertas) que componen el sistema.
+
+### 10.4.1. Seguridad física
+
+La seguridad física se ocupa de proteger los equipos, instalaciones y medios de almacenamiento frente a daños, robos o accesos no autorizados. La norma ISO/IEC 27002 recomienda controles de acceso físico, condiciones ambientales adecuadas y protección de los soportes de información como parte de las buenas prácticas de seguridad (ISO/IEC, 2022).
+
+**Control de acceso a equipos y salas**
+Los equipos de desarrollo, los dispositivos de administración y el servidor desplegado en AWS EC2 se administran con acceso restringido (claves SSH, credenciales de AWS, autenticación de dos factores en la cuenta cloud). Se recomienda llevar un registro de las personas que ingresan a las garitas y salas donde se instalan las cámaras y los dispositivos de los puntos de acceso, tal como sugieren los controles físicos de ISO/IEC 27002 (ISO/IEC, 2022).
+
+**Protección eléctrica y ambiental**
+Se recomienda el uso de sistemas de alimentación ininterrumpida (UPS) en las garitas y puntos de acceso para mitigar cortes de energía y variaciones de voltaje, evitando daños en las cámaras y pérdida de registros. Además, los gabinetes con equipamiento de red deben mantenerse con ventilación, limpieza y temperatura adecuadas.
+
+**Custodia de copias de respaldo**
+Los backups del sistema (CU15) se generan como snapshot de la base de datos y se almacenan en AWS S3 (`AWS_S3_BACKUP_PREFIX`), separados físicamente del servidor principal. Esto está alineado con las recomendaciones de redundancia y continuidad del negocio de ISO/IEC 27002 (ISO/IEC, 2022).
+
+**Seguridad en los puntos de acceso vehicular**
+Las cámaras de ingreso y salida asignadas a cada punto de acceso (CU16, CU20) deben instalarse en ubicaciones elevadas o protegidas que dificulten su manipulación, robo o desconexión por personas no autorizadas, evitando interrupciones en el registro de vehículos.
+
+**Gestión de equipos en desuso y plan de contingencia**
+Antes de dar de baja un equipo, cámara o disco se realiza un borrado seguro de la información. Además, se define un procedimiento básico ante fallas eléctricas, cortes de internet o daños a las cámaras, priorizando el resguardo de los backups y la recuperación del servicio en el menor tiempo posible.
+
+*Figura 1.* Esquema de Seguridad física *(diagrama propuesto: Ubicaciones físicas — oficinas de desarrollo, garitas/puntos de acceso, sala de equipos críticos — conectadas a los controles de seguridad correspondientes: control de acceso físico y registro de ingreso, condiciones ambientales (UPS, ventilación), protección de soportes (backups en caja fuerte y en la nube) y seguridad en puntos de acceso (cámaras protegidas, credenciales del personal de seguridad)).*
+
+### 10.4.2. Seguridad lógica
+
+La seguridad lógica agrupa los controles de software, políticas de acceso y mecanismos criptográficos que protegen los sistemas de información frente a ataques o usos indebidos (Stallings & Brown, 2018). Dado que el Sistema de Control Vehicular es una aplicación web, también se consideran las vulnerabilidades identificadas por el estándar OWASP Top 10, que resume los riesgos más críticos en aplicaciones web (OWASP Foundation, 2021).
+
+*Figura 2.* Esquema de Seguridad Lógica *(diagrama propuesto: Capa 1 - Peticiones (frontend Next.js): validación de formatos/rangos, ORM con consultas tipadas, límite de tipo/tamaño de archivos — conectada a Capa 2 - Autenticación/Autorización (JWT, bcrypt, roles y permisos) — conectada a Capa 3 - Datos y almacenamiento (PostgreSQL, AWS S3, cifrado en tránsito HTTPS, backups), todas alineadas a los mecanismos de protección de OWASP: validación estricta, contraseñas seguras, control de acceso por roles (RBAC) y cifrado/respaldo).*
+
+**Seguridad a nivel de peticiones (Capa 1)**
+
+Las peticiones que realizan los usuarios desde el frontend en Next.js hacia el backend en NestJS se validan antes de ser procesadas:
+
+- Validación global de entrada con `ValidationPipe` (`whitelist: true`, `forbidNonWhitelisted: true`) en `main.ts`, que rechaza cualquier campo no declarado en los DTOs.
+- Cada endpoint valida formato y tipos de datos mediante `class-validator`/`class-transformer` (por ejemplo, `CreateUserDto`, `CreateVehicleDto`, `RegisterEntryDto`).
+- Se utilizan las capacidades del ORM Prisma y las recomendaciones de OWASP para reducir riesgos de inyección SQL, XSS y CSRF (OWASP Foundation, 2021).
+- El manejo de archivos (imágenes capturadas por las cámaras) se realiza con `multer`, limitando el tipo de contenido recibido en los endpoints de OCR y análisis con IA, reduciendo la posibilidad de ataques por sobrecarga o carga de contenido malicioso.
+
+*Riesgos y solución:*
+
+- *Peticiones maliciosas o automatizadas:* se mitigan con validaciones estrictas, mensajes de error controlados y el registro automático de eventos en la bitácora de auditoría (CU19).
+- *Sobrecarga del servidor:* se contempla la implementación de límites de frecuencia (rate limiting) para los endpoints de detección y análisis con IA, que son los de mayor costo computacional y de consumo de servicios externos.
+
+**Seguridad a nivel de autenticación y autorización (Capa 2)**
+
+En esta capa se controla quién accede al sistema y qué acciones puede realizar:
+
+- La autenticación se realiza mediante correo y contraseña, almacenando las claves con el algoritmo de hash `bcrypt` (10 rondas), como recomiendan los textos de seguridad de sistemas (Stallings & Brown, 2018).
+- Se definen roles y permisos (módulos Roles/Permisos, CU03/CU04): cada rol agrupa un conjunto de permisos que determina qué módulos puede gestionar cada usuario.
+  - *Administrador:* gestiona usuarios, roles, cámaras, puntos de acceso, sanciones y reportes.
+  - *Personal de seguridad:* registra ingresos/salidas vehiculares, visualiza alertas e historial, según los permisos otorgados a su rol.
+- Se usan tokens de autenticación JWT (`@nestjs/jwt`, `passport-jwt`) protegidos por un guard global (`JwtAuthGuard`, registrado como `APP_GUARD`) que protege automáticamente todas las rutas, salvo las marcadas explícitamente como públicas (`@Public()`: login y bootstrap de administrador). Al cerrar sesión, el token se elimina del cliente.
+
+*Riesgos y solución:*
+
+- *Robo de credenciales:* se atenúa exigiendo contraseñas con longitud mínima y evitando su almacenamiento en texto plano (bcrypt).
+- *Escalada de privilegios:* se previene aplicando el guard de autenticación de forma global y validando el rol/permiso correspondiente en cada módulo protegido, en línea con la categoría de "Broken Access Control" de OWASP Top 10 (OWASP Foundation, 2021).
+- *Secuestro de sesión:* se reduce utilizando exclusivamente HTTPS en producción y configurando tiempos de expiración razonables para los tokens JWT.
+
+**Seguridad a nivel de datos y almacenamiento (Capa 3)**
+
+Por último, se protege la información almacenada en la base de datos PostgreSQL y en los servicios de almacenamiento de archivos:
+
+- Acceso a PostgreSQL mediante el ORM Prisma, con consultas tipadas y un esquema declarativo (`schema.prisma`) que reduce el riesgo de inyección SQL y mantiene la integridad referencial entre usuarios, roles, vehículos, sanciones y alertas.
+- Las imágenes de evidencia capturadas en los puntos de acceso y los backups generados por el sistema (CU15) se almacenan en AWS S3, separados de la base de datos principal.
+- Toda comunicación entre frontend, backend y servicios externos en producción se realiza detrás de Nginx con HTTPS (Certbot), protegiendo la confidencialidad de credenciales y tokens en tránsito.
+- Las credenciales sensibles (claves de AWS, secreto JWT, API key de Claude) se gestionan mediante variables de entorno (`@nestjs/config`) y un archivo `.env` excluido del control de versiones, evitando exponer información sensible en el repositorio.
+- Un interceptor global (`AuditLogInterceptor`, registrado como `APP_INTERCEPTOR`) registra automáticamente cada operación de creación, actualización o eliminación realizada en el sistema, junto con el usuario responsable, alimentando la bitácora de auditoría (CU19) sin intervención manual.
+
+*Riesgos y solución:*
+
+- *Pérdida o corrupción de información:* se mitiga con los backups periódicos (CU15) almacenados en S3, pruebas de restauración y el registro de auditoría de cada operación.
+- *Fuga de datos sensibles:* se reduce mediante el cifrado de contraseñas (bcrypt), el control de permisos por rol sobre cada módulo y la restricción de acceso a las credenciales de infraestructura únicamente al personal técnico autorizado.

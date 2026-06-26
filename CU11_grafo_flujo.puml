@@ -1,0 +1,32 @@
+@startuml CU11_Grafo_Flujo
+
+title Grafo de Flujo de Control - CU11: Sancionar Vehiculo (create)
+
+state "Inicio" as Inicio
+state "1" as N1
+state "2" as N2
+state "3" as N3
+state "4" as N4
+state "5" as N5
+state "6" as N6
+state "7" as N7
+state "8" as N8
+state "F" as F
+
+[*] --> Inicio
+Inicio --> N1
+N1 --> N5  : V
+N1 --> N2  : F
+N2 --> F   : V
+N2 --> N3  : F
+N3 --> N4
+N4 --> F   : V
+N4 --> N5  : F
+N5 --> N6
+N6 --> F   : V
+N6 --> N7  : F
+N7 --> N8
+N8 --> F
+F --> [*]
+
+@enduml

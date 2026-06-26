@@ -1,0 +1,39 @@
+@startuml CU02_Diagrama_Colaboracion
+
+title Diagrama de Colaboracion - CU02: Gestionar Usuarios
+
+left to right direction
+
+object "Administrador" as Administrador
+object ":UsersPage\n(frontend/app/users)" as UsersPage
+object ":UsersController\n(backend/users)" as UsersController
+object ":UsersService\n(backend/users)" as UsersService
+object ":UsuarioRepository\n(prisma.usuario)" as UsuarioRepo
+object ":RolRepository\n(prisma.rol)" as RolRepo
+
+' ===================== 1. Listar usuarios =====================
+
+Administrador     --> UsersPage      : "1: listarUsuarios()"
+UsersPage         --> UsersController: "1.1: findAll()"
+UsersController   --> UsersService   : "1.1.1: findAll()"
+UsersService      --> UsuarioRepo    : "1.1.1.1: usuario.findMany()"
+
+' ===================== 2. Crear usuario =====================
+
+Administrador     --> UsersPage      : "2: crearUsuario()"
+UsersPage         --> UsersController: "2.1: create(dto)"
+UsersController   --> UsersService   : "2.1.1: create(dto)"
+UsersService      --> UsuarioRepo    : "2.1.1.1: usuario.findUnique(correo)"
+UsersService      --> RolRepo        : "2.1.1.2 [correo no existe]: rol.findUnique(roleId)"
+UsersService      --> UsersService   : "2.1.1.3 [rol existe]: bcrypt.hash(password)"
+UsersService      --> UsuarioRepo    : "2.1.1.4: usuario.create(...)"
+
+' ===================== 3. Eliminar usuario =====================
+
+Administrador     --> UsersPage      : "3: eliminarUsuario()"
+UsersPage         --> UsersController: "3.1: remove(id)"
+UsersController   --> UsersService   : "3.1.1: remove(id)"
+UsersService      --> UsuarioRepo    : "3.1.1.1: usuario.findUnique({id})"
+UsersService      --> UsuarioRepo    : "3.1.1.2 [usuario existe]: usuario.delete({id})"
+
+@enduml
