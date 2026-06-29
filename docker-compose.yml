@@ -56,7 +56,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://${EC2_HOST}
+        # Vacio = el frontend usa /api relativo (mismo host que Nginx).
+        # Asi funciona con cualquier IP sin reconstruir cuando cambia el EC2.
+        NEXT_PUBLIC_API_URL: ""
     container_name: cv_frontend
     restart: unless-stopped
     depends_on:
