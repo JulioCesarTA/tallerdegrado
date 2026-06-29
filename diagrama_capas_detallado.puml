@@ -1,0 +1,108 @@
+@startuml Diagrama_de_Capas_Detallado
+title Diagrama de Capas - Sistema de Control Vehicular UAGRM
+
+skinparam packageStyle folder
+skinparam package {
+  BackgroundColor White
+  BorderColor Black
+}
+skinparam linetype ortho
+
+' ===== ACTORES Y SISTEMAS EXTERNOS =====
+package "Usuarios\n(Administrador / Guardia / Operador)" as Users {
+}
+
+package "Sistemas Externos\n(Camaras IP / Navegador)" as ExtSys {
+}
+
+' ===== CAPA DE PRESENTACION =====
+package "Capa de Presentacion (Next.js)" as Presentation {
+  package "Modulo de Administracion" as PresAdmin {
+  }
+  package "Modulo de Control Vehicular" as PresVehicular {
+  }
+  package "Modulo de Sanciones y Notificaciones" as PresSanciones {
+  }
+  package "Modulo de Reportes y Respaldo" as PresReportes {
+  }
+}
+
+' ===== CAPA DE SERVICIOS =====
+package "Capa de Servicios (API REST)" as Services {
+  package "Modulo de Administracion" as ServAdmin {
+  }
+  package "Modulo de Control Vehicular" as ServVehicular {
+  }
+  package "Modulo de Sanciones y Notificaciones" as ServSanciones {
+  }
+  package "Modulo de Reportes y Respaldo" as ServReportes {
+  }
+}
+
+' ===== CAPA DE NEGOCIO =====
+package "Capa de Negocio (NestJS)" as Business {
+  package "Modulo de Administracion" as BizAdmin {
+  }
+  package "Modulo de Control Vehicular" as BizVehicular {
+  }
+  package "Modulo de Sanciones y Notificaciones" as BizSanciones {
+  }
+  package "Modulo de Reportes y Respaldo" as BizReportes {
+  }
+}
+
+' ===== CAPA DE DATOS =====
+package "Capa de Datos" as Data {
+  package "Acceso a Datos (Prisma ORM)" as DataAccess {
+  }
+  package "Agentes de Servicio\n(Storage / Mail)" as ServiceAgents {
+  }
+}
+
+' ===== FUENTES DE DATOS =====
+package "Fuentes de Datos\n(PostgreSQL)" as DataSources {
+}
+
+package "Servicios Externos\n(Claude AI / AWS Rekognition / SMTP)" as ExtServices {
+}
+
+' ===== CROSS CUTTING =====
+package "Aspectos Transversales" as CrossCutting {
+  package "Seguridad\n(JWT / bcrypt / Guards)" as Security {
+  }
+  package "Gestion Operacional\n(Logging / Alertas)" as OpMgmt {
+  }
+  package "Comunicacion\n(WebSockets / Streaming)" as Communication {
+  }
+}
+
+' ===== RELACIONES VERTICALES POR MODULO =====
+Users ..> Presentation
+ExtSys ..> Services
+
+PresAdmin ..> ServAdmin
+PresVehicular ..> ServVehicular
+PresSanciones ..> ServSanciones
+PresReportes ..> ServReportes
+
+ServAdmin ..> BizAdmin
+ServVehicular ..> BizVehicular
+ServSanciones ..> BizSanciones
+ServReportes ..> BizReportes
+
+BizAdmin ..> Data
+BizVehicular ..> Data
+BizSanciones ..> Data
+BizReportes ..> Data
+
+DataAccess ..> DataSources
+ServiceAgents ..> ExtServices
+BizVehicular ..> ExtServices : OCR / IA
+
+' ===== RELACIONES TRANSVERSALES =====
+Presentation ..> CrossCutting
+Services ..> CrossCutting
+Business ..> CrossCutting
+Data ..> CrossCutting
+
+@enduml

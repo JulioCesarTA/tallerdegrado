@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { api } from '@/lib/api';
 import { getStoredUser } from '@/lib/auth';
-import { Camara, Usuario } from '@/lib/types';
+import { Camara, Parqueo, Plaza, Usuario } from '@/lib/types';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
-const FRONTEND_URL = BACKEND_URL.replace(':3001', ':3000');
+const FRONTEND_URL = BACKEND_URL.replace(':4001', ':3000').replace(':3001', ':3000');
 
 type Analysis = {
   tipoVehiculo: string;
@@ -45,6 +45,42 @@ function Panel({ camera, socket, accessType }: {
   const [entryResult, setEntryResult] = useState<EntryResult | null>(null);
   const [exitResult,  setExitResult]  = useState<ExitResult | null>(null);
   const [error,       setError]       = useState('');
+
+  // Parqueo / plaza / categoria / tipo
+  const [parqueos,    setParqueos]    = useState<Parqueo[]>([]);
+  const [plazas,      setPlazas]      = useState<Plaza[]>([]);
+  const [tipoVehiculo, setTipoVehiculo] = useState<'auto' | 'moto'>('auto');
+  const [categoria,   setCategoria]   = useState<'estudiante' | 'docente' | 'visitante'>('estudiante');
+  const [parqueoId,   setParqueoId]   = useState<number>(0);
+
+  // Cargar parqueos y plazas (solo en ingreso)
+  useEffect(() => {
+    if (!isEntry) return;
+    Promise.all([api<Parqueo[]>('/parqueos'), api<Plaza[]>('/plazas')])
+      .then(([pq, pl]) => { setParqueos(pq); setPlazas(pl); })
+      .catch(() => {});
+  }, [isEntry]);
+
+  // Tipo por defecto segun analisis IA (normalizado a auto/moto)
+  useEffect(() => {
+    if (analysis) setTipoVehiculo(/moto/i.test(analysis.tipoVehiculo) ? 'moto' : 'auto');
+  }, [analysis]);
+
+  // Al cambiar categoria, preseleccionar el primer parqueo de esa categoria
+  useEffect(() => {
+    const first = parqueos.find((p) => p.tipo === categoria);
+    setParqueoId(first?.id ?? 0);
+  }, [categoria, parqueos]);
+
+  const parqueosFiltrados = parqueos.filter((p) => p.tipo === categoria);
+  const plazasLibres = plazas
+    .filter((pl) => pl.parqueoId === parqueoId && pl.estado === 'libre')
+    .sort((a, b) => a.id - b.id);
+  // Primera plaza libre (priorizando el tipo del vehiculo)
+  const plazaAsignada =
+    categoria === 'visitante'
+      ? null
+      : (plazasLibres.find((pl) => pl.tipo === tipoVehiculo) ?? plazasLibres[0] ?? null);
 
   /* recibir frames del stream */
   useEffect(() => {
@@ -110,11 +146,12 @@ function Panel({ camera, socket, accessType }: {
       const form = new FormData();
       form.set('placa', plate);
       form.set('cameraId', String(camera.id));
+      form.set('tipoVehiculo', tipoVehiculo);
+      if (plazaAsignada) form.set('plazaId', String(plazaAsignada.id));
       if (analysis) {
         form.set('marca',           analysis.marca);
         form.set('modelo',          analysis.modelo);
         form.set('color',           analysis.color);
-        form.set('tipoVehiculo',    analysis.tipoVehiculo);
         form.set('caracteristicas', analysis.caracteristicas);
         if (analysis.evidenceUrl) form.set('evidenceUrl', analysis.evidenceUrl);
       }
@@ -150,6 +187,7 @@ function Panel({ camera, socket, accessType }: {
   function reset() {
     setPlate(''); setOcrConf(0); setVehicleExists(null); setAnalysis(null);
     setEntryResult(null); setExitResult(null); setError('');
+    if (isEntry) api<Plaza[]>('/plazas').then(setPlazas).catch(() => {});
   }
 
   const streamUrl   = `${FRONTEND_URL}/stream/${camera.id}`;
@@ -158,7 +196,7 @@ function Panel({ camera, socket, accessType }: {
   const label       = isEntry ? 'Ingreso' : 'Salida';
 
   const hasPlate          = plate.length >= 5;
-  const canRegisterEntry  = hasPlate && (vehicleExists === true || analysis !== null);
+  const canRegisterEntry  = hasPlate && (vehicleExists === true || analysis !== null) && (categoria === 'visitante' || plazaAsignada !== null);
   const canRegisterExit   = hasPlate;
 
   /* ── resultado final ── */
@@ -310,16 +348,77 @@ function Panel({ camera, socket, accessType }: {
                 <p className="text-[10px] text-slate-400 uppercase tracking-wide">Color</p>
                 <p className="text-sm font-bold text-slate-800 mt-0.5">{analysis.color}</p>
               </div>
-              <div className="rounded-xl bg-white border border-amber-100 p-2.5">
-                <p className="text-[10px] text-slate-400 uppercase tracking-wide">Tipo</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5 capitalize">{analysis.tipoVehiculo}</p>
-              </div>
             </div>
             {analysis.caracteristicas && (
               <div className="rounded-xl bg-white border border-amber-100 p-2.5">
                 <p className="text-[10px] text-slate-400 uppercase tracking-wide">Características</p>
                 <p className="text-xs text-slate-700 mt-0.5">{analysis.caracteristicas}</p>
               </div>
+            )}
+          </div>
+        )}
+
+        {/* ── PASO: tipo, categoria, parqueo y plaza (solo ingreso) ── */}
+        {isEntry && (vehicleExists === true || analysis) && (
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Tipo de vehículo</p>
+              <div className="grid grid-cols-2 gap-2">
+                {(['auto', 'moto'] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setTipoVehiculo(t)}
+                    className={`rounded-xl px-3 py-2 text-sm font-bold border-2 ${tipoVehiculo === t ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-600'}`}
+                  >
+                    {t === 'auto' ? 'Auto' : 'Moto'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Categoría</p>
+              <select
+                value={categoria}
+                onChange={(e) => setCategoria(e.target.value as 'estudiante' | 'docente' | 'visitante')}
+                className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm"
+              >
+                <option value="estudiante">Estudiante</option>
+                <option value="docente">Docente</option>
+                <option value="visitante">Visitante</option>
+              </select>
+            </div>
+
+            {categoria !== 'visitante' ? (
+              <div className="space-y-2">
+                <div>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Parqueo</p>
+                  <select
+                    value={parqueoId}
+                    onChange={(e) => setParqueoId(Number(e.target.value))}
+                    className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm"
+                  >
+                    {parqueosFiltrados.length === 0 && <option value={0}>No hay parqueos de esta categoría</option>}
+                    {parqueosFiltrados.map((p) => (
+                      <option key={p.id} value={p.id}>{p.nombre} — {p.ubicacion}</option>
+                    ))}
+                  </select>
+                </div>
+                {plazaAsignada ? (
+                  <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm">
+                    <span className="text-slate-500">Plaza asignada: </span>
+                    <span className="font-bold text-emerald-700">{plazaAsignada.codigo}</span>
+                    <span className="text-slate-400"> ({plazaAsignada.tipo})</span>
+                  </div>
+                ) : (
+                  <p className="text-xs font-medium text-rose-600">⚠ No hay plazas libres en este parqueo</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs font-medium text-amber-600">
+                Visitante: no se asigna plaza, se registra el ingreso sin estacionamiento.
+              </p>
             )}
           </div>
         )}

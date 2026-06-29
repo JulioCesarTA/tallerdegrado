@@ -1,0 +1,129 @@
+8.3. Herramientas para el Desarrollo
+En esta sección se describen las principales herramientas tecnológicas empleadas para la implementación del Sistema de Control Vehicular UAGRM. Estas herramientas comprenden los lenguajes de programación, librerías, frameworks, sistema gestor de base de datos, herramienta de inteligencia de negocios, lenguaje de modelado y protocolos de comunicación utilizados durante la fase de construcción del software. La correcta selección de estas tecnologías permitió garantizar un desarrollo eficiente, seguro, escalable y alineado con los estándares actuales de la ingeniería de software.
+8.3.1. Lenguajes de programación
+TypeScript
+TypeScript es el lenguaje de programación principal del sistema, utilizado tanto en el backend como en el frontend. Se trata de un superconjunto de JavaScript que incorpora tipado estático, lo que permite detectar errores en tiempo de compilación y reforzar la fiabilidad del sistema durante el manejo de datos sensibles como usuarios, vehículos, sanciones y registros de acceso.
+En el backend, TypeScript se ejecuta sobre el entorno de ejecución Node.js (a través del framework NestJS), y en el frontend se utiliza para construir la interfaz de usuario (a través de React/Next.js). Los archivos fuente emplean la extensión .ts en el backend y .ts/.tsx en el frontend, distribuidos principalmente en backend/src/ (con módulos especializados como backend/src/detections/, backend/src/vision/ y backend/src/streaming/) y en frontend/src/.
+JavaScript
+JavaScript es el lenguaje base sobre el cual se sustenta TypeScript: todo el código escrito en TypeScript se transpila a JavaScript para poder ejecutarse en el entorno Node.js (lado servidor) y en el navegador web (lado cliente).
+SQL
+HTML5 y CSS3 (lenguajes de marcado y estilo)
+Para la presentación visual se utilizan HTML5, como lenguaje de marcado para la organización semántica del contenido, y CSS3, como lenguaje de estilos para la presentación gráfica. Estos no constituyen lenguajes de programación, sino lenguajes de marcado y estilo. Su implementación se apoya en el framework Tailwind CSS versión 4 (descrito en la sección de frameworks), basado en clases utilitarias, garantizando una interfaz moderna, responsiva y consistente, compatible con computadoras de escritorio, laptops, tablets y teléfonos móviles.
+3.2. Librerías
+Las librerías utilizadas en el desarrollo del Sistema de Control Vehicular constituyen componentes fundamentales que extienden las capacidades del sistema tanto en el backend como en el frontend. Estas permiten implementar seguridad, autenticación, procesamiento de imágenes, inteligencia artificial, comunicación en tiempo real, envío de correos electrónicos, tareas programadas y gestión avanzada de información.
+
+Librerías del Backend (TypeScript)
+@nestjs/common, @nestjs/core, @nestjs/platform-express
+Constituyen el núcleo del framework NestJS. Proporcionan el entorno completo para el desarrollo de aplicaciones web seguras, robustas y escalables, incluyendo manejo de rutas, inyección de dependencias, validación de datos y control de excepciones. Son la base sobre la cual se construyen todas las funcionalidades del sistema.
+@prisma/client y prisma
+Constituyen el ORM (Object Relational Mapping) utilizado para la definición de modelos, generación de migraciones y consultas a la base de datos PostgreSQL. Permiten manejar la persistencia de datos de los usuarios, vehículos, cámaras, puntos de acceso, parqueos, plazas, sanciones, alertas y registros de acceso de forma segura y tipada.
+@nestjs/jwt, @nestjs/passport, passport, passport-jwt
+Implementan la autenticación mediante JSON Web Tokens (JWT). Permiten generar, firmar y validar tokens de acceso, asegurando que solo los usuarios autenticados puedan acceder a los módulos protegidos del sistema. El rol del usuario (Administrador, Operador o Seguridad) se incluye dentro del token de sesión.
+bcrypt
+Se utiliza para el cifrado (hash) de las contraseñas de los usuarios antes de almacenarlas en la base de datos, evitando que las credenciales se guarden en texto plano. También se utiliza en el proceso de recuperación de contraseña para cifrar la nueva clave establecida por el usuario.
+class-validator y class-transformer
+Permiten validar y transformar automáticamente los datos recibidos en cada solicitud HTTP (DTOs), garantizando que la información que llega a los controladores cumpla con el formato y los tipos de datos esperados.
+@nestjs/websockets, @nestjs/platform-socket.io, socket.io
+Proporcionan la infraestructura de comunicación en tiempo real mediante WebSockets. Se utilizan para la transmisión en vivo del video capturado en los puntos de acceso, para notificar instantáneamente al personal de seguridad sobre nuevas alertas (por ejemplo, una cámara desconectada o un vehículo sancionado intentando ingresar) y para actualizar el tablero de indicadores en tiempo real.
+multer
+Permite el manejo de archivos multipart/form-data, utilizado para recibir las imágenes capturadas por las cámaras en los procesos de registro de ingreso, salida y análisis de vehículos.
+nodemailer
+Se utiliza para el envío de correos electrónicos. Implementa la funcionalidad de recuperación de contraseña: cuando un usuario la solicita, el sistema genera un código de verificación de un solo uso (de 6 dígitos, con vencimiento de 10 minutos) y lo envía a su correo Gmail mediante el protocolo SMTP.
+@nestjs/schedule
+Permite la ejecución de tareas programadas (cron) dentro del backend. Se utiliza para refrescar automáticamente, cada minuto, las vistas materializadas de la base de datos que alimentan el módulo de reportes con inteligencia de negocios (BI), manteniendo los datos actualizados de forma periódica.
+@aws-sdk/client-rekognition
+Es el SDK que conecta el sistema con el servicio de inteligencia artificial Amazon Rekognition. Se utiliza para el reconocimiento óptico de caracteres (OCR) sobre las imágenes capturadas, permitiendo extraer automáticamente el número de placa de los vehículos.
+@aws-sdk/client-s3
+Es el SDK que conecta el sistema con el servicio de almacenamiento Amazon S3. Se utiliza para almacenar de forma persistente las imágenes de evidencia de cada detección y los respaldos (backups) generados por el sistema.
+@nestjs/config
+Permite cargar variables de entorno desde el archivo .env. Se utiliza para ocultar configuraciones sensibles como credenciales de AWS, claves de API, secretos de JWT, credenciales del correo de recuperación (Gmail) y parámetros de conexión a la base de datos, mejorando la seguridad del sistema.
+@nestjs/serve-static
+Permite exponer archivos estáticos (imágenes almacenadas localmente) a través de rutas HTTP, complementando el almacenamiento en la nube.
+
+
+Librerías del Frontend (TypeScript / React)
+React y React DOM
+Constituyen la librería base para la construcción de la interfaz de usuario. Permiten crear una aplicación web de tipo SPA (Single Page Application) basada en componentes reutilizables, logrando una experiencia de usuario fluida e interactiva en los módulos de dashboard, usuarios, cámaras, parqueos, plazas, sanciones, alertas y reportes.
+
+socket.io-client
+Es la contraparte en el navegador de la librería socket.io del backend. Se utiliza para recibir en tiempo real las alertas del sistema y para transmitir el video capturado desde la cámara del dispositivo hacia el servidor en el módulo de transmisión en vivo.
+Recharts
+Es una librería de visualización de datos que permite generar los gráficos interactivos utilizados en el módulo de reportes y analítica en tiempo real del sistema (ingresos, salidas, sanciones, alertas por tipo, entre otros).
+xlsx
+Se utiliza para la generación y exportación de reportes en formato Excel, permitiendo al usuario descargar la información procesada por el sistema para su uso fuera de la plataforma.
+Tailwind CSS
+Es una librería de estilos utilitarios que permite diseñar interfaces modernas, responsivas y consistentes mediante clases predefinidas, eliminando la necesidad de escribir grandes hojas de estilos personalizadas.
+PostCSS (@tailwindcss/postcss)
+Es la herramienta que permite transformar y procesar los estilos de Tailwind CSS, optimizándolos y asegurando compatibilidad entre navegadores modernos.
+3.3. Frameworks
+Los frameworks utilizados en el desarrollo del Sistema de Control Vehicular UAGRM constituyen la base estructural sobre la cual se construye toda la arquitectura del sistema. Estos frameworks permiten acelerar el desarrollo, garantizar estándares de calidad, facilitar el mantenimiento del software y asegurar la escalabilidad de la plataforma tanto en el backend como en el frontend, además de soportar las funcionalidades avanzadas de inteligencia artificial, reconocimiento de placas y comunicación en tiempo real.
+NestJS (Framework Backend)
+NestJS es el framework principal utilizado en el desarrollo del backend del sistema. Se trata de un framework de Node.js escrito en TypeScript que sigue una arquitectura modular inspirada en el patrón Modelo–Vista–Controlador, organizando el código en módulos, controladores, servicios y DTOs (Data Transfer Objects).
+En el proyecto, NestJS se encarga de gestionar la autenticación de usuarios, el control de acceso según el rol del usuario, la recuperación de contraseña mediante código enviado por correo, la definición de modelos de base de datos mediante Prisma, la administración de sesiones mediante JWT, la validación de formularios y solicitudes, y la gestión general de la lógica de negocio: registro de ingreso y salida vehicular, gestión de parqueos y plazas, sanciones, alertas, asignación de cámaras y generación de reportes y respaldos.
+El uso de NestJS garantiza una arquitectura robusta, escalable y mantenible, alineada con las buenas prácticas de desarrollo de software moderno, e incluye de forma nativa soporte para comunicación en tiempo real (WebSockets) y para la ejecución de tareas programadas (mediante el módulo @nestjs/schedule), aprovechadas por el sistema para la transmisión de video y para el refresco periódico de los datos analíticos.
+Prisma (ORM)
+Prisma es el framework de acceso a datos que permite transformar el backend en una capa de persistencia estructurada y segura sobre PostgreSQL. Define el esquema de la base de datos (modelos, relaciones y migraciones) en un único archivo declarativo (schema.prisma) y genera un cliente tipado que el backend utiliza para consultar y modificar la información.
+En el sistema, Prisma se utiliza para la gestión de usuarios, cámaras, puntos de acceso, parqueos, plazas, vehículos, registros de acceso, sanciones y alertas. Proporciona mecanismos de validación de esquema, generación automática de migraciones y consultas tipadas que reducen errores en tiempo de ejecución.
+Next.js (Framework Frontend)
+Next.js es el framework utilizado para el desarrollo de la interfaz de usuario de la plataforma. Está construido sobre React y orientado a la construcción de aplicaciones web de tipo SPA, basado en componentes reutilizables y un sistema de rutas por carpetas (App Router).
+En el sistema, Next.js se emplea para construir todas las vistas de la plataforma: inicio de sesión, recuperación de contraseña, dashboard, gestión de usuarios, cámaras, puntos de acceso, parqueos y plazas, detecciones, historial de vehículos, sanciones, alertas, reportes (incluyendo el tablero de BI embebido), respaldos y la transmisión de video en tiempo real. Su arquitectura basada en componentes y estado permite una interacción dinámica con el usuario, actualizando la información sin necesidad de recargar la página.
+Tailwind CSS (Framework de Estilos)
+Tailwind CSS es el framework de estilos utilizado para el diseño visual del sistema. Se basa en un enfoque de clases utilitarias que permiten construir interfaces modernas, responsivas y consistentes de forma rápida y eficiente.
+En el proyecto, Tailwind se utiliza para estructurar los layouts, tipografías, colores, botones, formularios, tarjetas y componentes visuales del sistema, incluyendo el panel lateral (sidebar) de navegación. Su integración con Next.js permite mantener una identidad visual uniforme en toda la plataforma.
+Framework de Servicios de IA – Amazon Rekognition y Claude (Anthropic)
+Amazon Rekognition y la API de Claude (Anthropic) actúan como los servicios externos de inteligencia artificial basados en la nube que utiliza el sistema. A través del SDK de AWS, el sistema accede al servicio de reconocimiento óptico de caracteres (OCR) de Rekognition para extraer automáticamente la placa de los vehículos a partir de las imágenes capturadas por las cámaras.
+Adicionalmente, el sistema se integra con la API de Claude para el análisis de características vehiculares (tipo de vehículo, marca, modelo y color) a partir de la imagen capturada, complementando el proceso de registro de ingreso y salida con información generada por modelos de lenguaje multimodales.
+Metabase (Herramienta de Business Intelligence)
+Metabase es la herramienta de inteligencia de negocios (BI) utilizada en el módulo de reportes analíticos del sistema. Se ejecuta como un contenedor Docker independiente y se conecta directamente a la base de datos PostgreSQL, donde explota un conjunto de vistas materializadas que pre-agregan las métricas del sistema (accesos por día, accesos por franja horaria, vehículos más frecuentes, sanciones por tipo y tiempo promedio de permanencia).
+Los tableros (dashboards) construidos en Metabase se integran (embeben) dentro de la interfaz de Next.js mediante un enlace público, y sus datos se mantienen actualizados gracias a un proceso programado en el backend que refresca las vistas materializadas cada minuto. De esta manera, el sistema cumple con el requerimiento de visualización de reportes con el uso de BI.
+3.4. Sistema gestor de Base de Datos
+El Sistema de Control Vehicular UAGRM utiliza como sistema gestor de base de datos a PostgreSQL, el cual es uno de los motores de base de datos relacionales más robustos, seguros y escalables en la actualidad. PostgreSQL es un sistema de código abierto que cumple con los estándares SQL y ofrece un alto rendimiento en aplicaciones que requieren manejar volúmenes considerables de información, como es el caso de una plataforma de control vehicular con registros constantes de ingresos, salidas, sanciones y alertas.
+En el sistema, PostgreSQL se integra directamente con el backend desarrollado en NestJS mediante el ORM Prisma, lo que permite manejar la persistencia de datos de forma segura, estructurada y eficiente, sin necesidad de escribir consultas SQL complejas de manera manual. Esta integración facilita la creación, modificación, consulta y eliminación de datos a través de los modelos definidos en el archivo schema.prisma.
+Función de PostgreSQL en el Sistema de Control Vehicular
+PostgreSQL es el encargado de almacenar de forma estructurada toda la información crítica del sistema, entre la que se incluye:
+Los datos de los usuarios del sistema (nombre, apellido, carnet de identidad, correo, contraseña y rol asignado).
+Los datos de las cámaras y los puntos de acceso (ubicación, estado, cámara de ingreso, cámara de salida y personal de seguridad asignado).
+Los datos de los parqueos y de las plazas de estacionamiento (capacidad, tipo y estado), así como la plaza utilizada en cada registro de acceso.
+Los registros de los vehículos (placa, marca, modelo, color, tipo y características) y su historial de ingresos y salidas.
+Las sanciones aplicadas a los vehículos y sus motivos.
+Las alertas generadas por el sistema (cámara desconectada, vehículo sancionado, fallas de detección, entre otras).
+Adicionalmente, la base de datos contiene un conjunto de vistas materializadas que consolidan y pre-agregan la información para su explotación en el módulo de reportes con inteligencia de negocios (Metabase).
+Este sistema garantiza la integridad referencial de la información, evitando duplicidades, inconsistencias o pérdida de datos, mediante el uso de claves primarias, claves foráneas, restricciones y validaciones definidas a nivel de base de datos y reforzadas por el esquema de Prisma.
+Configuración e Integración con el Backend
+En la configuración actual del proyecto, PostgreSQL se encuentra definido como motor principal de base de datos a través de la variable de entorno DATABASE_URL, declarada en el archivo .env del backend. Esta configuración permite una comunicación eficiente entre la aplicación y la base de datos, garantizando velocidad en las consultas y estabilidad en las transacciones.
+En el entorno de desarrollo se utiliza una base de datos local con los siguientes parámetros generales: nombre de la base de datos control_vehicular, usuario admin, puerto estándar 5432 y host local, ejecutada mediante un contenedor de Docker. Para el entorno de producción, se contempla el despliegue de PostgreSQL sobre un servidor en la nube (AWS EC2), tal como se refleja en la configuración de despliegue del sistema.
+Ventajas del Uso de PostgreSQL en el Proyecto
+El uso de PostgreSQL en el Sistema de Control Vehicular presenta múltiples beneficios técnicos y operativos, entre los cuales se destacan:
+Alta confiabilidad y estabilidad para aplicaciones de misión crítica.
+Compatibilidad total con Prisma y su sistema de migraciones.
+Capacidad de realizar consultas complejas y agregaciones para los reportes en tiempo real, incluyendo el uso de vistas materializadas para el módulo de BI.
+Soporte para transacciones seguras.
+Escalabilidad vertical y horizontal.
+Amplia comunidad de soporte y actualizaciones constantes.
+Estas características permiten garantizar que el sistema pueda crecer progresivamente sin comprometer el rendimiento ni la seguridad de la información almacenada.
+3.5. Lenguaje de Modelado de Software
+Durante el desarrollo del Sistema de Control Vehicular UAGRM, se utilizó como lenguaje de modelado principal el UML (Unified Modeling Language), el cual constituye un estándar internacional ampliamente adoptado en la ingeniería de software para la especificación, visualización, construcción y documentación de sistemas informáticos (Object Management Group, 2023).
+El uso de UML permitió representar de manera clara tanto la estructura como el comportamiento del sistema, facilitando una comprensión común entre analistas, diseñadores, desarrolladores y evaluadores del software. Para la elaboración de los diagramas se empleó la herramienta PlantUML, la cual permite definir los modelos de forma textual, versionable y reproducible, manteniendo una representación gráfica precisa y conforme a estándares profesionales.
+En el proyecto del Sistema de Control Vehicular se aplicaron los siguientes tipos de diagramas UML:
+Diagramas de casos de uso: Representan las funcionalidades del sistema desde el punto de vista de los actores involucrados, tales como el administrador, el personal de seguridad y el módulo de inteligencia artificial encargado del reconocimiento de placas.
+Diagramas de colaboración: Muestran la interacción entre los objetos de frontera, control y entidad que participan en la ejecución de un caso de uso, como el inicio y cierre de sesión, evidenciando el orden numerado de los mensajes intercambiados.
+Diagramas de clases: Muestran las entidades principales del sistema (Usuario, Camara, Vehiculo, PuntoAcceso, Parqueo, Plaza, RegistroAcceso, Sancion, Alerta, entre otras), sus atributos y las relaciones existentes entre ellas, derivadas directamente del esquema de la base de datos.
+Diagramas de secuencia: Modelan la interacción temporal entre los componentes del sistema durante la ejecución de los principales casos de uso, como el inicio de sesión, el registro de ingreso y salida vehicular mediante OCR, y el análisis de características vehiculares con inteligencia artificial.
+Se adoptó la versión más reciente del estándar UML publicada por el Object Management Group (OMG), lo que permitió mantener una documentación técnica formal, coherente, interoperable y alineada con las buenas prácticas del diseño orientado a objetos, garantizando así la calidad estructural del sistema.
+3.6. Protocolo de Comunicación
+El Sistema de Control Vehicular UAGRM implementa una arquitectura cliente-servidor basada en comunicación mediante el protocolo HTTP, utilizando el estándar de servicios RESTful API para el intercambio de datos entre el frontend desarrollado en Next.js y el backend desarrollado en NestJS, bajo el prefijo de rutas /api.
+Para los módulos que requieren comunicación instantánea, como la transmisión de video en vivo, la notificación de alertas y la actualización del tablero de indicadores en tiempo real, el sistema implementa adicionalmente el protocolo WebSocket mediante la librería Socket.IO, permitiendo una comunicación bidireccional y de baja latencia entre el cliente y el servidor.
+Los datos se transmiten en formato JSON (JavaScript Object Notation) tanto en las solicitudes como en las respuestas, lo que garantiza compatibilidad multiplataforma, eficiencia en la comunicación y facilidad de integración con servicios externos.
+Características clave del protocolo de comunicación:
+Protocolo: HTTP / HTTPS, WebSocket (Socket.IO) y SMTP (envío de correos de recuperación de contraseña)
+Métodos utilizados: GET, POST, PATCH, DELETE
+Formato de intercambio de datos: JSON
+Autenticación: Basada en tokens mediante JWT (JSON Web Token), enviados en el encabezado Authorization: Bearer
+Seguridad: Cifrado de contraseñas mediante bcrypt y uso del protocolo HTTPS para el cifrado de los datos en tránsito en el entorno de producción
+Puertos utilizados:
+Puerto 3000 (frontend) y 4001 (backend) en entorno de desarrollo
+Puerto 3010 (Metabase / módulo de BI) en entorno de desarrollo
+Puerto 443 (HTTPS) detrás de un proxy Nginx en entorno de producción
+Comunicación externa:
+Además del intercambio interno entre cliente y servidor, el sistema establece comunicación con servicios externos de inteligencia artificial mediante Amazon Rekognition y la API de Claude (Anthropic), así como con el servicio de almacenamiento Amazon S3, utilizando el protocolo HTTPS bajo conexiones seguras. Asimismo, el sistema se comunica con el servicio de correo de Gmail mediante el protocolo SMTP para el envío de los códigos de recuperación de contraseña. La autenticación hacia estos servicios se realiza mediante credenciales y claves privadas (firmas de acceso de AWS, claves de API y contraseñas de aplicación de correo).
+Este enfoque basado en protocolos estándar garantiza la compatibilidad del sistema con navegadores modernos, herramientas de análisis de red, plataformas de almacenamiento en la nube y servicios externos de inteligencia artificial, permitiendo además su futura expansión e integración con nuevos módulos tecnológicos.

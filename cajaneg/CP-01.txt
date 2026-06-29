@@ -1,0 +1,28 @@
+Tabla X
+CP-01-01: Inicio y cierre de sesión exitoso
+Nombre
+CP-01-01: Inicio y cierre de sesión exitoso
+Descripción
+Verificar que el sistema permita a un usuario autenticarse con credenciales válidas, otorgándole acceso según su rol, y cerrar sesión correctamente al finalizar.
+Precondición
+El usuario se encuentra registrado en el sistema con credenciales válidas.
+Datos de Entrada
+Correo: admin@uagrm.edu.bo. Contraseña: contraseña válida registrada.
+Condición de Ejecución
+El servidor backend debe encontrarse operativo y la base de datos disponible.
+Pasos de Ejecución
+1. Ingresar a la pantalla de inicio de sesión.
+2. Introducir el correo electrónico y la contraseña.
+3. Presionar el botón Entrar.
+4. Verificar el acceso a la plataforma.
+5. Seleccionar la opción Cerrar sesión.
+6. Verificar el retorno a la pantalla de inicio de sesión.
+Resultado Esperado
+El sistema valida las credenciales, genera un token de acceso y permite el ingreso a la plataforma según el rol del usuario. Al cerrar sesión, finaliza la sesión y retorna a la pantalla de inicio.
+Resultado Obtenido
+El sistema validó correctamente las credenciales ingresadas y otorgó el acceso a la plataforma generando el token de sesión. Al cerrar sesión, el token fue eliminado y el sistema retornó a la pantalla de inicio de sesión sin inconvenientes.
+Resultado de la Prueba
+CORRECTO
+
+
+Nota. Elaboración propia (2026).

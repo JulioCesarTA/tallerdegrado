@@ -1,0 +1,36 @@
+CU02: Gestionar Usuarios - Crear Usuario
+
+async create(dto: CreateUserDto) {
+    (1) const exists = await this.prisma.usuario.findUnique({
+        where: { correo: dto.email.toLowerCase() },
+        select: { id: true },
+    });
+
+    (2) if (exists) throw new ConflictException('El correo ya existe');
+
+    (3) const password = await bcrypt.hash(dto.password, 10);
+
+    (4) return this.prisma.usuario.create({
+        data: {
+            nombre: dto.name,
+            apellido: dto.lastName,
+            ci: dto.ci,
+            correo: dto.email.toLowerCase(),
+            password,
+            rol: dto.rol,
+        },
+        select: usuarioSelect,
+    });
+}
+
+
+Tabla de Pruebas de Caja Blanca - Crear Usuario
+
+| CAMINO | ENTRADA SIMULADA | SALIDA ESPERADA |
+|--------|-----------------|-----------------|
+| 1, 2, (F) | Email que ya existe en BD (exists ≠ null) | El sistema rechaza la creación con excepción ConflictException 'El correo ya existe'. No se crea usuario duplicado. No se modifica BD. |
+| 1, 3, 4, (F) | Email único (exists = null), datos válidos (name, lastName, ci, password, rol) | El sistema crea nuevo usuario con contraseña hasheada usando bcrypt con 10 rondas. Retorna objeto usuario con campos seleccionados (id, nombre, apellido, ci, correo, rol). Usuario almacenado en BD correctamente. |
+| 1, 3, 4, (F) | Email único, email con mayúsculas/espacios | El sistema normaliza el email a minúsculas antes de almacenar. Crea usuario con correo normalizado. Retorna datos correctamente. |
+| 1, 3, 4, (F) | Email único, password vacío o muy corto | El sistema hasheará el password tal como esté (incluso vacío). Crea usuario. Password hasheado se almacena. Validación de longitud no es responsabilidad de esta función. |
+
+Nota. Elaboración propia (2026).

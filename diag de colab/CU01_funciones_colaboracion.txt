@@ -1,0 +1,28 @@
+FUNCIONES EN ORDEN - CU01: Iniciar y Cerrar Sesion
+(Diagrama de Colaboracion / Comunicacion)
+================================================================
+
+INICIAR SESION
+----------------------------------------------------------------
+1.  Usuario       -> Vista          : ingresar(correo, password)
+2.  Vista         -> Controlador    : login(dto)
+3.  Controlador   -> Service        : login(dto)
+4.  Service       -> Repositorio    : findUnique({ where: { correo } })
+5.  Repositorio   -> Service        : usuario                      (return)
+6.  Service       -> Service        : bcrypt.compare(password, hash)
+7.  Service       -> Service        : buildSession(usuario)        (genera el JWT)
+8.  Service       -> Controlador    : { accessToken, user }        (return)
+9.  Controlador   -> Vista          : { accessToken, user }        (return)
+10. Vista         -> Usuario        : redirige al panel principal  (return)
+
+CERRAR SESION
+----------------------------------------------------------------
+11. Usuario       -> Vista          : cerrarSesion()
+12. Vista         -> Vista          : eliminarToken()
+13. Vista         -> Usuario        : redirige a Login             (return)
+
+================================================================
+Total: 13 funciones (10 iniciar + 3 cerrar).
+Self-calls del Service condensados a 2 (6 y 7) para no saturar.
+
+Nota. Elaboracion propia (2026).

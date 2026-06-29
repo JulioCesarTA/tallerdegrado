@@ -1,0 +1,58 @@
+FUNCIONES EN ORDEN - CU05: Gestionar Camaras
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Administrador - Vista (CamarasView) - Controlador (CamerasController)
+               - Service (CamerasService) - Repositorio (prisma.camara)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+CREAR CAMARA
+----------------------------------------------------------------
+1.  Administrador -> Vista        : completar formulario
+2.  Vista         -> Controlador  : create(dto)
+3.  Controlador   -> Service      : create(dto)
+4.  Service       -> Repositorio  : create({ nombre, ubicacion, tipoCamara, estado })
+5.  Repositorio   -> Service      : camara                      (return)
+6.  Service       -> Controlador  : camara                      (return)
+7.  Controlador   -> Vista        : camara creada               (return)
+8.  Vista         -> Administrador: muestra confirmacion        (return)
+
+LISTAR CAMARAS
+----------------------------------------------------------------
+1.  Administrador -> Vista        : abrir lista
+2.  Vista         -> Controlador  : findAll()
+3.  Controlador   -> Service      : findAll()
+4.  Service       -> Repositorio  : findMany({ orderBy: { nombre } })
+5.  Repositorio   -> Service      : camaras[]                   (return)
+6.  Service       -> Controlador  : camaras[]                   (return)
+7.  Controlador   -> Vista        : camaras[]                   (return)
+8.  Vista         -> Administrador: muestra lista               (return)
+
+ACTUALIZAR CAMARA
+----------------------------------------------------------------
+1.  Administrador -> Vista        : editar datos
+2.  Vista         -> Controlador  : update(id, dto)
+3.  Controlador   -> Service      : update(id, dto)
+4.  Service       -> Repositorio  : findUnique({ where: { id } })
+5.  Repositorio   -> Service      : camara                      (return)
+6.  Service       -> Repositorio  : update({ where: { id }, data: dto })
+7.  Repositorio   -> Service      : camara                      (return)
+8.  Service       -> Controlador  : camara                      (return)
+9.  Controlador   -> Vista        : camara actualizada          (return)
+10. Vista         -> Administrador: muestra confirmacion        (return)
+
+ELIMINAR CAMARA
+----------------------------------------------------------------
+1.  Administrador -> Vista        : eliminar
+2.  Vista         -> Controlador  : remove(id)
+3.  Controlador   -> Service      : remove(id)
+4.  Service       -> Repositorio  : findUnique({ where: { id } })
+5.  Repositorio   -> Service      : camara                      (return)
+6.  Service       -> Repositorio  : delete({ where: { id } })
+7.  Repositorio   -> Service      : ok                          (return)
+8.  Service       -> Controlador  : Camara eliminada            (return)
+9.  Controlador   -> Vista        : ok                          (return)
+10. Vista         -> Administrador: muestra confirmacion        (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

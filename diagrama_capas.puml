@@ -1,0 +1,91 @@
+@startuml Diagrama_de_Capas
+title Diagrama de Capas - Sistema de Control Vehicular UAGRM
+
+skinparam packageStyle folder
+skinparam package {
+  BackgroundColor White
+  BorderColor Black
+}
+
+' ===== ACTORES Y SISTEMAS EXTERNOS =====
+package "Usuarios" as Users {
+}
+
+package "Sistemas Externos" as ExtSys {
+}
+
+' ===== CAPA DE PRESENTACION =====
+package "Capa de Presentacion (Next.js)" as Presentation {
+  package "Interfaz de Usuario" as UI {
+  }
+  package "Logica de Presentacion" as PresLogic {
+  }
+}
+
+' ===== CAPA DE SERVICIOS =====
+package "Capa de Servicios (API REST)" as Services {
+  package "Controllers" as Controllers {
+  }
+  package "DTOs / Tipos de Mensaje" as DTOs {
+  }
+}
+
+' ===== CAPA DE NEGOCIO =====
+package "Capa de Negocio (NestJS Services)" as Business {
+  package "Fachada de Aplicacion" as Facade {
+  }
+  package "Flujos de Negocio" as Workflow {
+  }
+  package "Componentes de Negocio" as Components {
+  }
+  package "Entidades de Negocio" as Entities {
+  }
+}
+
+' ===== CAPA DE DATOS =====
+package "Capa de Datos" as Data {
+  package "Acceso a Datos (Prisma ORM)" as DataAccess {
+  }
+  package "Agentes de Servicio" as ServiceAgents {
+  }
+}
+
+' ===== FUENTES DE DATOS =====
+package "Fuentes de Datos\n(PostgreSQL)" as DataSources {
+}
+
+package "Servicios Externos\n(Claude AI / AWS Rekognition)" as ExtServices {
+}
+
+' ===== CROSS CUTTING =====
+package "Aspectos Transversales" as CrossCutting {
+  package "Seguridad\n(JWT / bcrypt / Guards)" as Security {
+  }
+  package "Gestion Operacional\n(Logging / Alertas)" as OpMgmt {
+  }
+  package "Comunicacion\n(WebSockets / Streaming)" as Communication {
+  }
+}
+
+' ===== RELACIONES =====
+Users ..> Presentation
+ExtSys ..> Services
+
+Presentation ..> Business
+Services ..> Business
+
+Facade ..> Workflow
+Facade ..> Components
+Facade ..> Entities
+
+Business ..> Data
+
+DataAccess ..> DataSources
+ServiceAgents ..> ExtServices
+
+Presentation ..> CrossCutting
+Services ..> CrossCutting
+Business ..> CrossCutting
+Data ..> CrossCutting
+
+@enduml

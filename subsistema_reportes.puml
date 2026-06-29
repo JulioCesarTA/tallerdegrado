@@ -1,0 +1,77 @@
+@startuml Subsistema_Reportes
+title Figura. Subsistema de Reportes y Respaldo
+
+skinparam componentStyle uml2
+skinparam component {
+  BackgroundColor #BBDEFB
+  BorderColor #1565C0
+}
+skinparam package {
+  BackgroundColor #FFF3E0
+  BorderColor #E65100
+}
+
+' ============================================================
+' CLIENTE - Formularios (Next.js)
+' ============================================================
+package "Reportes y Respaldo" as Cliente #FCE4EC {
+  [ReportesBIFrom]   <<component>> as ReportesFrom #F48FB1
+  [ExportarFrom]     <<component>> as ExportarFrom #F48FB1
+  [BackupFrom]       <<component>> as BackupFrom #F48FB1
+}
+
+' ============================================================
+' SERVIDOR - Controller / Service / Model (NestJS)
+' ============================================================
+package "Servidor" as Servidor {
+
+  ' ---- Controllers ----
+  [BiController]      <<class>> as BiCtrl
+  [BackupsController] <<class>> as BackupsCtrl
+
+  ' ---- Services ----
+  [BiService]      <<class>> as BiSvc
+  [BackupsService] <<class>> as BackupsSvc
+
+  ' ---- Models ----
+  [ReporteModel] <<class>> as ReporteMdl
+  [BackupModel]  <<class>> as BackupMdl
+}
+
+' ============================================================
+' BASE DE DATOS / ALMACENAMIENTO
+' ============================================================
+package "Base de Datos" as BD #FCE4EC {
+  [bd_control_vehicular] <<script>> as Script #F48FB1
+  [registro_acceso] <<table>> as TRegistro #F48FB1
+  [vehiculo]        <<table>> as TVehiculo #F48FB1
+  [sancion]         <<table>> as TSancion #F48FB1
+  [AWS S3 backups]  <<artifact>> as S3 #F48FB1
+}
+
+' ============================================================
+' CLIENTE -> SERVIDOR  (JSON/HTTPS)
+' ============================================================
+Cliente -down-> Servidor : "<<JSON/HTTPS>>"
+
+' ============================================================
+' SERVIDOR: Service ..|> Controller (realiza) ; Service -- Model
+' ============================================================
+BiSvc      ..|> BiCtrl
+BackupsSvc ..|> BackupsCtrl
+
+BiSvc      -- ReporteMdl
+BackupsSvc -- BackupMdl
+
+' ============================================================
+' SERVIDOR -> BASE DE DATOS
+' ============================================================
+Servidor -down-> BD
+
+' Metabase BI lee directamente de la BD
+note right of BiSvc
+  Metabase consume las
+  tablas para los dashboards
+end note
+
+@enduml

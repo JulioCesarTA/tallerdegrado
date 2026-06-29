@@ -1,0 +1,22 @@
+Caso de Uso
+CU01. Iniciar y Cerrar Sesión
+Propósito
+Permitir que los usuarios puedan acceder y salir del sistema mediante autenticación.
+Descripción
+El usuario inicia sesión con su correo y contraseña; el sistema valida las credenciales y genera un token de acceso (JWT) que habilita las funcionalidades según su rol.
+Actores
+Administrador, Personal de Seguridad, Autoridad Universitaria
+Actor Iniciador
+Administrador, Personal de Seguridad, Autoridad Universitaria
+Precondición
+Tener credenciales válidas registradas en el sistema.
+Proceso
+1. El usuario introduce su correo electrónico y contraseña.
+2. El sistema busca al usuario por su correo y compara la contraseña con la versión cifrada (bcrypt).
+3. Si las credenciales son válidas, el sistema genera un token JWT y permite el acceso a la plataforma según el rol del usuario.
+4. El usuario podrá cerrar sesión cuando finalice el uso del sistema.
+5. El sistema elimina el token y finaliza la sesión.
+Postcondición
+Acceso o cierre de sesión realizado correctamente.
+Excepciones
+Si las credenciales son incorrectas, el sistema muestra el mensaje "Credenciales inválidas".

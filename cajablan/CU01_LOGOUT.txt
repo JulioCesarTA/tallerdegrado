@@ -1,0 +1,22 @@
+CU01: Cerrar Sesión (Logout)
+
+async logout(userId: number) {
+    (1) const usuario = await this.prisma.usuario.findUnique({
+        where: { id: userId },
+        select: { id: true },
+    });
+
+    (2) if (!usuario) throw new UnauthorizedException('Usuario no encontrado');
+
+    (3) return { message: 'Sesión cerrada correctamente' };
+}
+
+
+Tabla de Pruebas de Caja Blanca - Logout
+
+| CAMINO | ENTRADA SIMULADA | SALIDA ESPERADA |
+|--------|-----------------|-----------------|
+| 1, 2, (F) | UserId no existe en BD (usuario = null) | El sistema rechaza el logout y muestra excepción UnauthorizedException 'Usuario no encontrado'. Sesión no se invalida. Token permanece válido en cliente. |
+| 1, 3, (F) | UserId válido, usuario existe en BD (usuario ≠ null) | El sistema confirma logout exitoso. Retorna { message: 'Sesión cerrada correctamente' }. Cliente debe borrar token local. Sesión se cierra correctamente. |
+
+Nota. Elaboración propia (2026).

@@ -88,6 +88,9 @@ export class DetectionsService {
     });
 
     const estado = activeSanction ? 'denegado' : 'ingreso';
+    // Solo se asigna plaza si el ingreso es permitido (no sancionado)
+    const plazaId = !activeSanction && dto.plazaId ? dto.plazaId : null;
+
     await this.prisma.registroAcceso.create({
       data: {
         vehiculoId: vehiculo.id,
@@ -96,8 +99,13 @@ export class DetectionsService {
         estado,
         urlEvidencia: evidenceUrl,
         ...(puntoAcceso ? { puntoAccesoIngresoId: puntoAcceso.id } : {}),
+        ...(plazaId ? { plazaId } : {}),
       },
     });
+
+    if (plazaId) {
+      await this.prisma.plaza.update({ where: { id: plazaId }, data: { estado: 'ocupada' } });
+    }
 
     if (activeSanction) {
       await this.alertsService.createInternalAlert({
@@ -140,6 +148,10 @@ export class DetectionsService {
         where: { id: openLog.id },
         data: { horaSalida: now, estado: 'salida', urlEvidencia: evidenceUrl ?? openLog.urlEvidencia, ...puntoEgresoData },
       });
+      // Al salir, se libera la plaza que ocupaba
+      if (openLog.plazaId) {
+        await this.prisma.plaza.update({ where: { id: openLog.plazaId }, data: { estado: 'libre' } });
+      }
     } else {
       await this.prisma.registroAcceso.create({
         data: { vehiculoId: vehiculo.id, horaIngreso: now, horaSalida: now, fecha: now, estado: 'salida', urlEvidencia: evidenceUrl, ...puntoEgresoData },

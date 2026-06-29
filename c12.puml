@@ -1,0 +1,46 @@
+@startuml Secuencia_Visualizar_Transmision
+title Diagrama de Secuencia - CU12: Visualizar Transmision de Camaras en Tiempo Real
+
+skinparam sequence {
+  ArrowColor #2C3E50
+  LifeLineBorderColor #2C6CA5
+  ParticipantBorderColor #2C6CA5
+  ParticipantBackgroundColor #E8F4FD
+  ActorBorderColor #2C3E50
+}
+
+actor "Operador" as Operador
+participant "MonitoreoView" as Vista
+participant "StreamingGateway" as Gateway
+participant "CamaraTelefono" as Camara
+
+== Conexion de la Camara (Telefono) ==
+
+Camara -> Gateway : emit('stream:join', cameraId)
+activate Gateway
+Gateway -> Gateway : joinAsPhone(client, cameraId)
+Gateway --> Camara : { ok: true }
+deactivate Gateway
+
+== Operador inicia el monitoreo ==
+
+Operador -> Vista : abrir monitoreo en vivo
+activate Vista
+Vista -> Gateway : emit('stream:watch', cameraIds)
+activate Gateway
+Gateway -> Gateway : joinAsOperator(client, cameraIds)
+Gateway --> Vista : { ok: true }
+deactivate Gateway
+
+== Transmision en Tiempo Real ==
+
+loop por cada frame
+    Camara -> Gateway : emit('stream:frame', { cameraId, frame })
+    activate Gateway
+    Gateway -> Gateway : relayFrame(client, payload)
+    Gateway --> Vista : emit('stream:frame', payload)
+    deactivate Gateway
+    Vista --> Operador : muestra video en tiempo real
+end
+
+@enduml

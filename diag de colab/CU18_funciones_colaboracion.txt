@@ -1,0 +1,28 @@
+FUNCIONES EN ORDEN - CU18: Actualizar Perfil
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Usuario - Vista (PerfilView) - Controlador (AuthController)
+               - Service (AuthService) - Repositorio (prisma.usuario)
+================================================================
+[ ] = condicion/guard (UML 2.5).   (return) = "Is Return" en EA.
+================================================================
+
+ACTUALIZAR PERFIL
+----------------------------------------------------------------
+1.  Usuario      -> Vista        : editar datos del perfil
+2.  Vista        -> Controlador  : updateProfile(dto)
+3.  Controlador  -> Service      : updateProfile(userId, dto)
+4.  Service      -> Repositorio  : findUnique({ where: { id } })
+5.  Repositorio  -> Service      : usuario                      (return)
+6.  Service      -> Repositorio  : [cambia email] findUnique({ where: { correo } })
+7.  Repositorio  -> Service      : null                         (return)
+8.  Service      -> Service      : [cambia password] bcrypt.compare(currentPassword, hash)
+9.  Service      -> Service      : [cambia password] bcrypt.hash(newPassword, 10)
+10. Service      -> Repositorio  : update({ where: { id }, data })
+11. Repositorio  -> Service      : usuario                      (return)
+12. Service      -> Service      : buildSession(usuario)
+13. Service      -> Controlador  : { accessToken, user }        (return)
+14. Controlador  -> Vista        : perfil actualizado           (return)
+15. Vista        -> Usuario      : muestra confirmacion         (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

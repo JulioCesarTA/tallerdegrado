@@ -1,0 +1,21 @@
+Caso de Uso
+CU18. Actualizar Perfil
+Propósito
+Permitir que el usuario actualice sus datos personales y su contraseña.
+Descripción
+El usuario autenticado puede modificar su nombre, su correo y, opcionalmente, cambiar su contraseña.
+Actores
+Administrador, Personal de Seguridad, Autoridad Universitaria
+Actor Iniciador
+Administrador, Personal de Seguridad, Autoridad Universitaria
+Precondición
+Haber iniciado sesión en el sistema.
+Proceso
+1. El usuario accede a la sección Mi Perfil.
+2. Modifica su nombre y/o correo electrónico.
+3. Para cambiar la contraseña, ingresa su contraseña actual y la nueva.
+4. El sistema valida la contraseña actual (bcrypt) y la unicidad del correo, y guarda los cambios.
+Postcondición
+El perfil del usuario queda actualizado correctamente.
+Excepciones
+Si la contraseña actual es incorrecta o el correo ya está en uso, el sistema muestra el mensaje de error correspondiente.

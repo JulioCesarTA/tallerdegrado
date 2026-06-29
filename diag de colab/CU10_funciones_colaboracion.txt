@@ -1,0 +1,45 @@
+FUNCIONES EN ORDEN - CU10: Gestionar Sanciones (Tipos de Sancion)
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Administrador - Vista (SancionesView) - Controlador (SanctionDefinitionsController)
+               - Service (SanctionDefinitionsService) - Repositorio (prisma.tipoSancion)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+CREAR TIPO DE SANCION
+----------------------------------------------------------------
+1.  Administrador -> Vista        : completar formulario
+2.  Vista         -> Controlador  : create(dto)
+3.  Controlador   -> Service      : create(dto)
+4.  Service       -> Repositorio  : create({ nombre, motivo, duracionDias })
+5.  Repositorio   -> Service      : tipoSancion                 (return)
+6.  Service       -> Controlador  : tipoSancion                 (return)
+7.  Controlador   -> Vista        : tipo creado                 (return)
+8.  Vista         -> Administrador: muestra confirmacion        (return)
+
+LISTAR TIPOS DE SANCION
+----------------------------------------------------------------
+1.  Administrador -> Vista        : abrir lista
+2.  Vista         -> Controlador  : findAll()
+3.  Controlador   -> Service      : findAll()
+4.  Service       -> Repositorio  : findMany({ orderBy: { nombre } })
+5.  Repositorio   -> Service      : tiposSancion[]              (return)
+6.  Service       -> Controlador  : tiposSancion[]              (return)
+7.  Controlador   -> Vista        : tiposSancion[]              (return)
+8.  Vista         -> Administrador: muestra lista               (return)
+
+ELIMINAR TIPO DE SANCION
+----------------------------------------------------------------
+1.  Administrador -> Vista        : eliminar
+2.  Vista         -> Controlador  : remove(id)
+3.  Controlador   -> Service      : remove(id)
+4.  Service       -> Repositorio  : findUnique({ where: { id } })
+5.  Repositorio   -> Service      : tipoSancion                 (return)
+6.  Service       -> Repositorio  : delete({ where: { id } })
+7.  Repositorio   -> Service      : ok                          (return)
+8.  Service       -> Controlador  : Tipo de sancion eliminado   (return)
+9.  Controlador   -> Vista        : ok                          (return)
+10. Vista         -> Administrador: muestra confirmacion        (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

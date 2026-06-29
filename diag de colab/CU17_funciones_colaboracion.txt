@@ -1,0 +1,19 @@
+FUNCIONES EN ORDEN - CU17: Exportar Reportes
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Autoridad Universitaria - Metabase (BI)
+               - Repositorio (Vistas Materializadas / PostgreSQL)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+EXPORTAR REPORTE
+----------------------------------------------------------------
+1.  Autoridad    -> Metabase     : seleccionar reporte y formato (PDF / Excel / CSV)
+2.  Metabase     -> Metabase     : exportarReporte(formato)
+3.  Metabase     -> Repositorio  : SELECT vistas materializadas
+4.  Repositorio  -> Metabase     : datos                       (return)
+5.  Metabase     -> Metabase     : generar archivo (PDF / Excel / CSV)
+6.  Metabase     -> Autoridad    : descarga del archivo        (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

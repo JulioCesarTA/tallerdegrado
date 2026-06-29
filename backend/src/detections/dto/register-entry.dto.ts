@@ -15,4 +15,6 @@ export class RegisterEntryDto {
   @IsOptional() @IsString() tipoVehiculo?: string;
   @IsOptional() @IsString() caracteristicas?: string;
   @IsOptional() @IsString() evidenceUrl?: string;
+
+  @IsOptional() @Type(() => Number) @IsInt() plazaId?: number;
 }

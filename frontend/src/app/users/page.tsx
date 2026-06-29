@@ -3,25 +3,21 @@
 import { useEffect, useState } from 'react';
 import { SectionCard } from '@/components/section-card';
 import { api } from '@/lib/api';
-import { Rol, Usuario } from '@/lib/types';
+import { Usuario } from '@/lib/types';
 
-const emptyForm = { name: '', lastName: '', ci: '', email: '', password: '', roleId: 0 };
+const ROLES = ['Administrador', 'Operador', 'Seguridad'];
+
+const emptyForm = { name: '', lastName: '', ci: '', email: '', password: '', rol: ROLES[0] };
 
 export default function UsersPage() {
-  const [users, setUsers]   = useState<Usuario[]>([]);
-  const [roles, setRoles]   = useState<Rol[]>([]);
-  const [form, setForm]     = useState(emptyForm);
-  const [error, setError]   = useState('');
+  const [users, setUsers] = useState<Usuario[]>([]);
+  const [form, setForm]   = useState(emptyForm);
+  const [error, setError] = useState('');
 
   async function load() {
     try {
-      const [usersData, rolesData] = await Promise.all([
-        api<Usuario[]>('/users'),
-        api<Rol[]>('/roles'),
-      ]);
+      const usersData = await api<Usuario[]>('/users');
       setUsers(usersData);
-      setRoles(rolesData);
-      setForm((f) => ({ ...f, roleId: f.roleId || rolesData[0]?.id || 0 }));
       setError('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar');
@@ -33,7 +29,7 @@ export default function UsersPage() {
   async function onSubmit() {
     try {
       await api('/users', { method: 'POST', body: form });
-      setForm({ ...emptyForm, roleId: roles[0]?.id || 0 });
+      setForm(emptyForm);
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo crear el usuario');
@@ -72,7 +68,7 @@ export default function UsersPage() {
                   <td className="py-2.5 pr-4 text-slate-600">{u.apellido || '—'}</td>
                   <td className="py-2.5 pr-4 text-slate-600">{u.ci || '—'}</td>
                   <td className="py-2.5 pr-4 text-slate-600">{u.correo}</td>
-                  <td className="py-2.5 pr-4">{u.rol?.nombre}</td>
+                  <td className="py-2.5 pr-4">{u.rol}</td>
                   <td className="py-2.5">
                     <button onClick={() => remove(u.id)} className="text-xs text-rose-500 hover:text-rose-700">
                       Eliminar
@@ -92,9 +88,9 @@ export default function UsersPage() {
           <input value={form.ci} onChange={(e) => setForm({ ...form, ci: e.target.value })} placeholder="CI" />
           <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Correo" required />
           <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Contrasena" required />
-          <select value={form.roleId} onChange={(e) => setForm({ ...form, roleId: Number(e.target.value) })}>
-            {roles.map((r) => (
-              <option key={r.id} value={r.id}>{r.nombre}</option>
+          <select value={form.rol} onChange={(e) => setForm({ ...form, rol: e.target.value })}>
+            {ROLES.map((r) => (
+              <option key={r} value={r}>{r}</option>
             ))}
           </select>
           <button className="w-full rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-medium text-white">Crear usuario</button>

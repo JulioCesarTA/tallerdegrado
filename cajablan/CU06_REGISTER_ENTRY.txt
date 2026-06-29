@@ -1,0 +1,93 @@
+CU06: Registrar Ingreso Vehicular con OCR
+
+async registerEntry(dto: RegisterEntryDto, file: Express.Multer.File | undefined) {
+    (1) const placa = dto.placa.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+    (2) if (!placa) {
+    (F)     throw new BadRequestException('Placa invalida');
+        }
+
+        const now = new Date();
+
+        let evidenceUrl: string | null = null;
+
+    (3) if (file) {
+    (4)     const stored = await this.storageService.saveImage(file);
+            evidenceUrl = stored.url;
+        }
+    (5) else if (dto.evidenceUrl) {
+            evidenceUrl = dto.evidenceUrl;
+        }
+
+    (6) const tipoVehiculo = dto.tipoVehiculo ? resolveTipoVehiculo(dto.tipoVehiculo) : null;
+
+    (7) const puntoAcceso = await this.prisma.puntoAcceso.findFirst({
+            where: { camaraIngresoId: dto.cameraId },
+            select: { id: true },
+        });
+
+    (8) const vehiculo = await this.prisma.vehiculo.upsert({
+            where: { placa },
+            update: {
+                ...(dto.color           ? { color: dto.color }                     : {}),
+                ...(dto.modelo          ? { modelo: dto.modelo }                   : {}),
+                ...(dto.marca           ? { marca: dto.marca }                     : {}),
+                ...(dto.caracteristicas ? { caracteristicas: dto.caracteristicas } : {}),
+                ...(tipoVehiculo        ? { tipoVehiculo }                         : {}),
+            },
+            create: {
+                placa,
+                color: dto.color ?? null,
+                modelo: dto.modelo ?? null,
+                marca: dto.marca ?? null,
+                caracteristicas: dto.caracteristicas ?? null,
+                tipoVehiculo,
+            },
+        });
+
+    (9) const activeSanction = await this.prisma.sancion.findFirst({
+            where: { vehiculoId: vehiculo.id, OR: [{ fechaFin: null }, { fechaFin: { gt: now } }] },
+        });
+
+    (10) const estado = activeSanction ? 'denegado' : 'ingreso';
+
+    (11) await this.prisma.registroAcceso.create({
+            data: {
+                vehiculoId: vehiculo.id,
+                horaIngreso: now,
+                fecha: now,
+                estado,
+                urlEvidencia: evidenceUrl,
+                ...(puntoAcceso ? { puntoAccesoIngresoId: puntoAcceso.id } : {}),
+            },
+        });
+
+    (12) if (activeSanction) {
+    (13)     await this.alertsService.createInternalAlert({
+                typeName: 'sanctioned_vehicle_attempt',
+                camaraId: dto.cameraId,
+            });
+        }
+
+    (F) return { placa, evidenceUrl, vehicle: vehiculo, sanctioned: !!activeSanction, estado };
+
+}
+
+
+Tabla de Pruebas de Caja Blanca - Registrar Ingreso Vehicular
+
+| CAMINO | ENTRADA SIMULADA | SALIDA ESPERADA |
+|--------|-----------------|-----------------|
+| 1, 2, (F) | PlacaValida = F (placa = "----") | El sistema rechaza el registro de ingreso por una placa inválida y muestra un mensaje de error. No se almacena información del vehículo ni del acceso. |
+| 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, (F) | PlacaValida = V, File = V, PuntoAcceso = F, TipoVehiculo = F, ActiveSanction = F | El sistema registra correctamente el ingreso del vehículo utilizando la imagen proporcionada. Crea registro de acceso sin punto acceso asignado. Permite acceso. Estado = 'ingreso'. No genera alertas. |
+| 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, (F) | PlacaValida = V, File = V, PuntoAcceso = F, TipoVehiculo = F, ActiveSanction = V | El sistema registra el intento de ingreso de un vehículo sancionado con imagen. Deniega acceso. Estado = 'denegado'. Genera alerta interna de tipo 'sanctioned_vehicle_attempt'. |
+| 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, (F) | PlacaValida = V, File = V, PuntoAcceso = V, TipoVehiculo = V, ActiveSanction = F | El sistema registra ingreso con imagen, tipo de vehículo resuelto y punto de acceso. Crea registro completo. Permite acceso. Estado = 'ingreso'. |
+| 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, (F) | PlacaValida = V, File = V, PuntoAcceso = V, TipoVehiculo = V, ActiveSanction = V | El sistema registra intento de vehículo sancionado con todos los datos. Deniega acceso. Estado = 'denegado'. Crea punto de acceso y genera alerta. |
+| 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, (F) | PlacaValida = V, File = F, EvidenceUrl = V, PuntoAcceso = F, TipoVehiculo = F, ActiveSanction = F | El sistema registra ingreso sin archivo pero con URL de evidencia proporcionada. Crea registro con evidencia externa. Permite acceso. Estado = 'ingreso'. |
+| 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, (F) | PlacaValida = V, File = F, EvidenceUrl = V, PuntoAcceso = F, TipoVehiculo = F, ActiveSanction = V | El sistema registra intento sancionado con URL de evidencia. Deniega acceso. Estado = 'denegado'. Genera alerta. |
+| 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, (F) | PlacaValida = V, File = F, EvidenceUrl = F, PuntoAcceso = V, TipoVehiculo = V, ActiveSanction = F | El sistema registra ingreso sin evidencia fotográfica. evidenceUrl = null. Crea registro con punto acceso. Permite acceso. Estado = 'ingreso'. |
+| 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, (F) | PlacaValida = V, File = F, EvidenceUrl = F, PuntoAcceso = V, TipoVehiculo = V, ActiveSanction = V | El sistema registra intento sancionado sin evidencia. Deniega acceso. Estado = 'denegado'. Punto acceso asignado. Genera alerta. |
+| 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, (F) | PlacaValida = V, File = V, VehiculoExistente = V, Color = V, Modelo = V, Marca = V, Caracteristicas = V, TipoVehiculo = V, ActiveSanction = F | El sistema actualiza vehículo existente con todos los campos. Registra ingreso. Permite acceso. Estado = 'ingreso'. |
+| 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, (F) | PlacaValida = V, File = V, VehiculoNuevo = T, PuntoAcceso = V, ActiveSanction = F | El sistema crea nuevo vehículo. Registra ingreso. Punto acceso asignado. Permite acceso. Estado = 'ingreso'. |
+
+Nota. Elaboración propia (2026).

@@ -1,0 +1,52 @@
+@startuml Secuencia_Analizar_Vehiculo_IA
+title Diagrama de Secuencia - CU08: Analizar Caracteristicas Vehiculares con IA
+
+skinparam sequence {
+  ArrowColor #2C3E50
+  LifeLineBorderColor #2C6CA5
+  ParticipantBorderColor #2C6CA5
+  ParticipantBackgroundColor #E8F4FD
+  ActorBorderColor #2C3E50
+}
+
+actor "Guardia" as Guardia
+participant "AnalisisView" as Vista
+participant "DetectionsController" as Ctrl
+participant "DetectionsService" as Svc
+participant "VisionService" as Vision
+participant "ClaudeAPI" as Claude
+participant "StorageService" as Storage
+
+== Analizar Caracteristicas con IA ==
+
+Guardia -> Vista : capturar imagen del vehiculo
+activate Vista
+Vista -> Ctrl : analyzeVehicle(image)
+activate Ctrl
+Ctrl -> Svc : analyzeVehicleFile(file)
+activate Svc
+
+par Promise.all (analisis y guardado en paralelo)
+    Svc -> Vision : analyzeVehicle(file)
+    activate Vision
+    Vision -> Claude : POST /v1/messages (api.anthropic.com)
+    activate Claude
+    Claude --> Vision : JSON { tipoVehiculo, marca, modelo, color, caracteristicas }
+    deactivate Claude
+    Vision --> Svc : analysis
+    deactivate Vision
+else
+    Svc -> Storage : saveImage(file)
+    activate Storage
+    Storage --> Svc : evidenceUrl
+    deactivate Storage
+end
+
+Svc --> Ctrl : { ...analysis, evidenceUrl }
+deactivate Svc
+Ctrl --> Vista : analisis del vehiculo
+deactivate Ctrl
+Vista --> Guardia : muestra caracteristicas detectadas
+deactivate Vista
+
+@enduml

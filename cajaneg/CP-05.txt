@@ -1,0 +1,26 @@
+Tabla X
+CP-05-01: Registro exitoso de una cámara
+Nombre
+CP-05-01: Registro exitoso de una cámara
+Descripción
+Verificar que el sistema permita registrar correctamente una nueva cámara con su ubicación, tipo y estado.
+Precondición
+El usuario tiene una sesión iniciada como Administrador.
+Datos de Entrada
+Nombre: Cámara Norte. Ubicación: Ingreso principal. Tipo de cámara: IP. Estado: activa.
+Condición de Ejecución
+El servidor backend debe encontrarse operativo y la base de datos disponible.
+Pasos de Ejecución
+1. Ingresar al módulo de Cámaras.
+2. Completar el formulario con nombre, ubicación, tipo y estado.
+3. Confirmar el registro de la cámara.
+4. Verificar que la cámara aparezca en la lista.
+Resultado Esperado
+El sistema registra correctamente la cámara con los datos ingresados y la muestra en la lista de cámaras.
+Resultado Obtenido
+El sistema almacenó satisfactoriamente la nueva cámara con su ubicación, tipo y estado. La cámara fue mostrada correctamente en la lista del módulo.
+Resultado de la Prueba
+CORRECTO
+
+
+Nota. Elaboración propia (2026).

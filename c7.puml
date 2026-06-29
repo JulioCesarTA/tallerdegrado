@@ -1,0 +1,89 @@
+@startuml Secuencia_Registrar_Salida
+title Diagrama de Secuencia - CU07: Registrar Salida Vehicular con OCR
+
+skinparam sequence {
+  ArrowColor #2C3E50
+  LifeLineBorderColor #2C6CA5
+  ParticipantBorderColor #2C6CA5
+  ParticipantBackgroundColor #E8F4FD
+  ActorBorderColor #2C3E50
+}
+
+actor "Guardia" as Guardia
+participant "SalidaView" as Vista
+participant "DetectionsController" as Ctrl
+participant "DetectionsService" as Svc
+participant "VisionService" as Vision
+participant "StorageService" as Storage
+participant "Vehiculo" as Vehiculo
+participant "PuntoAcceso" as PuntoAcceso
+participant "RegistroAcceso" as RegistroAcceso
+participant "Plaza" as Plaza
+
+== Reconocimiento de Placa (OCR) ==
+
+Guardia -> Vista : capturar imagen del vehiculo
+activate Vista
+Vista -> Ctrl : ocrFrame(image)
+activate Ctrl
+Ctrl -> Svc : ocrFrame(file)
+activate Svc
+Svc -> Vision : extractPlate(file)
+activate Vision
+Vision -> Vision : DetectTextCommand (AWS Rekognition)
+Vision --> Svc : { plate, confidence }
+deactivate Vision
+Svc --> Ctrl : { plate, confidence }
+deactivate Svc
+Ctrl --> Vista : { plate, confidence }
+deactivate Ctrl
+Vista --> Guardia : muestra placa detectada
+deactivate Vista
+
+== Registro de Salida ==
+
+Guardia -> Vista : confirmar salida
+activate Vista
+Vista -> Ctrl : registerExit(dto, image)
+activate Ctrl
+Ctrl -> Svc : registerExit(dto, file)
+activate Svc
+
+Svc -> Storage : saveImage(file)
+activate Storage
+Storage --> Svc : evidenceUrl
+deactivate Storage
+
+Svc -> Vehiculo : findUnique({ where: { placa } })
+activate Vehiculo
+Vehiculo --> Svc : vehiculo
+deactivate Vehiculo
+
+Svc -> PuntoAcceso : findFirst({ where: { camaraSalidaId } })
+activate PuntoAcceso
+PuntoAcceso --> Svc : puntoAcceso
+deactivate PuntoAcceso
+
+Svc -> RegistroAcceso : findFirst({ horaSalida: null, estado: 'ingreso' })
+activate RegistroAcceso
+RegistroAcceso --> Svc : openLog
+deactivate RegistroAcceso
+
+Svc -> RegistroAcceso : update({ horaSalida, estado: 'salida' })
+activate RegistroAcceso
+RegistroAcceso --> Svc : registro
+deactivate RegistroAcceso
+
+Svc -> Plaza : update({ estado: 'libre' })
+activate Plaza
+Plaza --> Svc : plaza
+deactivate Plaza
+
+Svc --> Ctrl : { placa, evidenceUrl, vehicle }
+deactivate Svc
+Ctrl --> Vista : salida registrada
+deactivate Ctrl
+Vista --> Guardia : muestra confirmacion
+deactivate Vista
+
+@enduml

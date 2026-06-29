@@ -1,0 +1,21 @@
+| **Nombre** | Prueba de CU08. Analizar Características Vehiculares con IA |
+|--------|-------|
+| **Descripción** | Permite analizar características de un vehículo mediante inteligencia artificial (Claude) para determinar tipo, marca, modelo, color y condiciones visibles de forma automática. |
+|--------|-------|
+| **Precondición** | El usuario debe haber iniciado sesión. API de Claude debe estar configurada y disponible. Imagen con claridad suficiente. |
+|--------|-------|
+| **Datos de Entrada** | Imagen clara de vehículo en formato JPG/PNG/GIF/WebP. Ejemplo: fotografía de auto sedán blanco Honda Civic con pequeño rayón en puerta. |
+|--------|-------|
+| **Captura de Imagen Inicial** | *(Pantalla del módulo de Análisis mostrando interfaz de carga de imagen)* |
+|--------|-------|
+| **Pasos** | 1. Acceder a la sección de **"Análisis de Vehículos"**.<br>2. Cargar o capturar imagen del vehículo.<br>3. Hacer clic en **"Analizar con IA"**.<br>4. Sistema envía imagen a Claude API.<br>5. Esperar procesamiento y respuesta de análisis.<br>6. Sistema parsea JSON de respuesta.<br>7. Cargar automáticamente datos en formulario (tipo, marca, modelo, color, características).<br>8. Verificar que información se complete correctamente. |
+|--------|-------|
+| **Resultado Esperado** | Sistema envía imagen a Claude API, recibe análisis JSON válido con tipoVehiculo, marca, modelo, color, características. Parsea respuesta exitosamente. Carga campos automáticamente en formulario. Maneja campos faltantes con valores por defecto ('desconocido'). |
+|--------|-------|
+| **Resultado Obtenido** | Sistema envió imagen a Claude API exitosamente. Recibió respuesta JSON válida: tipoVehiculo='automovil', marca='Honda', modelo='Civic', color='Blanco', caracteristicas='Rayón pequeño en puerta izquierda'. Parseó JSON correctamente. Cargó automáticamente todos los campos en formulario sin errores. Usuario puede continuar proceso sin ingresar datos manualmente. |
+|--------|-------|
+| **Captura de Imagen Final** | *(Pantalla mostrando formulario completado automáticamente con características analizadas por IA)* |
+|--------|-------|
+| **Resultado de la Prueba** | **CORRECTO** |
+
+Nota. Elaboración propia (2026).

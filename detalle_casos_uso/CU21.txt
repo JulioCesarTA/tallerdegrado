@@ -1,0 +1,23 @@
+Caso de Uso
+CU21. Gestionar Plaza
+Propósito
+Administrar las plazas de estacionamiento de cada parqueo.
+Descripción
+El administrador puede registrar, consultar, editar y eliminar plazas, asociándolas a un parqueo e indicando su código, tipo y estado.
+Actores
+Administrador
+Actor Iniciador
+Administrador
+Precondición
+Debe existir al menos un parqueo registrado.
+Proceso
+1. El administrador accede al módulo Gestionar Plaza.
+2. El sistema lista las plazas junto con el parqueo al que pertenecen.
+3. Para registrar una nueva, selecciona el parqueo e ingresa el código, el tipo (auto, moto o discapacitado) y el estado (libre u ocupada).
+4. El sistema valida que el parqueo seleccionado exista.
+5. El administrador puede editar o eliminar una plaza existente.
+6. El sistema guarda los cambios.
+Postcondición
+Plaza creada, actualizada o eliminada correctamente.
+Excepciones
+Si el parqueo seleccionado no existe, el sistema muestra "Parqueo no encontrado".

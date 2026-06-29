@@ -1,0 +1,38 @@
+FUNCIONES EN ORDEN - CU03: Recuperar Contrasena
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Usuario - Vista (RecuperarView) - Controlador (AuthController)
+               - Service (AuthService) - Repositorio (prisma.usuario) - MailService (Gmail)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+SOLICITAR CODIGO
+----------------------------------------------------------------
+1.  Usuario      -> Vista        : ingresar correo
+2.  Vista        -> Controlador  : forgotPassword(email)
+3.  Controlador  -> Service      : requestPasswordReset(email)
+4.  Service      -> Repositorio  : findUnique({ where: { correo } })
+5.  Repositorio  -> Service      : usuario                      (return)
+6.  Service      -> Service      : generar codigo (randomInt 6 digitos)
+7.  Service      -> Repositorio  : update({ resetCode, resetCodeExp })
+8.  Service      -> MailService  : sendResetCode(correo, code)
+9.  MailService  -> Service      : enviado                      (return)
+10. Service      -> Controlador  : mensaje                      (return)
+11. Controlador  -> Vista        : 200 OK                       (return)
+12. Vista        -> Usuario      : muestra "revisa tu correo"   (return)
+
+RESTABLECER CONTRASENA
+----------------------------------------------------------------
+1.  Usuario      -> Vista        : ingresar codigo y nueva contrasena
+2.  Vista        -> Controlador  : resetPassword(dto)
+3.  Controlador  -> Service      : resetPassword(dto)
+4.  Service      -> Repositorio  : findUnique({ where: { correo } })
+5.  Repositorio  -> Service      : usuario                      (return)
+6.  Service      -> Service      : [codigo valido] bcrypt.hash(newPassword, 10)
+7.  Service      -> Repositorio  : update({ password, resetCode: null, resetCodeExp: null })
+8.  Service      -> Controlador  : Contrasena actualizada       (return)
+9.  Controlador  -> Vista        : 200 OK                       (return)
+10. Vista        -> Usuario      : muestra confirmacion         (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

@@ -1,0 +1,40 @@
+@startuml gestusu
+
+title Diagrama de Colaboracion - Gestionar Usuario
+
+left to right direction
+
+object "Administrador" as Admin
+
+object "UsersPage" as View
+object "api" as Api
+object "UsersController" as Controller
+object "UsersService" as Service
+object "PrismaService\nprisma.usuario" as UsuarioRepo
+object "PrismaService\nprisma.rol" as RolRepo
+
+' ===================== 1. Listar usuarios =====================
+Admin      --> View       : "1: load()"
+View       --> Api        : "1.1: api('/users')"
+Api        --> Controller : "1.1.1: findAll()"
+Controller --> Service    : "1.1.2: findAll()"
+Service    --> UsuarioRepo: "1.1.3: usuario.findMany()"
+
+' ===================== 2. Crear usuario =====================
+Admin      --> View       : "2: onSubmit()"
+View       --> Api        : "2.1: api('/users', POST, form)"
+Api        --> Controller : "2.1.1: create(dto)"
+Controller --> Service    : "2.1.2: create(dto)"
+Service    --> UsuarioRepo: "2.1.3: usuario.findUnique({correo})"
+Service    --> RolRepo    : "2.1.4 [correo libre]: rol.findUnique({roleId})"
+Service    --> UsuarioRepo: "2.1.5 [rol existe]: usuario.create({data})"
+
+' ===================== 3. Eliminar usuario =====================
+Admin      --> View       : "3: remove(id)"
+View       --> Api        : "3.1: api('/users/'+id, DELETE)"
+Api        --> Controller : "3.1.1: remove(id)"
+Controller --> Service    : "3.1.2: remove(id)"
+Service    --> UsuarioRepo: "3.1.3: usuario.findUnique({id})"
+Service    --> UsuarioRepo: "3.1.4 [usuario existe]: usuario.delete({id})"
+
+@enduml

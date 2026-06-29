@@ -1,0 +1,38 @@
+@startuml Colaboracion_Iniciar_Cerrar_Sesion
+title Diagrama de Colaboracion (Comunicacion) - CU01: Iniciar y Cerrar Sesion
+
+skinparam linetype ortho
+skinparam object {
+  BackgroundColor #E8F4FD
+  BorderColor #2C6CA5
+}
+
+object "Usuario" as User
+object "Vista (LoginView)" as Vista
+object "Controlador (AuthController)" as Ctrl
+object "Service (AuthService)" as Svc
+object "Repositorio (prisma.usuario)" as Repo
+
+' ===================== INICIAR SESION =====================
+User  --> Vista : 1.1: ingresar(correo, password)
+Vista --> Ctrl  : 1.2: login(dto)
+Ctrl  --> Svc   : 1.3: login(dto)
+Svc   --> Repo  : 1.4: findUnique({ where: { correo } })
+Repo  --> Svc   : 1.5: usuario
+Svc   --> Svc   : 1.6: bcrypt.compare(password, hash)
+Svc   --> Svc   : 1.7: validPassword
+Svc   --> Svc   : 1.8: buildSession(usuario)
+Svc   --> Svc   : 1.9: jwtService.sign({ sub, email, role })
+Svc   --> Svc   : 1.10: accessToken
+Svc   --> Svc   : 1.11: { accessToken, user }
+Svc   --> Ctrl  : 1.12: { accessToken, user }
+Ctrl  --> Vista : 1.13: { accessToken, user }
+Vista --> User  : 1.14: redirige al panel principal
+
+' ===================== CERRAR SESION =====================
+User  --> Vista : 2.1: cerrarSesion()
+Vista --> Vista : 2.2: eliminarToken()
+Vista --> Vista : 2.3: ok
+Vista --> User  : 2.4: redirige a Login
+
+@enduml

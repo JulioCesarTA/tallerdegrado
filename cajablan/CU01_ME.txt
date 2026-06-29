@@ -1,0 +1,22 @@
+CU01: Obtener Perfil del Usuario (Me)
+
+async me(userId: number) {
+    (1) const usuario = await this.prisma.usuario.findUnique({
+        where: { id: userId },
+        select: { id: true, nombre: true, correo: true, rol: true },
+    });
+
+    (2) if (!usuario) throw new UnauthorizedException('Usuario no encontrado');
+
+    (3) return { ...usuario, permissions: [] };
+}
+
+
+Tabla de Pruebas de Caja Blanca - Me
+
+| CAMINO | ENTRADA SIMULADA | SALIDA ESPERADA |
+|--------|-----------------|-----------------|
+| 1, 2, (F) | UserId no existe en BD (usuario = null) | El sistema rechaza la solicitud con excepción UnauthorizedException 'Usuario no encontrado'. No retorna información del usuario. Sesión se considera inválida. |
+| 1, 3, (F) | UserId válido, usuario existe en BD (usuario ≠ null) | El sistema retorna datos del usuario autenticado (id, nombre, correo, rol) con arreglo permissions vacío. Sesión válida. Usuario completamente autenticado. |
+
+Nota. Elaboración propia (2026).

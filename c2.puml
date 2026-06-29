@@ -1,0 +1,143 @@
+@startuml Secuencia_Gestionar_Usuarios
+title Diagrama de Secuencia - CU02: Gestionar Usuarios
+
+skinparam sequence {
+  ArrowColor #2C3E50
+  LifeLineBorderColor #2C6CA5
+  ParticipantBorderColor #2C6CA5
+  ParticipantBackgroundColor #E8F4FD
+  ActorBorderColor #2C3E50
+}
+
+actor "Administrador" as Admin
+participant "UsuariosView" as Vista
+participant "UsersController" as Ctrl
+participant "UsersService" as Svc
+participant "UsuarioRepository" as Repo
+database "BD" as BD
+
+== Crear Usuario ==
+
+Admin -> Vista : completar formulario
+activate Vista
+Vista -> Ctrl : create(dto)
+activate Ctrl
+Ctrl -> Svc : create(dto)
+activate Svc
+Svc -> Repo : findUnique({ where: { correo } })
+activate Repo
+Repo -> BD : SELECT id FROM Usuario WHERE correo = ?
+activate BD
+BD --> Repo : usuario | null
+deactivate BD
+Repo --> Svc : usuario | null
+deactivate Repo
+Svc -> Svc : bcrypt.hash(password, 10)
+activate Svc
+Svc --> Svc : hash
+deactivate Svc
+Svc -> Repo : create({ data })
+activate Repo
+Repo -> BD : INSERT INTO Usuario
+activate BD
+BD --> Repo : usuario
+deactivate BD
+Repo --> Svc : usuario
+deactivate Repo
+Svc --> Ctrl : usuario
+deactivate Svc
+Ctrl --> Vista : usuario creado
+deactivate Ctrl
+Vista --> Admin : muestra confirmacion
+deactivate Vista
+
+== Listar Usuarios ==
+
+Admin -> Vista : abrir lista
+activate Vista
+Vista -> Ctrl : findAll()
+activate Ctrl
+Ctrl -> Svc : findAll()
+activate Svc
+Svc -> Repo : findMany({ select, orderBy })
+activate Repo
+Repo -> BD : SELECT * FROM Usuario ORDER BY nombre
+activate BD
+BD --> Repo : usuarios[]
+deactivate BD
+Repo --> Svc : usuarios[]
+deactivate Repo
+Svc --> Ctrl : usuarios[]
+deactivate Svc
+Ctrl --> Vista : usuarios[]
+deactivate Ctrl
+Vista --> Admin : muestra lista
+deactivate Vista
+
+== Actualizar Usuario ==
+
+Admin -> Vista : editar datos
+activate Vista
+Vista -> Ctrl : update(id, dto)
+activate Ctrl
+Ctrl -> Svc : update(id, dto)
+activate Svc
+Svc -> Repo : findUnique({ where: { id } })
+activate Repo
+Repo -> BD : SELECT id FROM Usuario WHERE id = ?
+activate BD
+BD --> Repo : usuario
+deactivate BD
+Repo --> Svc : usuario
+deactivate Repo
+Svc -> Svc : bcrypt.hash(password, 10)
+activate Svc
+Svc --> Svc : hash
+deactivate Svc
+Svc -> Repo : update({ where, data })
+activate Repo
+Repo -> BD : UPDATE Usuario SET ...
+activate BD
+BD --> Repo : usuario
+deactivate BD
+Repo --> Svc : usuario
+deactivate Repo
+Svc --> Ctrl : usuario
+deactivate Svc
+Ctrl --> Vista : usuario actualizado
+deactivate Ctrl
+Vista --> Admin : muestra confirmacion
+deactivate Vista
+
+== Eliminar Usuario ==
+
+Admin -> Vista : eliminar
+activate Vista
+Vista -> Ctrl : remove(id)
+activate Ctrl
+Ctrl -> Svc : remove(id)
+activate Svc
+Svc -> Repo : findUnique({ where: { id } })
+activate Repo
+Repo -> BD : SELECT id FROM Usuario WHERE id = ?
+activate BD
+BD --> Repo : usuario
+deactivate BD
+Repo --> Svc : usuario
+deactivate Repo
+Svc -> Repo : delete({ where: { id } })
+activate Repo
+Repo -> BD : DELETE FROM Usuario WHERE id = ?
+activate BD
+BD --> Repo : ok
+deactivate BD
+Repo --> Svc : ok
+deactivate Repo
+Svc --> Ctrl : { message: 'Usuario eliminado' }
+deactivate Svc
+Ctrl --> Vista : ok
+deactivate Ctrl
+Vista --> Admin : muestra confirmacion
+deactivate Vista
+
+@enduml

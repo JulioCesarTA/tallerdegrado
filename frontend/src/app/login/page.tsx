@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { setSession } from '@/lib/auth';
@@ -72,6 +73,10 @@ export default function LoginPage() {
             {loading ? 'Procesando...' : 'Entrar'}
           </button>
         </form>
+
+        <Link href="/forgot-password" className="block text-center text-sm text-emerald-600 hover:text-emerald-700">
+          ¿Olvidaste tu contrasena?
+        </Link>
 
         {message && (
           <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{message}</div>

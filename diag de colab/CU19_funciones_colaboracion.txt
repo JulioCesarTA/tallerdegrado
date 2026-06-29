@@ -1,0 +1,58 @@
+FUNCIONES EN ORDEN - CU19: Gestionar Puntos de Acceso
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Administrador - Vista (PuntosAccesoView) - Controlador (AccessController)
+               - Service (AccessService) - Repositorio (prisma.puntoAcceso)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+CREAR PUNTO DE ACCESO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : completar formulario
+2.  Vista         -> Controlador  : createAccessPoint(dto)
+3.  Controlador   -> Service      : createAccessPoint(dto)
+4.  Service       -> Repositorio  : create({ nombre, ubicacion, camaras, usuario })
+5.  Repositorio   -> Service      : puntoAcceso                 (return)
+6.  Service       -> Controlador  : puntoAcceso                 (return)
+7.  Controlador   -> Vista        : punto creado                (return)
+8.  Vista         -> Administrador: muestra confirmacion        (return)
+
+LISTAR PUNTOS DE ACCESO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : abrir lista
+2.  Vista         -> Controlador  : findAccessPoints()
+3.  Controlador   -> Service      : findAccessPoints()
+4.  Service       -> Repositorio  : findMany({ include: camaras, usuario })
+5.  Repositorio   -> Service      : puntosAcceso[]              (return)
+6.  Service       -> Controlador  : puntosAcceso[]              (return)
+7.  Controlador   -> Vista        : puntosAcceso[]              (return)
+8.  Vista         -> Administrador: muestra lista               (return)
+
+ACTUALIZAR PUNTO DE ACCESO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : editar datos
+2.  Vista         -> Controlador  : updateAccessPoint(id, dto)
+3.  Controlador   -> Service      : updateAccessPoint(id, dto)
+4.  Service       -> Repositorio  : findUnique({ where: { id } })
+5.  Repositorio   -> Service      : puntoAcceso                 (return)
+6.  Service       -> Repositorio  : update({ where: { id }, data: dto })
+7.  Repositorio   -> Service      : puntoAcceso                 (return)
+8.  Service       -> Controlador  : puntoAcceso                 (return)
+9.  Controlador   -> Vista        : punto actualizado           (return)
+10. Vista         -> Administrador: muestra confirmacion        (return)
+
+ELIMINAR PUNTO DE ACCESO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : eliminar
+2.  Vista         -> Controlador  : removeAccessPoint(id)
+3.  Controlador   -> Service      : removeAccessPoint(id)
+4.  Service       -> Repositorio  : findUnique({ where: { id } })
+5.  Repositorio   -> Service      : puntoAcceso                 (return)
+6.  Service       -> Repositorio  : delete({ where: { id } })
+7.  Repositorio   -> Service      : ok                          (return)
+8.  Service       -> Controlador  : Punto de acceso eliminado   (return)
+9.  Controlador   -> Vista        : ok                          (return)
+10. Vista         -> Administrador: muestra confirmacion        (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

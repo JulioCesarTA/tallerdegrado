@@ -1,0 +1,83 @@
+@startuml Subsistema_Control_Vehicular
+title Figura. Subsistema de Control Vehicular
+
+skinparam componentStyle uml2
+skinparam component {
+  BackgroundColor #BBDEFB
+  BorderColor #1565C0
+}
+skinparam package {
+  BackgroundColor #FFF3E0
+  BorderColor #E65100
+}
+
+' ============================================================
+' CLIENTE - Formularios (Next.js)
+' ============================================================
+package "Control Vehicular" as Cliente #FCE4EC {
+  [IngresoFrom]      <<component>> as IngresoFrom #F48FB1
+  [SalidaFrom]       <<component>> as SalidaFrom #F48FB1
+  [AnalisisIAFrom]   <<component>> as AnalisisFrom #F48FB1
+  [HistorialFrom]    <<component>> as HistorialFrom #F48FB1
+  [BusquedaFrom]     <<component>> as BusquedaFrom #F48FB1
+  [StreamingFrom]    <<component>> as StreamingFrom #F48FB1
+}
+
+' ============================================================
+' SERVIDOR - Controller / Service / Model (NestJS)
+' ============================================================
+package "Servidor" as Servidor {
+
+  ' ---- Controllers ----
+  [DetectionsController] <<class>> as DetectCtrl
+  [VisionController]     <<class>> as VisionCtrl
+  [VehiclesController]   <<class>> as VehiclesCtrl
+  [StreamingGateway]     <<class>> as StreamCtrl
+
+  ' ---- Services ----
+  [DetectionsService] <<class>> as DetectSvc
+  [VisionService]     <<class>> as VisionSvc
+  [VehiclesService]   <<class>> as VehiclesSvc
+  [StreamingService]  <<class>> as StreamSvc
+
+  ' ---- Models ----
+  [RegistroAccesoModel] <<class>> as RegistroMdl
+  [VehiculoModel]       <<class>> as VehiculoMdl
+  [CamaraModel]         <<class>> as CamaraMdl
+}
+
+' ============================================================
+' BASE DE DATOS (PostgreSQL)
+' ============================================================
+package "Base de Datos" as BD #FCE4EC {
+  [bd_control_vehicular] <<script>> as Script #F48FB1
+  [registro_acceso] <<table>> as TRegistro #F48FB1
+  [vehiculo]        <<table>> as TVehiculo #F48FB1
+  [plaza]           <<table>> as TPlaza #F48FB1
+  [camara]          <<table>> as TCamara #F48FB1
+}
+
+' ============================================================
+' CLIENTE -> SERVIDOR  (JSON/HTTPS)
+' ============================================================
+Cliente -down-> Servidor : "<<JSON/HTTPS>>"
+
+' ============================================================
+' SERVIDOR: Service ..|> Controller (realiza) ; Service -- Model
+' ============================================================
+DetectSvc   ..|> DetectCtrl
+VisionSvc   ..|> VisionCtrl
+VehiclesSvc ..|> VehiclesCtrl
+StreamSvc   ..|> StreamCtrl
+
+DetectSvc   -- RegistroMdl
+VisionSvc   -- VehiculoMdl
+VehiclesSvc -- VehiculoMdl
+StreamSvc   -- CamaraMdl
+
+' ============================================================
+' SERVIDOR -> BASE DE DATOS
+' ============================================================
+Servidor -down-> BD
+
+@enduml

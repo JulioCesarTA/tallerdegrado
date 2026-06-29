@@ -1,0 +1,26 @@
+CU01: Iniciar Sesión (Login)
+
+async login(dto: LoginDto) {
+    (1) const usuario = await this.prisma.usuario.findUnique({
+        where: { correo: dto.email.toLowerCase() },
+    });
+
+    (2) if (!usuario) throw new UnauthorizedException('Credenciales invalidas');
+
+    (3) const validPassword = await bcrypt.compare(dto.password, usuario.password);
+
+    (4) if (!validPassword) throw new UnauthorizedException('Credenciales invalidas');
+
+    (5) return this.buildSession(usuario);
+}
+
+
+Tabla de Pruebas de Caja Blanca - Login
+
+| CAMINO | ENTRADA SIMULADA | SALIDA ESPERADA |
+|--------|-----------------|-----------------|
+| 1, 2, (F) | Email no registrado (usuario = null) | El sistema rechaza el login y muestra excepción UnauthorizedException con mensaje 'Credenciales invalidas'. No se genera token JWT. No se crea sesión. |
+| 1, 3, 4, (F) | Email válido y registrado, contraseña incorrecta (validPassword = false) | El sistema rechaza el login y muestra excepción UnauthorizedException con mensaje 'Credenciales invalidas'. No se genera token JWT. No se crea sesión. |
+| 1, 3, 5, (F) | Email válido y registrado, contraseña correcta (validPassword = true) | El sistema genera accessToken JWT válido con claims (sub, email, role, permissions). Retorna objeto con accessToken y datos de usuario (id, name, email, role, permissions). Sesión iniciada correctamente. |
+
+Nota. Elaboración propia (2026).

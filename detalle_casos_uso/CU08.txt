@@ -1,0 +1,20 @@
+Caso de Uso
+CU08. Analizar Características Vehiculares con IA
+Propósito
+Identificar automáticamente las características de un vehículo a partir de su imagen.
+Descripción
+A partir de la imagen capturada, el sistema utiliza la API de Claude (Anthropic) para determinar el tipo de vehículo, la marca, el modelo y el color.
+Actores
+Módulo de IA (Claude), Sistema
+Actor Iniciador
+Sistema
+Precondición
+Tener una imagen del vehículo capturada por la cámara.
+Proceso
+1. Durante el registro de ingreso o salida, el sistema envía la imagen del vehículo a la API de Claude.
+2. La inteligencia artificial analiza la imagen y devuelve tipo, marca, modelo y color.
+3. El sistema asocia esas características al vehículo correspondiente.
+Postcondición
+El vehículo queda registrado con sus características identificadas por IA.
+Excepciones
+Si el servicio de IA no responde, el registro del vehículo continúa sin las características.

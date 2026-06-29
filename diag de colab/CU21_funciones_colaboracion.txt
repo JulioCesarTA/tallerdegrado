@@ -1,0 +1,54 @@
+FUNCIONES EN ORDEN - CU21: Gestionar Plaza
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Administrador - Vista (PlazaView) - Controlador (PlazaController)
+               - Service (PlazaService) - Repositorio (prisma.plaza)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+CREAR PLAZA
+----------------------------------------------------------------
+1.  Administrador -> Vista        : completar formulario
+2.  Vista         -> Controlador  : create(dto)
+3.  Controlador   -> Service      : create(dto)
+4.  Service       -> Repositorio  : create({ parqueoId, codigo, tipo, estado })
+5.  Repositorio   -> Service      : plaza                       (return)
+6.  Service       -> Controlador  : plaza                       (return)
+7.  Controlador   -> Vista        : plaza creada                (return)
+8.  Vista         -> Administrador: muestra confirmacion        (return)
+
+LISTAR PLAZAS
+----------------------------------------------------------------
+1.  Administrador -> Vista        : abrir lista
+2.  Vista         -> Controlador  : findAll()
+3.  Controlador   -> Service      : findAll()
+4.  Service       -> Repositorio  : findMany({ include: parqueo })
+5.  Repositorio   -> Service      : plazas[]                    (return)
+6.  Service       -> Controlador  : plazas[]                    (return)
+7.  Controlador   -> Vista        : plazas[]                    (return)
+8.  Vista         -> Administrador: muestra lista               (return)
+
+ACTUALIZAR PLAZA
+----------------------------------------------------------------
+1.  Administrador -> Vista        : editar datos
+2.  Vista         -> Controlador  : update(id, dto)
+3.  Controlador   -> Service      : update(id, dto)
+4.  Service       -> Repositorio  : update({ where: { id }, data })
+5.  Repositorio   -> Service      : plaza                       (return)
+6.  Service       -> Controlador  : plaza                       (return)
+7.  Controlador   -> Vista        : plaza actualizada           (return)
+8.  Vista         -> Administrador: muestra confirmacion        (return)
+
+ELIMINAR PLAZA
+----------------------------------------------------------------
+1.  Administrador -> Vista        : eliminar
+2.  Vista         -> Controlador  : remove(id)
+3.  Controlador   -> Service      : remove(id)
+4.  Service       -> Repositorio  : delete({ where: { id } })
+5.  Repositorio   -> Service      : ok                          (return)
+6.  Service       -> Controlador  : Plaza eliminada             (return)
+7.  Controlador   -> Vista        : ok                          (return)
+8.  Vista         -> Administrador: muestra confirmacion        (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

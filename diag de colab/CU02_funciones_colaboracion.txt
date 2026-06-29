@@ -1,0 +1,62 @@
+FUNCIONES EN ORDEN - CU02: Gestionar Usuarios
+(Diagrama de Colaboracion / Comunicacion - UML 2.5)
+Participantes: Administrador - Vista (UsuariosView) - Controlador (UsersController)
+               - Service (UsersService) - Repositorio (prisma.usuario)
+================================================================
+[ ] = condicion/guard (UML 2.5).   (return) = "Is Return" en EA.
+================================================================
+
+CREAR USUARIO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : completar formulario
+2.  Vista         -> Controlador  : create(dto)
+3.  Controlador   -> Service      : create(dto)
+4.  Service       -> Repositorio  : findUnique({ where: { correo } })
+5.  Repositorio   -> Service      : null                                  (return)
+6.  Service       -> Service      : [correo no existe] bcrypt.hash(password, 10)
+7.  Service       -> Repositorio  : [correo no existe] create({ data })
+8.  Repositorio   -> Service      : usuario                               (return)
+9.  Service       -> Controlador  : usuario                               (return)
+10. Controlador   -> Vista        : usuario creado                        (return)
+11. Vista         -> Administrador: muestra confirmacion                  (return)
+
+LISTAR USUARIOS
+----------------------------------------------------------------
+1.  Administrador -> Vista        : abrir lista
+2.  Vista         -> Controlador  : findAll()
+3.  Controlador   -> Service      : findAll()
+4.  Service       -> Repositorio  : findMany({ select, orderBy })
+5.  Repositorio   -> Service      : usuarios[]                            (return)
+6.  Service       -> Controlador  : usuarios[]                            (return)
+7.  Controlador   -> Vista        : usuarios[]                            (return)
+8.  Vista         -> Administrador: muestra lista                         (return)
+
+ACTUALIZAR USUARIO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : editar datos
+2.  Vista         -> Controlador  : update(id, dto)
+3.  Controlador   -> Service      : update(id, dto)
+4.  Service       -> Repositorio  : findUnique({ where: { id } })
+5.  Repositorio   -> Service      : usuario                               (return)
+6.  Service       -> Service      : [tiene password] bcrypt.hash(password, 10)
+7.  Service       -> Repositorio  : [existe] update({ where, data })
+8.  Repositorio   -> Service      : usuario                               (return)
+9.  Service       -> Controlador  : usuario                               (return)
+10. Controlador   -> Vista        : usuario actualizado                   (return)
+11. Vista         -> Administrador: muestra confirmacion                  (return)
+
+ELIMINAR USUARIO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : eliminar
+2.  Vista         -> Controlador  : remove(id)
+3.  Controlador   -> Service      : remove(id)
+4.  Service       -> Repositorio  : findUnique({ where: { id } })
+5.  Repositorio   -> Service      : usuario                               (return)
+6.  Service       -> Repositorio  : [existe] delete({ where: { id } })
+7.  Repositorio   -> Service      : ok                                    (return)
+8.  Service       -> Controlador  : Usuario eliminado                     (return)
+9.  Controlador   -> Vista        : ok                                    (return)
+10. Vista         -> Administrador: muestra confirmacion                  (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

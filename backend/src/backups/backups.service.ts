@@ -19,11 +19,9 @@ export class BackupsService {
   }
 
   private async buildSnapshot() {
-    const [usuarios, roles, permisos, camaras, vehiculos, registrosAcceso, sanciones, tipoSanciones, alertas] =
+    const [usuarios, camaras, vehiculos, registrosAcceso, sanciones, tipoSanciones, alertas] =
       await Promise.all([
-        this.prisma.usuario.findMany({ select: { id: true, nombre: true, correo: true, rolId: true } }),
-        this.prisma.rol.findMany(),
-        this.prisma.permiso.findMany(),
+        this.prisma.usuario.findMany({ select: { id: true, nombre: true, correo: true, rol: true } }),
         this.prisma.camara.findMany(),
         this.prisma.vehiculo.findMany(),
         this.prisma.registroAcceso.findMany(),
@@ -35,8 +33,6 @@ export class BackupsService {
     return {
       generatedAt: new Date().toISOString(),
       usuarios,
-      roles,
-      permisos,
       camaras,
       vehiculos,
       registrosAcceso,

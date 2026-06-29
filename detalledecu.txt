@@ -1,0 +1,27 @@
+Caso de Uso
+CU01. Iniciar y Cerrar Sesión
+Propósito
+Permitir que los usuarios puedan acceder y 
+salir del sistema mediante autenticación.
+Descripción
+El usuario podrá iniciar sesión utilizando sus credenciales para acceder a las funcionalidades permitidas dentro del sistema.
+Actores
+Administrador, Personal de Seguridad, 
+Autoridad Universitaria
+Actor Iniciador
+Administrador, Personal de Seguridad,
+Autoridad Universitaria
+Precondición
+Tener credenciales válidas registradas en el sistema.
+Proceso
+1. El usuario introduce su correo electrónico y contraseña. 
+2. El sistema valida las credenciales ingresadas. 
+3. Si las credenciales son válidas, el sistema permite el acceso a la plataforma. 
+4. El usuario podrá cerrar sesión cuando 
+finalice el uso del sistema. 
+5. El sistema finaliza la sesión del usuario.
+Postcondición
+Acceso o cierre de sesión realizado correctamente.
+Excepciones
+Si las credenciales son incorrectas, el sistema mostrará un mensaje de error.
+

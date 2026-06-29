@@ -1,0 +1,24 @@
+Caso de Uso
+CU06. Registrar Ingreso Vehicular con OCR
+Propósito
+Registrar el ingreso de un vehículo identificando su placa mediante OCR y asignándole una plaza de estacionamiento.
+Descripción
+La cámara del punto de acceso captura la imagen; el sistema extrae la placa con OCR (Amazon Rekognition), el operador define el tipo y la categoría del vehículo, y el sistema asigna automáticamente una plaza libre antes de registrar el ingreso.
+Actores
+Personal de Seguridad, Módulo de IA (OCR)
+Actor Iniciador
+Personal de Seguridad
+Precondición
+Tener un punto de acceso con cámara de ingreso configurada y, para vehículos que se estacionan, plazas libres disponibles.
+Proceso
+1. La cámara del punto de acceso captura la imagen del vehículo.
+2. El sistema envía la imagen al servicio de OCR (Amazon Rekognition) y extrae el número de placa.
+3. Opcionalmente, el sistema analiza las características del vehículo con IA (marca, modelo, color, tipo).
+4. El operador selecciona el tipo de vehículo (Auto o Moto) y la categoría (estudiante, docente o visitante).
+5. Si la categoría es estudiante o docente, el operador elige el parqueo y el sistema asigna automáticamente la primera plaza libre. Si es visitante, no se asigna plaza.
+6. El sistema verifica si el vehículo tiene una sanción activa; de tenerla, deniega el ingreso y genera una alerta.
+7. El sistema registra el acceso (hora de ingreso, punto de acceso, plaza y evidencia en Amazon S3) y marca la plaza asignada como ocupada.
+Postcondición
+El ingreso queda registrado con su plaza y evidencia, o denegado si el vehículo está sancionado.
+Excepciones
+Si la placa no se reconoce, se permite el registro manual. Si no hay plazas libres (categoría estudiante o docente), el sistema no permite registrar el ingreso. Si el vehículo tiene sanción activa, el acceso es denegado.

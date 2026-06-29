@@ -8,18 +8,18 @@ import { clearSession, getStoredUser, getToken } from '@/lib/auth';
 const links = [
   { href: '/dashboard',       label: 'Dashboard'       },
   { href: '/users',           label: 'Usuarios'        },
-  { href: '/roles',           label: 'Roles'           },
   { href: '/cameras',         label: 'Camaras'         },
   { href: '/access-points',        label: 'Puntos de acceso'    },
   { href: '/access-points-config', label: 'Config. de accesos'  },
+  { href: '/parking',         label: 'Gestionar Parqueo' },
+  { href: '/plazas',          label: 'Gestionar Plaza'   },
   { href: '/detections',      label: 'Detecciones'     },
   { href: '/events',          label: 'Historial'       },
   { href: '/sanctions',       label: 'Sanciones'       },
   { href: '/assign-sanction', label: 'Asignar sancion' },
   { href: '/alerts',          label: 'Alertas'         },
-  { href: '/reports',         label: 'Reportes'        },
+  { href: '/bi',              label: 'Reportes BI'     },
   { href: '/backups',         label: 'Backups'         },
-  { href: '/system-logs',     label: 'Logs del sistema' },
 ];
 
 function SidebarContent() {
@@ -111,6 +111,7 @@ export function AppShell({ children }: PropsWithChildren) {
 
   const isPublic =
     pathname === '/login' ||
+    pathname === '/forgot-password' ||
     pathname.startsWith('/stream');
 
   const pageTitle = links.find((l) => pathname.startsWith(l.href))?.label

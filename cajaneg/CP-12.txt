@@ -1,0 +1,26 @@
+Tabla X
+CP-12-01: Visualización exitosa de transmisión de cámara en tiempo real
+Nombre
+CP-12-01: Visualización exitosa de transmisión de cámara en tiempo real
+Descripción
+Verificar que el sistema reciba y muestre en tiempo real el video transmitido desde una cámara hacia el panel de monitoreo, mediante comunicación por WebSocket.
+Precondición
+El usuario tiene una sesión iniciada. Existe una cámara configurada y asociada a un punto de acceso. El dispositivo que actúa como cámara está transmitiendo hacia el sistema.
+Datos de Entrada
+Identificador de la cámara a visualizar.
+Condición de Ejecución
+El servidor de WebSocket debe encontrarse operativo y el dispositivo de captura debe estar emitiendo video hacia el sistema.
+Pasos de Ejecución
+1. Ingresar al módulo de Detecciones.
+2. Abrir la URL de transmisión en el dispositivo (cámara) y conceder el acceso a la cámara.
+3. Establecer la conexión en tiempo real con el servidor.
+4. Verificar que el panel muestre el video en vivo de la cámara seleccionada.
+Resultado Esperado
+El sistema establece la conexión en tiempo real y muestra el video en vivo de la cámara en el panel de monitoreo, con baja latencia.
+Resultado Obtenido
+El sistema estableció correctamente la conexión por WebSocket y mostró el video en vivo de la cámara en el panel de monitoreo. La transmisión se visualizó de forma continua y con baja latencia.
+Resultado de la Prueba
+CORRECTO
+
+
+Nota. Elaboración propia (2026).

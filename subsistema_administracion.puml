@@ -1,0 +1,89 @@
+@startuml Subsistema_Administracion
+title Figura. Subsistema de Administracion
+
+skinparam componentStyle uml2
+skinparam component {
+  BackgroundColor #BBDEFB
+  BorderColor #1565C0
+}
+skinparam package {
+  BackgroundColor #FFF3E0
+  BorderColor #E65100
+}
+
+' ============================================================
+' CLIENTE - Formularios (Next.js)
+' ============================================================
+package "Administracion" as Cliente #FCE4EC {
+  [UsuarioFrom]      <<component>> as UsuarioFrom #F48FB1
+  [CamaraFrom]       <<component>> as CamaraFrom #F48FB1
+  [PuntoAccesoFrom]  <<component>> as PuntoFrom #F48FB1
+  [ParqueoFrom]      <<component>> as ParqueoFrom #F48FB1
+  [PlazaFrom]        <<component>> as PlazaFrom #F48FB1
+}
+
+' ============================================================
+' SERVIDOR - Controller / Service / Model (NestJS)
+' ============================================================
+package "Servidor" as Servidor {
+
+  ' ---- Controllers ----
+  [UsuarioController]     <<class>> as UsuarioCtrl
+  [CamaraController]      <<class>> as CamaraCtrl
+  [PuntoAccesoController] <<class>> as PuntoCtrl
+  [ParqueoController]     <<class>> as ParqueoCtrl
+  [PlazaController]       <<class>> as PlazaCtrl
+
+  ' ---- Services ----
+  [UsuarioService]     <<class>> as UsuarioSvc
+  [CamaraService]      <<class>> as CamaraSvc
+  [PuntoAccesoService] <<class>> as PuntoSvc
+  [ParqueoService]     <<class>> as ParqueoSvc
+  [PlazaService]       <<class>> as PlazaSvc
+
+  ' ---- Models ----
+  [UsuarioModel]     <<class>> as UsuarioMdl
+  [CamaraModel]      <<class>> as CamaraMdl
+  [PuntoAccesoModel] <<class>> as PuntoMdl
+  [ParqueoModel]     <<class>> as ParqueoMdl
+  [PlazaModel]       <<class>> as PlazaMdl
+}
+
+' ============================================================
+' BASE DE DATOS (PostgreSQL)
+' ============================================================
+package "Base de Datos" as BD #FCE4EC {
+  [bd_control_vehicular] <<script>> as Script #F48FB1
+  [usuario]      <<table>> as TUsuario #F48FB1
+  [camara]       <<table>> as TCamara #F48FB1
+  [punto_acceso] <<table>> as TPunto #F48FB1
+  [parqueo]      <<table>> as TParqueo #F48FB1
+  [plaza]        <<table>> as TPlaza #F48FB1
+}
+
+' ============================================================
+' CLIENTE -> SERVIDOR  (JSON/HTTPS)
+' ============================================================
+Cliente -down-> Servidor : "<<JSON/HTTPS>>"
+
+' ============================================================
+' SERVIDOR: Service ..|> Controller (realiza) ; Service -- Model
+' ============================================================
+UsuarioSvc ..|> UsuarioCtrl
+CamaraSvc  ..|> CamaraCtrl
+PuntoSvc   ..|> PuntoCtrl
+ParqueoSvc ..|> ParqueoCtrl
+PlazaSvc   ..|> PlazaCtrl
+
+UsuarioSvc -- UsuarioMdl
+CamaraSvc  -- CamaraMdl
+PuntoSvc   -- PuntoMdl
+ParqueoSvc -- ParqueoMdl
+PlazaSvc   -- PlazaMdl
+
+' ============================================================
+' SERVIDOR -> BASE DE DATOS
+' ============================================================
+Servidor -down-> BD
+
+@enduml

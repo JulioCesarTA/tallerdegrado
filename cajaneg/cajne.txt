@@ -1,0 +1,143 @@
+Nombre del Caso de Prueba
+CP-06-01: Ingreso exitoso de vehículo sin sanciones
+Descripción
+Verificar que el sistema registre correctamente el ingreso de un vehículo mediante reconocimiento automático de placa y permita su acceso cuando no existan sanciones activas asociadas al vehículo.
+Precondición
+El usuario tiene una sesión iniciada. Existe una cámara de ingreso configurada y asociada a un punto de acceso. El vehículo no posee sanciones vigentes registradas en el sistema.
+Datos de Entrada
+Imagen con una placa vehicular legible (ejemplo: ABC123).
+Condición de Ejecución
+La cámara debe encontrarse operativa y la imagen capturada debe permitir la lectura correcta de la placa.
+Pasos de Ejecución
+1. Ingresar al módulo de Detecciones.
+2. Capturar la imagen del vehículo mediante la cámara de ingreso.
+3. Procesar la imagen para identificar la placa del vehículo.
+4. Verificar la existencia del vehículo en el sistema.
+5. Registrar el ingreso del vehículo.
+6. Confirmar la creación del registro de acceso.
+7. Visualizar la detección registrada en la interfaz.
+Resultado Esperado
+El sistema identifica correctamente la placa del vehículo, registra su ingreso, almacena la información correspondiente y permite el acceso al no existir sanciones activas.
+Resultado Obtenido
+El sistema identificó correctamente la placa del vehículo. La información del vehículo fue registrada satisfactoriamente y se generó el correspondiente registro de ingreso. La detección fue visualizada correctamente en la interfaz junto con la evidencia capturada.
+Resultado de la Prueba
+CORRECTO
+
+
+Nota. Elaboración propia (2026).
+
+Tabla X
+CP-07-01: Registro exitoso de salida vehicular
+Nombre
+CP-07-01: Registro exitoso de salida vehicular
+Descripción
+Verificar que el sistema registre correctamente la salida de un vehículo previamente ingresado, actualizando el registro de acceso existente.
+Precondición
+Existe un registro de ingreso activo para el vehículo, sin una salida previamente registrada. El usuario tiene una sesión iniciada y existe una cámara de salida configurada y asociada a un punto de acceso.
+Datos de Entrada
+Imagen o lectura de la placa vehicular ABC123 mediante la cámara de salida.
+Condición de Ejecución
+La cámara de salida debe encontrarse operativa y la placa del vehículo debe ser identificable por el sistema.
+Pasos de Ejecución
+1. Ingresar al módulo de Detecciones.
+2. Capturar la imagen del vehículo mediante la cámara de salida.
+3. Procesar la imagen para identificar la placa del vehículo.
+4. Verificar la existencia de un ingreso activo asociado al vehículo.
+5. Registrar la salida del vehículo.
+6. Confirmar la actualización del registro de acceso.
+7. Visualizar la detección registrada en la interfaz.
+Resultado Esperado
+El sistema identifica correctamente la placa del vehículo y registra su salida actualizando el registro de acceso existente. La información queda almacenada correctamente y la salida es reflejada en el historial de accesos.
+Resultado Obtenido
+El sistema identificó correctamente la placa del vehículo y localizó el registro de ingreso activo correspondiente. La salida fue registrada satisfactoriamente, actualizando el historial de accesos sin generar registros duplicados. La detección fue visualizada correctamente en la interfaz junto con la evidencia capturada.
+Resultado de la Prueba
+CORRECTO
+
+
+Nota. Elaboración propia (2026).
+
+
+
+
+
+Tabla X
+CP-08-01: Análisis exitoso de características vehiculares mediante inteligencia artificial
+
+Nombre
+CP-08-01: Análisis exitoso de características vehiculares mediante inteligencia artificial
+Descripción
+Verificar que el sistema identifique correctamente las características de un vehículo a partir de una imagen, utilizando servicios de inteligencia artificial para determinar tipo, marca, modelo, color y características visibles.
+Precondición
+El usuario tiene una sesión iniciada. El servicio de inteligencia artificial se encuentra configurado y disponible para su utilización.
+Datos de Entrada
+Imagen clara de un vehículo en formato JPG o PNG.
+Condición de Ejecución
+La imagen debe poseer una calidad suficiente para permitir la identificación visual de las características del vehículo. Debe existir conectividad con los servicios externos utilizados para el análisis.
+Pasos de Ejecución
+1. Ingresar al módulo de Detecciones.
+2. Capturar o cargar una imagen del vehículo.
+3. Seleccionar la opción Analizar.
+4. Esperar el procesamiento de la imagen.
+5. Revisar la información generada por el sistema.
+6. Verificar que los datos obtenidos sean cargados automáticamente en el formulario correspondiente.
+Resultado Esperado
+El sistema identifica correctamente el tipo de vehículo, marca, modelo, color y demás características visibles, mostrando la información obtenida y cargándola automáticamente en el formulario de registro vehicular.
+Resultado Obtenido
+El sistema procesó correctamente la imagen proporcionada y obtuvo la información descriptiva del vehículo. Los datos identificados fueron mostrados al usuario y cargados automáticamente en el formulario de registro, permitiendo continuar con el proceso sin necesidad de ingresar manualmente la información.
+Resultado de la Prueba
+CORRECTO
+
+
+Nota. Elaboración propia (2026).
+Tabla X
+CP-11-01: Asignación exitosa de sanción a un vehículo
+Nombre
+CP-11-01: Asignación exitosa de sanción a un vehículo
+Descripción
+Verificar que el sistema permita asignar correctamente una sanción a un vehículo registrado, asociándola al tipo de sanción seleccionado por el usuario.
+Precondición
+El vehículo se encuentra registrado en el sistema. Existe al menos un tipo de sanción previamente creado. El usuario tiene una sesión iniciada y cuenta con permisos para gestionar sanciones.
+Datos de Entrada
+Placa del vehículo: ABC123. Tipo de sanción seleccionado: Exceso de velocidad.
+Condición de Ejecución
+El vehículo debe existir en la base de datos y el tipo de sanción seleccionado debe encontrarse disponible en el catálogo de sanciones.
+Pasos de Ejecución
+1. Ingresar al módulo de Asignar Sanción.
+2. Buscar el vehículo mediante su placa.
+3. Verificar que la información del vehículo sea mostrada correctamente.
+4. Seleccionar el tipo de sanción correspondiente.
+5. Confirmar el registro de la sanción.
+6. Verificar el mensaje de confirmación emitido por el sistema.
+Resultado Esperado
+El sistema registra correctamente la sanción seleccionada y la asocia al vehículo correspondiente. Además, muestra un mensaje de confirmación indicando que la sanción fue asignada exitosamente.
+Resultado Obtenido
+El sistema localizó correctamente el vehículo mediante la placa proporcionada. La sanción seleccionada fue registrada y asociada al vehículo correspondiente. Finalmente, el sistema mostró un mensaje de confirmación indicando que la sanción fue asignada exitosamente y dejó el formulario listo para una nueva operación.
+Resultado de la Prueba
+CORRECTO
+
+
+Nota. Elaboración propia (2026).
+
+Tabla X
+CP-16-01: Configuración exitosa de un punto de acceso
+Nombre
+CP-16-01: Configuración exitosa de un punto de acceso
+Descripción
+Verificar que el sistema permita configurar correctamente un punto de acceso mediante la asignación de una cámara de ingreso, una cámara de salida y un usuario de seguridad responsable.
+Precondición
+Existe al menos un punto de acceso registrado. Existen al menos dos cámaras registradas en el sistema. Existe un usuario de seguridad disponible para la asignación. El usuario tiene una sesión iniciada y permisos para administrar puntos de acceso.
+Datos de Entrada
+Punto de acceso seleccionado, cámara de ingreso válida, cámara de salida válida y usuario de seguridad válido.
+Condición de Ejecución
+El punto de acceso debe existir en el sistema y los recursos seleccionados deben encontrarse disponibles para su asignación.
+Pasos de Ejecución
+1. Ingresar al módulo de Configuración de Accesos.2. Seleccionar un punto de acceso existente.3. Seleccionar la cámara de ingreso correspondiente.4. Seleccionar la cámara de salida correspondiente.5. Seleccionar el usuario de seguridad responsable.6. Guardar la configuración.7. Verificar que la información asignada sea mostrada correctamente.
+Resultado Esperado
+El sistema actualiza correctamente el punto de acceso con las cámaras y el usuario seleccionados. Además, muestra un mensaje indicando que la configuración fue guardada exitosamente.
+Resultado Obtenido
+El sistema localizó correctamente el punto de acceso seleccionado y permitió asignar las cámaras de ingreso y salida, así como el usuario de seguridad correspondiente. La configuración fue almacenada satisfactoriamente y la información actualizada se reflejó correctamente en la interfaz del sistema. Finalmente, se mostró un mensaje confirmando que la configuración fue guardada exitosamente.
+Resultado de la Prueba
+CORRECTO
+
+
+Nota. Elaboración propia (2026).

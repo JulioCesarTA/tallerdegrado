@@ -1,0 +1,20 @@
+Caso de Uso
+CU09. Visualizar Historial de Acceso Vehicular
+Propósito
+Consultar el historial de ingresos y salidas de un vehículo.
+Descripción
+El usuario consulta todos los registros de acceso de un vehículo, con sus fechas, horas y evidencias.
+Actores
+Personal de Seguridad, Administrador
+Actor Iniciador
+Personal de Seguridad
+Precondición
+Existir registros de acceso del vehículo consultado.
+Proceso
+1. El usuario ingresa la placa o selecciona un vehículo.
+2. El sistema consulta los registros de acceso asociados al vehículo.
+3. Muestra la fecha, la hora de ingreso, la hora de salida, el punto de acceso y la evidencia de cada registro.
+Postcondición
+El historial de acceso del vehículo se muestra correctamente.
+Excepciones
+Si el vehículo no tiene registros, el sistema muestra una lista vacía.

@@ -1,28 +1,69 @@
 import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { AccessService } from '../access/access.service';
-import { AuditService } from '../audit/audit.service';
+import { randomInt } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { BootstrapAdminDto } from './dto/bootstrap-admin.dto';
 import { LoginDto } from './dto/login.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { MailService } from './mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly accessService: AccessService,
-    private readonly auditService: AuditService,
+    private readonly mailService: MailService,
   ) {}
+
+  async requestPasswordReset(email: string) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { correo: email.toLowerCase() },
+      select: { id: true, correo: true },
+    });
+
+    // Respondemos igual exista o no, para no revelar que correos estan registrados
+    if (usuario) {
+      const code = String(randomInt(100000, 1000000)); // 6 digitos
+      const resetCodeExp = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
+      await this.prisma.usuario.update({
+        where: { id: usuario.id },
+        data: { resetCode: code, resetCodeExp },
+      });
+      await this.mailService.sendResetCode(usuario.correo, code);
+    }
+
+    return { message: 'Si el correo esta registrado, te enviamos un codigo de recuperacion' };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { correo: dto.email.toLowerCase() },
+    });
+
+    if (!usuario || !usuario.resetCode || !usuario.resetCodeExp) {
+      throw new BadRequestException('Solicita un codigo de recuperacion primero');
+    }
+    if (usuario.resetCode !== dto.code) {
+      throw new BadRequestException('Codigo incorrecto');
+    }
+    if (usuario.resetCodeExp < new Date()) {
+      throw new BadRequestException('El codigo expiro, solicita uno nuevo');
+    }
+
+    const password = await bcrypt.hash(dto.newPassword, 10);
+    await this.prisma.usuario.update({
+      where: { id: usuario.id },
+      data: { password, resetCode: null, resetCodeExp: null },
+    });
+
+    return { message: 'Contrasena actualizada' };
+  }
 
   async login(dto: LoginDto) {
     const usuario = await this.prisma.usuario.findUnique({
       where: { correo: dto.email.toLowerCase() },
-      include: {
-        rol: { include: { permisos: { include: { permiso: true } } } },
-      },
     });
 
     if (!usuario) throw new UnauthorizedException('Credenciales invalidas');
@@ -30,29 +71,17 @@ export class AuthService {
     const validPassword = await bcrypt.compare(dto.password, usuario.password);
     if (!validPassword) throw new UnauthorizedException('Credenciales invalidas');
 
-    void this.auditService.log(usuario.id, 'Inicio de sesion', 'Autenticacion', usuario.correo);
     return this.buildSession(usuario);
   }
 
   async me(userId: number) {
     const usuario = await this.prisma.usuario.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        nombre: true,
-        correo: true,
-        rol: {
-          select: {
-            id: true,
-            nombre: true,
-            permisos: { include: { permiso: { select: { id: true, nombre: true } } } },
-          },
-        },
-      },
+      select: { id: true, nombre: true, correo: true, rol: true },
     });
 
     if (!usuario) throw new UnauthorizedException('Usuario no encontrado');
-    return { ...usuario, permissions: usuario.rol.permisos.map((item) => item.permiso) };
+    return { ...usuario, permissions: [] };
   }
 
   async updateProfile(userId: number, dto: UpdateProfileDto) {
@@ -79,13 +108,8 @@ export class AuthService {
       data.password = await bcrypt.hash(dto.newPassword, 10);
     }
 
-    const updated = await this.prisma.usuario.update({
-      where: { id: userId },
-      data,
-      include: { rol: { include: { permisos: { include: { permiso: true } } } } },
-    });
+    const updated = await this.prisma.usuario.update({ where: { id: userId }, data });
 
-    void this.auditService.log(userId, 'Actualizar', 'Mi perfil', dto.newPassword ? 'Datos y contrasena' : 'Datos de perfil');
     return this.buildSession(updated);
   }
 
@@ -93,35 +117,20 @@ export class AuthService {
     const totalUsers = await this.prisma.usuario.count();
     if (totalUsers > 0) throw new BadRequestException('El administrador inicial ya fue creado');
 
-    await this.accessService.seedDefaults();
-    const adminRol = await this.prisma.rol.findUnique({
-      where: { nombre: 'Administrador' },
-      select: { id: true },
-    });
-
-    if (!adminRol) throw new BadRequestException('No se pudo inicializar el rol administrador');
-
     const password = await bcrypt.hash(dto.password, 10);
     const usuario = await this.prisma.usuario.create({
-      data: { nombre: dto.name, correo: dto.email.toLowerCase(), password, rolId: adminRol.id },
-      include: { rol: { include: { permisos: { include: { permiso: true } } } } },
+      data: { nombre: dto.name, correo: dto.email.toLowerCase(), password, rol: 'Administrador' },
     });
 
     return this.buildSession(usuario);
   }
 
-  private buildSession(usuario: {
-    id: number;
-    nombre: string;
-    correo: string;
-    rol: { nombre: string; permisos: Array<{ permiso: { nombre: string } }> };
-  }) {
-    const permissions = usuario.rol.permisos.map((item) => item.permiso.nombre);
+  private buildSession(usuario: { id: number; nombre: string; correo: string; rol: string }) {
     const accessToken = this.jwtService.sign({
       sub: usuario.id,
       email: usuario.correo,
-      role: usuario.rol.nombre,
-      permissions,
+      role: usuario.rol,
+      permissions: [],
     });
     return {
       accessToken,
@@ -129,8 +138,8 @@ export class AuthService {
         id: usuario.id,
         name: usuario.nombre,
         email: usuario.correo,
-        role: usuario.rol.nombre,
-        permissions,
+        role: usuario.rol,
+        permissions: [],
       },
     };
   }

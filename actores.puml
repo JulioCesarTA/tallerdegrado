@@ -1,0 +1,35 @@
+@startuml Especificacion_de_Actores
+title Especificacion de Actores - Sistema de Control Vehicular UAGRM
+
+skinparam actorBorderColor #2C3E50
+skinparam noteBackgroundColor #FFFFFF
+skinparam noteBorderColor #888888
+left to right direction
+
+actor "Administrador" as Admin
+note right of Admin
+  Este actor tiene la capacidad de administrar y supervisar todo el
+  sistema de control vehicular universitario. Puede gestionar usuarios,
+  roles, permisos, camaras, sanciones, reportes y respaldos, ademas de
+  monitorear el funcionamiento general del sistema para garantizar la
+  seguridad y el correcto control vehicular.
+end note
+
+actor "Personal de Seguridad" as Seguridad
+note right of Seguridad
+  Este actor es responsable de controlar y supervisar el ingreso y salida de
+  vehiculos dentro de la universidad. Puede monitorear accesos
+  vehiculares, visualizar historial de registros, revisar transmisiones en
+  tiempo real y aplicar sanciones cuando sea necesario.
+end note
+
+actor "Autoridad Universitaria" as Autoridad
+note right of Autoridad
+  Este actor tiene la capacidad de consultar y supervisar la informacion
+  estrategica generada por el sistema. Puede visualizar reportes,
+  estadisticas, dashboards y analisis del flujo vehicular para apoyar la
+  toma de decisiones y mejorar la gestion y seguridad institucional dentro
+  de la universidad.
+end note
+
+@enduml

@@ -1,0 +1,21 @@
+| **Nombre** | Prueba de CU06. Registrar Ingreso Vehicular con OCR |
+|--------|-------|
+| **Descripción** | Permite registrar el ingreso de un vehículo mediante reconocimiento automático de placa, validación de sanciones y asignación de plaza de estacionamiento. |
+|--------|-------|
+| **Precondición** | El usuario debe haber iniciado sesión. Existe cámara de ingreso configurada. Existe parqueo con plazas libres. |
+|--------|-------|
+| **Datos de Entrada** | Imagen con placa legible (ABC123). Tipo vehículo: Auto. Color: Blanco. Modelo: Honda Civic. Marca: Honda. Características: Sin daños. PlazaId: 1. |
+|--------|-------|
+| **Captura de Imagen Inicial** | *(Pantalla del módulo de Detecciones/Ingreso mostrando interfaz de captura)* |
+|--------|-------|
+| **Pasos** | 1. Acceder a la sección de **"Ingresos"**.<br>2. Capturar imagen del vehículo mediante cámara.<br>3. Sistema realiza OCR y extrae placa (ABC123).<br>4. Seleccionar tipo vehículo, color, marca, modelo.<br>5. Validar que no existan sanciones activas.<br>6. Asignar plaza de estacionamiento automáticamente.<br>7. Registrar ingreso y guardar cambios.<br>8. Verificar que plaza quede ocupada y registro creado. |
+|--------|-------|
+| **Resultado Esperado** | Sistema valida placa, verifica sanciones (rechaza si existen), extrae características vehiculares, asigna plaza libre, cifra datos, crea registro de acceso y marca plaza como ocupada. Cambios reflejados en vista. |
+|--------|-------|
+| **Resultado Obtenido** | Sistema identificó placa ABC123 correctamente. Verificó ausencia de sanciones (estado='ingreso'). Extrajo características del vehículo. Asignó plaza disponible automáticamente. Registro de acceso creado con evidencia. Plaza marcada como ocupada. Todos los cambios visibles en interfaz. |
+|--------|-------|
+| **Captura de Imagen Final** | *(Pantalla mostrando registro ingresado, vehículo en lista, plaza ocupada y confirmación de éxito)* |
+|--------|-------|
+| **Resultado de la Prueba** | **CORRECTO** |
+
+Nota. Elaboración propia (2026).

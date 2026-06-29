@@ -1,0 +1,23 @@
+Caso de Uso
+CU02. Gestionar Usuarios
+Propósito
+Administrar las cuentas de usuario del sistema.
+Descripción
+El administrador puede registrar, consultar, editar y eliminar usuarios, asignándoles un rol (Administrador, Operador o Seguridad).
+Actores
+Administrador
+Actor Iniciador
+Administrador
+Precondición
+Haber iniciado sesión como Administrador.
+Proceso
+1. El administrador accede al módulo de Usuarios.
+2. El sistema lista los usuarios registrados.
+3. Para registrar uno nuevo, ingresa nombre, apellido, CI, correo, contraseña y rol.
+4. El sistema valida que el correo no exista y cifra la contraseña con bcrypt antes de guardarla.
+5. El administrador puede editar o eliminar un usuario existente.
+6. El sistema guarda los cambios.
+Postcondición
+Usuario creado, actualizado o eliminado correctamente.
+Excepciones
+Si el correo ya está registrado, el sistema muestra "El correo ya existe". Si el usuario no existe, muestra "Usuario no encontrado"

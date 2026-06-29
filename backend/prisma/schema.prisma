@@ -7,33 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Permiso {
-  id      Int          @id @default(autoincrement())
-  nombre  String       @unique @db.VarChar(100) @map("nombre")
-  roles   RolPermiso[]
-
-  @@map("Permiso")
-}
-
-model Rol {
-  id          Int          @id @default(autoincrement())
-  nombre      String       @unique @db.VarChar(100) @map("nombre")
-  usuarios    Usuario[]
-  permisos    RolPermiso[]
-
-  @@map("Rol")
-}
-
-model RolPermiso {
-  rolId      Int    @map("rolId")
-  permisoId  Int    @map("permisoId")
-  rol        Rol    @relation(fields: [rolId], references: [id], onDelete: Cascade)
-  permiso    Permiso @relation(fields: [permisoId], references: [id], onDelete: Cascade)
-
-  @@id([rolId, permisoId])
-  @@map("RolPermiso")
-}
-
 model Usuario {
   id          Int           @id @default(autoincrement())
   nombre      String        @db.VarChar(50)  @map("nombre")
@@ -41,25 +14,13 @@ model Usuario {
   ci          String?       @db.VarChar(20)  @map("ci")
   correo      String        @unique @db.VarChar(50) @map("correo")
   password    String        @db.VarChar(255)
-  rolId       Int           @map("rolId")
-  rol         Rol           @relation(fields: [rolId], references: [id])
+  rol         String        @default("Operador") @db.VarChar(50) @map("rol")
+  resetCode    String?      @db.VarChar(6) @map("resetCode")
+  resetCodeExp DateTime?    @map("resetCodeExp")
   puntosAcceso PuntoAcceso[]
   backups     Backup[]
-  logs        LogSistema[]
 
   @@map("Usuario")
-}
-
-model LogSistema {
-  id        Int      @id @default(autoincrement())
-  usuarioId Int?     @map("usuarioId")
-  usuario   Usuario? @relation(fields: [usuarioId], references: [id])
-  accion    String   @db.VarChar(20)  @map("accion")
-  modulo    String   @db.VarChar(100) @map("modulo")
-  detalle   String?  @db.VarChar(500) @map("detalle")
-  fecha     DateTime @default(now()) @map("fecha")
-
-  @@map("LogSistema")
 }
 
 model Camara {
@@ -119,8 +80,10 @@ model RegistroAcceso {
   urlEvidencia         String?      @db.VarChar(500) @map("urlEvidencia")
   estado               String       @db.VarChar(20) @map("estado")
   vehiculo             Vehiculo     @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+  plazaId              Int?         @map("plazaId")
   puntoAccesoIngreso   PuntoAcceso? @relation("PuntoAccesoIngreso", fields: [puntoAccesoIngresoId], references: [id], onDelete: SetNull)
   puntoAccesoEgreso    PuntoAcceso? @relation("PuntoAccesoEgreso", fields: [puntoAccesoEgresoId], references: [id], onDelete: SetNull)
+  plaza                Plaza?       @relation(fields: [plazaId], references: [id], onDelete: SetNull)
 
   @@index([vehiculoId])
   @@index([fecha])
@@ -168,4 +131,26 @@ model Alerta {
   camara         Camara?      @relation(fields: [camaraId], references: [id], onDelete: SetNull)
 
   @@map("Alerta")
+}
+
+model Parqueo {
+  id         Int     @id @default(autoincrement())
+  nombre     String  @db.VarChar(100) @map("nombre")
+  ubicacion  String  @db.VarChar(150) @map("ubicacion")
+  tipo       String  @db.VarChar(30)  @map("tipo")
+  plazas     Plaza[]
+
+  @@map("Parqueo")
+}
+
+model Plaza {
+  id              Int              @id @default(autoincrement())
+  parqueoId       Int              @map("parqueoId")
+  codigo          String           @db.VarChar(20) @map("codigo")
+  tipo            String           @db.VarChar(30) @map("tipo")
+  estado          String           @default("libre") @db.VarChar(20) @map("estado")
+  parqueo         Parqueo          @relation(fields: [parqueoId], references: [id], onDelete: Cascade)
+  registrosAcceso RegistroAcceso[]
+
+  @@map("Plaza")
 }

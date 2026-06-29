@@ -1,0 +1,21 @@
+Caso de Uso
+CU17. Exportar Reportes
+Propósito
+Exportar los reportes del sistema a un archivo descargable.
+Descripción
+Desde el dashboard de inteligencia de negocios (Metabase), el usuario exporta la información a un archivo (Excel, CSV o PDF) para su uso fuera de la plataforma.
+Actores
+Administrador
+Actor Iniciador
+Administrador
+Precondición
+Tener el dashboard de Reportes BI disponible con información.
+Proceso
+1. El usuario abre la sección Reportes BI (dashboard de Metabase).
+2. Selecciona la opción de exportar/descargar de Metabase sobre el reporte deseado.
+3. Elige el formato (Excel, CSV o PDF).
+4. El navegador descarga el archivo generado.
+Postcondición
+El reporte queda exportado y descargado correctamente.
+Excepciones
+Ninguna.

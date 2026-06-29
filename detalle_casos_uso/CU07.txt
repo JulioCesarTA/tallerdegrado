@@ -1,0 +1,23 @@
+Caso de Uso
+CU07. Registrar Salida Vehicular con OCR
+Propósito
+Registrar la salida de un vehículo identificando su placa mediante OCR y liberando su plaza.
+Descripción
+La cámara de salida captura la imagen; el sistema extrae la placa, ubica el ingreso abierto del vehículo, registra la hora de salida y libera la plaza que ocupaba.
+Actores
+Personal de Seguridad, Módulo de IA (OCR)
+Actor Iniciador
+Personal de Seguridad
+Precondición
+El vehículo debe tener un registro de ingreso abierto (sin hora de salida).
+Proceso
+1. La cámara de salida captura la imagen del vehículo.
+2. El sistema envía la imagen al servicio de OCR y extrae el número de placa.
+3. El sistema busca el registro de ingreso abierto del vehículo.
+4. Registra la hora de salida y actualiza el estado del registro de acceso.
+5. Si el vehículo ocupaba una plaza, la libera (su estado vuelve a "libre").
+6. Almacena la imagen de evidencia en Amazon S3.
+Postcondición
+La salida queda registrada y la plaza utilizada queda liberada.
+Excepciones
+Si no existe un ingreso abierto para el vehículo, el sistema permite el registro manual o muestra un mensaje de error.

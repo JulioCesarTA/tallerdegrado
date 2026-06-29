@@ -1,0 +1,21 @@
+Caso de Uso
+CU16. Configurar Punto de Acceso
+Propósito
+Configurar un punto de acceso asignándole sus cámaras y responsable.
+Descripción
+El administrador asocia a un punto de acceso una cámara de ingreso, una cámara de salida y el personal de seguridad responsable.
+Actores
+Administrador
+Actor Iniciador
+Administrador
+Precondición
+Existir el punto de acceso y las cámaras a asignar.
+Proceso
+1. El administrador accede a la configuración de puntos de acceso.
+2. Selecciona un punto de acceso y le asigna la cámara de ingreso, la cámara de salida y el personal responsable.
+3. El sistema valida que las cámaras no estén ya asignadas a otro punto de acceso.
+4. El sistema guarda la configuración.
+Postcondición
+El punto de acceso queda configurado correctamente.
+Excepciones
+Si una cámara ya está asignada a otro punto, el sistema muestra "Una de las cámaras ya está asignada a otro punto de acceso".

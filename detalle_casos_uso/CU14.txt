@@ -1,0 +1,20 @@
+Caso de Uso
+CU14. Visualizar Reportes con el Uso de BI
+Propósito
+Visualizar reportes analíticos del sistema mediante una herramienta de inteligencia de negocios (BI).
+Descripción
+El sistema muestra, en la sección Reportes BI, un dashboard de Metabase embebido que explota vistas materializadas de la base de datos con los indicadores del sistema.
+Actores
+Administrador, Autoridad Universitaria
+Actor Iniciador
+Administrador
+Precondición
+Existir información de accesos, sanciones y alertas en el sistema.
+Proceso
+1. El usuario accede a la sección Reportes BI.
+2. El sistema muestra el dashboard de Metabase embebido con los indicadores clave (accesos por día, accesos por franja horaria, vehículos más frecuentes, sanciones por tipo, permanencia promedio).
+3. Los datos se mantienen actualizados gracias al refresco periódico de las vistas materializadas (cada minuto).
+Postcondición
+El dashboard de BI se visualiza correctamente con la información actualizada.
+Excepciones
+Ninguna.

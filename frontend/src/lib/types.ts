@@ -1,12 +1,18 @@
-export type Permiso = {
+export type Parqueo = {
   id: number;
   nombre: string;
+  ubicacion: string;
+  tipo: string;
+  _count?: { plazas: number };
 };
 
-export type Rol = {
+export type Plaza = {
   id: number;
-  nombre: string;
-  permisos: Array<{ permiso: Permiso }>;
+  parqueoId: number;
+  codigo: string;
+  tipo: string;
+  estado: string;
+  parqueo?: { id: number; nombre: string };
 };
 
 export type Usuario = {
@@ -15,8 +21,7 @@ export type Usuario = {
   apellido?: string | null;
   ci?: string | null;
   correo: string;
-  rolId: number;
-  rol: { id: number; nombre: string };
+  rol: string;
   camaraIngresoId?: number | null;
   camaraSalidaId?: number | null;
   camaraIngreso?: Camara | null;
@@ -125,16 +130,6 @@ export type PuntoAcceso = {
   usuarioId: number | null;
   camaraIngreso?: Camara | null;
   camaraSalida?: Camara | null;
-  usuario?: { id: number; nombre: string; correo: string } | null;
-};
-
-export type LogSistema = {
-  id: number;
-  usuarioId: number | null;
-  accion: string;
-  modulo: string;
-  detalle?: string | null;
-  fecha: string;
   usuario?: { id: number; nombre: string; correo: string } | null;
 };
 

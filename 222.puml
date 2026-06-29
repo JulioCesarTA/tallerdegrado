@@ -1,0 +1,142 @@
+@startuml Diagrama_de_Despliegue
+title Diagrama de Despliegue (UML 2.5) - Sistema de Control Vehicular UAGRM
+
+skinparam node {
+  BackgroundColor #E8F4FD
+  BorderColor #2C6CA5
+}
+skinparam artifact {
+  BackgroundColor #FFF8E7
+  BorderColor #B8860B
+}
+skinparam database {
+  BackgroundColor #FDEAE8
+  BorderColor #A52C2C
+}
+skinparam componentStyle uml2
+
+' ====================================================
+' CLIENTE (Operador / Admin / Autoridad)
+' ====================================================
+node "Estacion Cliente\n(PC / Laptop)" <<device>> as ClientPC {
+  node "Navegador Web\n(Chrome / Edge / Firefox)" <<executionEnvironment>> as Browser {
+    artifact "Aplicacion Web\n(Next.js SPA)" <<artifact>> as WebApp
+  }
+}
+
+' ====================================================
+' CAMARA = TELEFONO que transmite por WebSocket
+' ====================================================
+node "Camara IP\n(Telefono / Dispositivo)" <<device>> as Camera {
+  node "Navegador Movil / WebView" <<executionEnvironment>> as CamClient {
+    artifact "App de Captura\n(usa socket.io - envia frames)" <<artifact>> as CamApp
+  }
+}
+
+' ====================================================
+' INFRAESTRUCTURA DE RED
+' ====================================================
+node "Servidor DNS" <<device>> as DNS
+
+node "Router / Firewall\n(Gateway)" <<device>> as Router
+
+' ====================================================
+' SERVIDOR AWS EC2 + DOCKER ENGINE
+' ====================================================
+node "Servidor de Aplicacion\nAWS EC2 (Linux)" <<device>> as EC2 {
+
+  ' --- Deployment Specifications (UML 2.5) ---
+  artifact "docker-compose.yml" <<deployment spec>> as ComposeSpec
+  artifact ".env\n(variables de entorno)" <<deployment spec>> as EnvSpec
+
+  node "Docker Engine" <<executionEnvironment>> as Docker {
+
+    ' === Contenedor Nginx (Reverse Proxy + Terminacion TLS) ===
+    node "cv_nginx\n[nginx:1.27-alpine]\nport 80 / 443" <<container>> as NginxC {
+      artifact "nginx.conf" <<deployment spec>> as NginxConf
+      artifact "Certificado SSL/TLS\n(Let's Encrypt)" <<artifact>> as SslCert
+      artifact "Reverse Proxy" <<artifact>> as NginxApp
+    }
+
+    ' === Contenedor Frontend ===
+    node "cv_frontend\n[node:22-alpine]\nport 3000" <<container>> as FrontC {
+      artifact "Aplicacion Frontend\n(Next.js)" <<artifact>> as NextBuild
+    }
+
+    ' === Contenedor Backend ===
+    node "cv_backend\n[node:22-alpine]\nport 3001" <<container>> as BackC {
+      artifact "Backend API\n(NestJS - REST + WebSocket)" <<artifact>> as BackendAPI
+      artifact "entrypoint.sh\n(migraciones)" <<deployment spec>> as Entrypoint
+    }
+
+    ' === Contenedor PostgreSQL ===
+    node "cv_postgres\n[postgres:16-alpine]\nport 5432" <<container>> as PgC {
+      database "control_vehicular" as PostgreSQL
+    }
+    note bottom of PgC
+      Esquema: usuarios, vehiculos,
+      registros, sanciones, plazas
+    end note
+
+    ' === Contenedor Metabase (BI) - expuesto en :3010 ===
+    node "metabase\n[metabase:latest]\nport 3010" <<container>> as MetaC
+  }
+
+  ' --- Volumenes Docker persistentes ---
+  node "Docker Volume\npostgres_data" <<device>> as VolPg
+  node "Docker Volume\nmetabase-data" <<device>> as VolMeta
+}
+
+' ====================================================
+' SERVICIOS EXTERNOS EN LA NUBE
+' ====================================================
+node "AWS S3\n(bucket: proyectodegrado1)" <<device>> as S3 {
+  artifact "Evidencias Fotograficas\n(prefix: evidences)" <<artifact>> as Evidence
+  artifact "Respaldos de BD\n(prefix: backups)" <<artifact>> as Backups
+}
+
+node "AWS Rekognition\n(us-east-2)\nDetectText API - OCR" <<executionEnvironment>> as Rekognition
+
+node "Anthropic Cloud\nClaude API (claude-haiku-4-5)" <<executionEnvironment>> as Anthropic
+
+node "Gmail SMTP\nServicio de Correo" <<executionEnvironment>> as MailServer
+
+' ====================================================
+' DEPLOYMENT (los specs configuran los contenedores)
+' ====================================================
+ComposeSpec ..> Docker      : <<deploy>>
+EnvSpec     ..> BackC        : <<deploy>>
+NginxConf   ..> NginxC       : <<deploy>>
+Entrypoint  ..> BackC        : <<deploy>>
+PgC         ..> VolPg        : <<persist>>
+MetaC       ..> VolMeta      : <<persist>>
+
+' ====================================================
+' RUTAS DE COMUNICACION (Communication Paths)
+' ====================================================
+' --- Resolucion de dominio ---
+ClientPC ..> DNS : <<protocol>> DNS query
+
+' --- Trafico EXTERNO cifrado (HTTPS) hasta el Router ---
+ClientPC -- Router : <<protocol>> HTTPS (443)
+Camera   -- Router : <<protocol>> HTTPS / WSS (443)
+Router   -- EC2    : <<protocol>> HTTPS (443)
+
+' --- Nginx TERMINA el TLS (443) y reenvia HTTP interno a los contenedores ---
+WebApp   ..> NginxApp   : <<protocol>> HTTPS / REST + WSS (443)
+CamApp   ..> NginxApp   : <<protocol>> WSS /socket.io (443)
+NginxApp ..> NextBuild  : <<protocol>> HTTP interno (proxy /)
+NginxApp ..> BackendAPI : <<protocol>> HTTP interno (proxy /api + /socket.io)
+
+' --- Acceso directo a Metabase (puerto 3010, fuera de Nginx) ---
+ClientPC ..> MetaC : <<protocol>> HTTP dashboards (:3010)
+
+' --- Backend con datos (interno) y servicios externos (HTTPS reales) ---
+BackendAPI ..> PostgreSQL  : <<protocol>> SQL (TCP 5432)
+MetaC      ..> PostgreSQL  : <<protocol>> SQL (lectura BI)
+BackendAPI ..> S3          : <<protocol>> HTTPS / AWS SDK (evidencias + backups)
+BackendAPI ..> Rekognition : <<protocol>> HTTPS / AWS SDK (OCR)
+BackendAPI ..> Anthropic   : <<protocol>> HTTPS / REST (analisis IA)
+BackendAPI ..> MailServer  : <<protocol>> SMTP (TLS 587)
+
+@enduml

@@ -1,0 +1,111 @@
+BASE DE DATOS: control_vehicular (PostgreSQL)
+
+================================================================
+TABLA: Usuario
+----------------------------------------------------------------
+id            INT          PK, autoincrement
+nombre        VARCHAR(50)  NOT NULL
+apellido      VARCHAR(50)  NULL
+ci            VARCHAR(20)  NULL
+correo        VARCHAR(50)  UNIQUE, NOT NULL
+password      VARCHAR(255) NOT NULL
+rol           VARCHAR(50)  NOT NULL, DEFAULT 'Operador'
+resetCode     VARCHAR(6)   NULL
+resetCodeExp  TIMESTAMP    NULL
+
+================================================================
+TABLA: Camara
+----------------------------------------------------------------
+id          INT          PK, autoincrement
+nombre      VARCHAR(50)  NOT NULL
+ubicacion   VARCHAR(100) NOT NULL
+tipoCamara  VARCHAR(50)  NOT NULL
+estado      VARCHAR(50)  NOT NULL, DEFAULT 'activa'
+
+================================================================
+TABLA: Vehiculo
+----------------------------------------------------------------
+id               INT          PK, autoincrement
+placa            VARCHAR(20)  UNIQUE, NOT NULL, INDEX
+marca            VARCHAR(100) NULL
+modelo           VARCHAR(100) NULL
+tipoVehiculo     VARCHAR(50)  NULL
+color            VARCHAR(50)  NULL
+caracteristicas  VARCHAR(500) NULL
+
+================================================================
+TABLA: PuntoAcceso
+----------------------------------------------------------------
+id               INT          PK, autoincrement
+nombre           VARCHAR(100) NOT NULL
+ubicacion        VARCHAR(255) NOT NULL
+descripcion      VARCHAR(255) NULL
+estado           VARCHAR(50)  NOT NULL, DEFAULT 'activo'
+camaraIngresoId  INT          UNIQUE, FK -> Camara.id, NULL
+camaraSalidaId   INT          UNIQUE, FK -> Camara.id, NULL
+usuarioId        INT          FK -> Usuario.id, NULL
+
+================================================================
+TABLA: RegistroAcceso
+----------------------------------------------------------------
+id                    INT          PK, autoincrement
+vehiculoId            INT          FK -> Vehiculo.id (ON DELETE CASCADE), NOT NULL, INDEX
+puntoAccesoIngresoId  INT          FK -> PuntoAcceso.id (ON DELETE SET NULL), NULL
+puntoAccesoEgresoId   INT          FK -> PuntoAcceso.id (ON DELETE SET NULL), NULL
+plazaId               INT          FK -> Plaza.id (ON DELETE SET NULL), NULL
+horaIngreso           TIMESTAMP    NOT NULL
+horaSalida            TIMESTAMP    NULL
+fecha                 TIMESTAMP    NOT NULL, DEFAULT now(), INDEX
+urlEvidencia          VARCHAR(500) NULL
+estado                VARCHAR(20)  NOT NULL
+
+================================================================
+TABLA: Backup
+----------------------------------------------------------------
+id         INT          PK, autoincrement
+usuarioId  INT          FK -> Usuario.id, NOT NULL
+fecha      TIMESTAMP    NOT NULL, DEFAULT now()
+url        VARCHAR(500) NOT NULL
+
+================================================================
+TABLA: TipoSancion
+----------------------------------------------------------------
+id            INT          PK, autoincrement
+nombre        VARCHAR(100) NOT NULL
+motivo        VARCHAR(200) NOT NULL
+duracionDias  INT          NOT NULL
+
+================================================================
+TABLA: Sancion
+----------------------------------------------------------------
+id             INT       PK, autoincrement
+vehiculoId     INT       FK -> Vehiculo.id (ON DELETE CASCADE), NOT NULL
+tipoSancionId  INT       FK -> TipoSancion.id, NOT NULL
+fechaInicio    TIMESTAMP NOT NULL, DEFAULT now()
+fechaFin       TIMESTAMP NULL
+
+================================================================
+TABLA: Alerta
+----------------------------------------------------------------
+id            INT          PK, autoincrement
+tipoAlerta    VARCHAR(100) NOT NULL
+camaraId      INT          FK -> Camara.id (ON DELETE SET NULL), NULL
+creadoEn      TIMESTAMP    NOT NULL, DEFAULT now()
+estadoAlerta  VARCHAR(50)  NOT NULL, DEFAULT 'pendiente'
+
+================================================================
+TABLA: Parqueo
+----------------------------------------------------------------
+id         INT          PK, autoincrement
+nombre     VARCHAR(100) NOT NULL
+ubicacion  VARCHAR(150) NOT NULL
+tipo       VARCHAR(30)  NOT NULL
+
+================================================================
+TABLA: Plaza
+----------------------------------------------------------------
+id         INT         PK, autoincrement
+parqueoId  INT         FK -> Parqueo.id (ON DELETE CASCADE), NOT NULL
+codigo     VARCHAR(20) NOT NULL
+tipo       VARCHAR(30) NOT NULL
+estado     VARCHAR(20) NOT NULL, DEFAULT 'libre'

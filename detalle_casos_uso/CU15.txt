@@ -1,0 +1,21 @@
+Caso de Uso
+CU15. Generar Backup
+Propósito
+Generar un respaldo de la información del sistema.
+Descripción
+El administrador genera un respaldo que recopila los datos del sistema en un archivo y lo almacena de forma segura en la nube.
+Actores
+Administrador
+Actor Iniciador
+Administrador
+Precondición
+Haber iniciado sesión como Administrador.
+Proceso
+1. El administrador accede al módulo de Backups y selecciona "Generar".
+2. El sistema recopila la información (usuarios, vehículos, registros de acceso, sanciones, alertas, entre otros).
+3. Genera un archivo en formato JSON y lo sube a Amazon S3.
+4. Registra el respaldo con su fecha, URL y el usuario que lo generó.
+Postcondición
+El respaldo queda generado y almacenado correctamente.
+Excepciones
+Si falla el almacenamiento en la nube, el sistema muestra un mensaje de error.

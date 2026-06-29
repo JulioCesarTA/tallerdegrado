@@ -1,0 +1,26 @@
+CU02: Gestionar Usuarios - Eliminar Usuario
+
+async remove(id: number) {
+    (1) await this.ensureExists(id);
+
+    (2) await this.prisma.usuario.delete({ where: { id } });
+
+    (3) return { message: 'Usuario eliminado' };
+}
+
+// ensureExists(id):
+private async ensureExists(id: number) {
+    const usuario = await this.prisma.usuario.findUnique({ where: { id }, select: { id: true } });
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
+}
+
+
+Tabla de Pruebas de Caja Blanca - Eliminar Usuario
+
+| CAMINO | ENTRADA SIMULADA | SALIDA ESPERADA |
+|--------|-----------------|-----------------|
+| 1, (F) | Id de usuario no existe en BD (usuario = null en ensureExists) | El sistema lanza NotFoundException 'Usuario no encontrado'. No se elimina nada. BD sin cambios. Operación abortada. |
+| 1, 2, 3, (F) | Id de usuario válido, usuario existe en BD (usuario ≠ null) | El sistema elimina completamente el usuario de la BD. Retorna objeto { message: 'Usuario eliminado' }. Usuario y todos sus datos asociados se eliminan (según cascada de BD). |
+| 1, 2, 3, (F) | Id de usuario válido, usuario tiene registros relacionados (puntosAcceso, histórico) | El sistema intenta eliminar usuario. Si hay restricción de clave foránea, Prisma lanzará error (P2003 o similar). Si cascada está habilitada, elimina usuario y registros relacionados según configuración de BD. |
+
+Nota. Elaboración propia (2026).

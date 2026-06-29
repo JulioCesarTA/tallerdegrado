@@ -1,0 +1,22 @@
+Caso de Uso
+CU03. Recuperar Contraseña
+Propósito
+Permitir que un usuario restablezca su contraseña mediante un código enviado a su correo.
+Descripción
+El usuario solicita la recuperación, recibe un código de verificación en su correo Gmail y, con ese código, establece una nueva contraseña.
+Actores
+Administrador, Personal de Seguridad, Autoridad Universitaria
+Actor Iniciador
+Administrador, Personal de Seguridad, Autoridad Universitaria
+Precondición
+Tener un correo electrónico registrado en el sistema.
+Proceso
+1. En la pantalla de inicio de sesión, el usuario selecciona "¿Olvidaste tu contraseña?".
+2. El usuario ingresa su correo electrónico.
+3. El sistema genera un código de 6 dígitos (con vigencia de 10 minutos) y lo envía al correo mediante el servicio de Gmail (SMTP).
+4. El usuario ingresa el código recibido y su nueva contraseña.
+5. El sistema valida el código y su vigencia, cifra la nueva contraseña (bcrypt) y la actualiza.
+Postcondición
+La contraseña queda actualizada; el usuario puede iniciar sesión con la nueva clave.
+Excepciones
+Si el código es incorrecto o expiró, el sistema muestra un mensaje de error. Por seguridad, si el correo no está registrado, se muestra un mensaje genérico sin revelarlo.

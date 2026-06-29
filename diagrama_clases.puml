@@ -1,0 +1,194 @@
+@startuml Diagrama_de_Clases
+title Diagrama de Clases - Sistema de Control Vehicular UAGRM
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2C3E50
+  ArrowColor #2C3E50
+}
+hide circle
+
+' ============================================================
+' CLASES DEL DOMINIO (11 entidades)
+' ============================================================
+
+class Usuario {
+  -id : int
+  +nombre : string
+  +apellido : string
+  +ci : string
+  +correo : string
+  -password : string
+  +rol : string
+  -resetCode : string
+  -resetCodeExp : datetime
+  --
+  +iniciarSesion(correo, password) : Token
+  +cerrarSesion() : void
+  +actualizarPerfil(datos) : Usuario
+  +recuperarContrasena(correo) : void
+  +restablecerContrasena(codigo, nueva) : void
+  +crear(datos) : Usuario
+  +editar(datos) : Usuario
+  +eliminar() : void
+  +listar() : Usuario[]
+}
+
+class Camara {
+  -id : int
+  +nombre : string
+  +ubicacion : string
+  +tipoCamara : string
+  +estado : string
+  --
+  +crear(datos) : Camara
+  +editar(datos) : Camara
+  +eliminar() : void
+  +listar() : Camara[]
+  +verTransmision() : Stream
+  +registrarFallaDeteccion() : Alerta
+}
+
+class PuntoAcceso {
+  -id : int
+  +nombre : string
+  +ubicacion : string
+  +descripcion : string
+  +estado : string
+  --
+  +configurar(camaras, usuario) : PuntoAcceso
+  +crear(datos) : PuntoAcceso
+  +editar(datos) : PuntoAcceso
+  +eliminar() : void
+  +listar() : PuntoAcceso[]
+}
+
+class Vehiculo {
+  -id : int
+  +placa : string
+  +marca : string
+  +modelo : string
+  +tipoVehiculo : string
+  +color : string
+  +caracteristicas : string
+  --
+  +buscarPorPlaca(placa) : Vehiculo
+  +analizarConIA(imagen) : Vehiculo
+  +editar(datos) : Vehiculo
+  +listar() : Vehiculo[]
+}
+
+class RegistroAcceso {
+  -id : int
+  +horaIngreso : datetime
+  +horaSalida : datetime
+  +fecha : datetime
+  +urlEvidencia : string
+  +estado : string
+  --
+  +registrarIngreso(placa, imagen) : RegistroAcceso
+  +registrarSalida(placa, imagen) : RegistroAcceso
+  +procesarOCR(imagen) : string
+  +verHistorial(filtros) : RegistroAcceso[]
+}
+
+class Parqueo {
+  -id : int
+  +nombre : string
+  +ubicacion : string
+  +tipo : string
+  --
+  +crear(datos) : Parqueo
+  +editar(datos) : Parqueo
+  +eliminar() : void
+  +listar() : Parqueo[]
+}
+
+class Plaza {
+  -id : int
+  +codigo : string
+  +tipo : string
+  +estado : string
+  --
+  +asignar() : void
+  +liberar() : void
+  +crear(datos) : Plaza
+  +editar(datos) : Plaza
+  +eliminar() : void
+  +listar() : Plaza[]
+}
+
+class TipoSancion {
+  -id : int
+  +nombre : string
+  +motivo : string
+  +duracionDias : int
+  --
+  +crear(datos) : TipoSancion
+  +editar(datos) : TipoSancion
+  +eliminar() : void
+  +listar() : TipoSancion[]
+}
+
+class Sancion {
+  -id : int
+  +fechaInicio : datetime
+  +fechaFin : datetime
+  --
+  +sancionarVehiculo(placa, tipo) : Sancion
+  +estaActiva() : bool
+  +listar() : Sancion[]
+  +eliminar() : void
+}
+
+class Alerta {
+  -id : int
+  +tipoAlerta : string
+  +creadoEn : datetime
+  +estadoAlerta : string
+  --
+  +crear(tipo, camara) : Alerta
+  +notificar() : void
+  +resolver() : void
+  +listar() : Alerta[]
+}
+
+class Backup {
+  -id : int
+  +fecha : datetime
+  +url : string
+  --
+  +generar() : Backup
+  +listar() : Backup[]
+  +exportar() : Archivo
+}
+
+' ============================================================
+' COMPOSICIONES (onDelete: Cascade = ownership fuerte)
+' ============================================================
+Vehiculo "1" *-- "0..*" RegistroAcceso : genera
+Vehiculo "1" *-- "0..*" Sancion : recibe
+Parqueo  "1" *-- "1..*" Plaza : contiene
+
+' ============================================================
+' ASOCIACIONES (con roles y multiplicidades)
+' ============================================================
+Usuario "1" -- "0..*" PuntoAcceso : responsable
+Usuario "1" -- "0..*" Backup : genera
+
+TipoSancion "1" -- "0..*" Sancion : clasifica
+Camara "1" -- "0..*" Alerta : origina
+
+Plaza "0..1" -- "0..*" RegistroAcceso : ocupada en
+
+' --- Camara <-> PuntoAcceso : ingreso y salida (1 a 1 opcional) ---
+PuntoAcceso "0..1" -- "0..1" Camara : > camaraIngreso
+PuntoAcceso "0..1" -- "0..1" Camara : > camaraSalida
+
+' --- PuntoAcceso <-> RegistroAcceso : ingreso y egreso ---
+PuntoAcceso "0..1" -- "0..*" RegistroAcceso : > puntoIngreso
+PuntoAcceso "0..1" -- "0..*" RegistroAcceso : > puntoEgreso
+
+@enduml

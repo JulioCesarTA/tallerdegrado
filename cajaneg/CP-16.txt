@@ -1,0 +1,21 @@
+| **Nombre** | Prueba de CU16. Configurar Punto de Acceso |
+|--------|-------|
+| **Descripción** | Permite al administrador crear y actualizar puntos de acceso asignando cámaras de ingreso, cámaras de salida y usuario de seguridad responsable. |
+|--------|-------|
+| **Precondición** | El administrador debe haber iniciado sesión. Existen cámaras registradas disponibles. Existen usuarios de seguridad disponibles. |
+|--------|-------|
+| **Datos de Entrada** | Crear: Nombre=Entrada Principal, Ubicación=Puerta 1, CamaraIngresoId=1, CamaraSalidaId=2, UsuarioId=5. Actualizar: PuntoAccesoId=1, Nombre=Entrada Este, CamaraSalidaId=3. |
+|--------|-------|
+| **Captura de Imagen Inicial** | *(Pantalla del módulo de Configuración de Accesos mostrando puntos existentes)* |
+|--------|-------|
+| **Pasos** | 1. Acceder a la sección de **"Puntos de Acceso"**.<br>2. Seleccionar acción:<br>  • Crear nuevo punto de acceso.<br>  • Modificar punto existente.<br>3. Ingresar datos: nombre, ubicación, descripción, estado.<br>4. Asignar cámara de ingreso (validar que no esté en uso).<br>5. Asignar cámara de salida (validar que no esté en uso).<br>6. Asignar usuario de seguridad (validar que exista).<br>7. Guardar configuración.<br>8. Verificar que punto aparezca en lista con datos correctos. |
+|--------|-------|
+| **Resultado Esperado** | Sistema valida que cámaras no estén asignadas a otro punto (rechaza con ConflictException si duplicadas). Valida que cámaras y usuario existan (rechaza con NotFoundException si no existen). Crea/actualiza punto de acceso con relaciones incluidas. Cambios visibles en lista. |
+|--------|-------|
+| **Resultado Obtenido** | Sistema validó que CamaraIngresoId=1 y CamaraSalidaId=2 no estuvieran duplicadas. Verificó que UsuarioId=5 existe. Creó punto de acceso "Entrada Principal" correctamente. Retorna objeto con camaraIngreso, camaraSalida y usuario incluidos. Punto aparece en lista con información completa. Actualización de punto existente también funcionó: CamaraSalidaId cambiado a 3, cambios reflejados inmediatamente. |
+|--------|-------|
+| **Captura de Imagen Final** | *(Pantalla mostrando lista de puntos de acceso con nuevo punto configurado y datos actualizados)* |
+|--------|-------|
+| **Resultado de la Prueba** | **CORRECTO** |
+
+Nota. Elaboración propia (2026).

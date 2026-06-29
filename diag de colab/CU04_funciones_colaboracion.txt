@@ -1,0 +1,54 @@
+FUNCIONES EN ORDEN - CU04: Gestionar Parqueo
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Administrador - Vista (ParqueoView) - Controlador (ParqueoController)
+               - Service (ParqueoService) - Repositorio (prisma.parqueo)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+CREAR PARQUEO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : completar formulario
+2.  Vista         -> Controlador  : create(dto)
+3.  Controlador   -> Service      : create(dto)
+4.  Service       -> Repositorio  : create({ nombre, ubicacion, tipo })
+5.  Repositorio   -> Service      : parqueo                     (return)
+6.  Service       -> Controlador  : parqueo                     (return)
+7.  Controlador   -> Vista        : parqueo creado              (return)
+8.  Vista         -> Administrador: muestra confirmacion        (return)
+
+LISTAR PARQUEOS
+----------------------------------------------------------------
+1.  Administrador -> Vista        : abrir lista
+2.  Vista         -> Controlador  : findAll()
+3.  Controlador   -> Service      : findAll()
+4.  Service       -> Repositorio  : findMany()
+5.  Repositorio   -> Service      : parqueos[]                  (return)
+6.  Service       -> Controlador  : parqueos[]                  (return)
+7.  Controlador   -> Vista        : parqueos[]                  (return)
+8.  Vista         -> Administrador: muestra lista               (return)
+
+ACTUALIZAR PARQUEO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : editar datos
+2.  Vista         -> Controlador  : update(id, dto)
+3.  Controlador   -> Service      : update(id, dto)
+4.  Service       -> Repositorio  : update({ where: { id }, data })
+5.  Repositorio   -> Service      : parqueo                     (return)
+6.  Service       -> Controlador  : parqueo                     (return)
+7.  Controlador   -> Vista        : parqueo actualizado         (return)
+8.  Vista         -> Administrador: muestra confirmacion        (return)
+
+ELIMINAR PARQUEO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : eliminar
+2.  Vista         -> Controlador  : remove(id)
+3.  Controlador   -> Service      : remove(id)
+4.  Service       -> Repositorio  : delete({ where: { id } })
+5.  Repositorio   -> Service      : ok                          (return)
+6.  Service       -> Controlador  : Parqueo eliminado           (return)
+7.  Controlador   -> Vista        : ok                          (return)
+8.  Vista         -> Administrador: muestra confirmacion        (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

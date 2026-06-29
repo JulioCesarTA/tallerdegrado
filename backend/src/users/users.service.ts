@@ -10,8 +10,7 @@ const usuarioSelect = {
   apellido: true,
   ci: true,
   correo: true,
-  rolId: true,
-  rol: { select: { id: true, nombre: true } },
+  rol: true,
 } as const;
 
 const usuarioWithCamerasSelect = {
@@ -56,7 +55,6 @@ export class UsersService {
     });
     if (exists) throw new ConflictException('El correo ya existe');
 
-    await this.ensureRoleExists(dto.roleId);
     const password = await bcrypt.hash(dto.password, 10);
 
     return this.prisma.usuario.create({
@@ -66,7 +64,7 @@ export class UsersService {
         ci: dto.ci,
         correo: dto.email.toLowerCase(),
         password,
-        rolId: dto.roleId,
+        rol: dto.rol,
       },
       select: usuarioSelect,
     });
@@ -74,14 +72,13 @@ export class UsersService {
 
   async update(id: number, dto: UpdateUserDto) {
     await this.ensureExists(id);
-    if (dto.roleId) await this.ensureRoleExists(dto.roleId);
 
     const data: Record<string, unknown> = {};
     if (dto.name) data.nombre = dto.name;
     if (dto.lastName !== undefined) data.apellido = dto.lastName;
     if (dto.ci !== undefined) data.ci = dto.ci;
     if (dto.email) data.correo = dto.email.toLowerCase();
-    if (dto.roleId) data.rolId = dto.roleId;
+    if (dto.rol) data.rol = dto.rol;
     if (dto.password) data.password = await bcrypt.hash(dto.password, 10);
 
     return this.prisma.usuario.update({ where: { id }, data, select: usuarioSelect });
@@ -96,10 +93,5 @@ export class UsersService {
   private async ensureExists(id: number) {
     const usuario = await this.prisma.usuario.findUnique({ where: { id }, select: { id: true } });
     if (!usuario) throw new NotFoundException('Usuario no encontrado');
-  }
-
-  private async ensureRoleExists(roleId: number) {
-    const rol = await this.prisma.rol.findUnique({ where: { id: roleId }, select: { id: true } });
-    if (!rol) throw new NotFoundException('Rol no encontrado');
   }
 }

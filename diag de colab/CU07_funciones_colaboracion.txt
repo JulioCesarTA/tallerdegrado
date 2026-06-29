@@ -1,0 +1,44 @@
+FUNCIONES EN ORDEN - CU07: Registrar Salida Vehicular con OCR
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Guardia - Vista (SalidaView) - Controlador (DetectionsController)
+               - Service (DetectionsService) - VisionService - StorageService
+               - Repositorio (Vehiculo / PuntoAcceso / RegistroAcceso / Plaza)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+RECONOCIMIENTO DE PLACA (OCR)
+----------------------------------------------------------------
+1.  Guardia      -> Vista        : capturar imagen del vehiculo
+2.  Vista        -> Controlador  : ocrFrame(image)
+3.  Controlador  -> Service      : ocrFrame(file)
+4.  Service      -> VisionService: extractPlate(file)
+5.  VisionService-> VisionService: DetectTextCommand (AWS Rekognition)
+6.  VisionService-> Service      : { plate, confidence }        (return)
+7.  Service      -> Controlador  : { plate, confidence }        (return)
+8.  Controlador  -> Vista        : { plate, confidence }        (return)
+9.  Vista        -> Guardia      : muestra placa detectada      (return)
+
+REGISTRO DE SALIDA
+----------------------------------------------------------------
+1.  Guardia      -> Vista        : confirmar salida
+2.  Vista        -> Controlador  : registerExit(dto, image)
+3.  Controlador  -> Service      : registerExit(dto, file)
+4.  Service      -> StorageService : saveImage(file)
+5.  StorageService -> Service    : evidenceUrl                  (return)
+6.  Service      -> Vehiculo     : findUnique({ where: { placa } })
+7.  Vehiculo     -> Service      : vehiculo                     (return)
+8.  Service      -> PuntoAcceso  : findFirst({ camaraSalidaId })
+9.  PuntoAcceso  -> Service      : puntoAcceso                  (return)
+10. Service      -> RegistroAcceso : findFirst({ horaSalida: null, estado: 'ingreso' })
+11. RegistroAcceso -> Service    : openLog                      (return)
+12. Service      -> RegistroAcceso : update({ horaSalida, estado: 'salida' })
+13. RegistroAcceso -> Service    : registro                     (return)
+14. Service      -> Plaza        : update({ estado: 'libre' })
+15. Plaza        -> Service      : plaza                        (return)
+16. Service      -> Controlador  : { placa, evidenceUrl }       (return)
+17. Controlador  -> Vista        : salida registrada            (return)
+18. Vista        -> Guardia      : muestra confirmacion         (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

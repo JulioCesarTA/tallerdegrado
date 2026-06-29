@@ -1,0 +1,29 @@
+FUNCIONES EN ORDEN - CU12: Visualizar Transmision de Camaras en Tiempo Real
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Operador - Vista (MonitoreoView) - StreamingGateway - CamaraTelefono
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+CONEXION DE LA CAMARA (TELEFONO)
+----------------------------------------------------------------
+1.  CamaraTelefono -> StreamingGateway : emit('stream:join', cameraId)
+2.  StreamingGateway -> StreamingGateway : joinAsPhone(client, cameraId)
+3.  StreamingGateway -> CamaraTelefono : { ok: true }           (return)
+
+OPERADOR INICIA MONITOREO
+----------------------------------------------------------------
+1.  Operador     -> Vista            : abrir monitoreo en vivo
+2.  Vista        -> StreamingGateway : emit('stream:watch', cameraIds)
+3.  StreamingGateway -> StreamingGateway : joinAsOperator(client, cameraIds)
+4.  StreamingGateway -> Vista        : { ok: true }             (return)
+
+TRANSMISION EN TIEMPO REAL (loop por cada frame)
+----------------------------------------------------------------
+1.  CamaraTelefono -> StreamingGateway : emit('stream:frame', { cameraId, frame })
+2.  StreamingGateway -> StreamingGateway : relayFrame(client, payload)
+3.  StreamingGateway -> Vista        : emit('stream:frame', payload)   (return)
+4.  Vista        -> Operador          : muestra video en tiempo real    (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

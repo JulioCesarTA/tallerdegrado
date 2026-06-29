@@ -1,0 +1,65 @@
+@startuml Secuencia_Iniciar_Sesion
+title Diagrama de Secuencia (UML 2.5) - CU01: Iniciar Sesion
+
+skinparam sequence {
+  ArrowColor #2C3E50
+  LifeLineBorderColor #2C6CA5
+  ParticipantBorderColor #2C6CA5
+  ParticipantBackgroundColor #E8F4FD
+  ActorBorderColor #2C3E50
+}
+autonumber
+
+actor "Usuario" as User
+participant ":LoginForm" as Form
+participant ":AuthController" as Ctrl
+participant ":AuthService" as Svc
+participant ":UserRepository" as Repo
+participant ":BcryptHasher" as Bcrypt
+participant ":JwtService" as Jwt
+
+User -> Form : ingresar(correo, password)
+activate Form
+Form -> Form : validarCampos()
+Form -> Ctrl : login(credenciales)
+activate Ctrl
+Ctrl -> Svc : login(dto)
+activate Svc
+
+Svc -> Repo : findByCorreo(correo)
+activate Repo
+Repo --> Svc : usuario | null
+deactivate Repo
+
+alt [usuario no existe]
+    Svc --> Ctrl : UnauthorizedException
+    Ctrl --> Form : 401 Credenciales invalidas
+    Form --> User : muestra error
+
+else [usuario existe]
+    Svc -> Bcrypt : compare(password, hash)
+    activate Bcrypt
+    Bcrypt --> Svc : validPassword
+    deactivate Bcrypt
+
+    alt [password invalido]
+        Svc --> Ctrl : UnauthorizedException
+        Ctrl --> Form : 401 Credenciales invalidas
+        Form --> User : muestra error
+
+    else [password valido]
+        Svc -> Jwt : sign({sub, email, role})
+        activate Jwt
+        Jwt --> Svc : accessToken
+        deactivate Jwt
+        Svc --> Ctrl : sesion { token, user }
+        Ctrl --> Form : 200 OK
+        Form --> User : redirige al panel
+    end
+end
+
+deactivate Svc
+deactivate Ctrl
+deactivate Form
+
+@enduml

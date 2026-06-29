@@ -1,0 +1,40 @@
+CU02: Gestionar Usuarios - Actualizar Usuario
+
+async update(id: number, dto: UpdateUserDto) {
+    (1) await this.ensureExists(id);
+
+    (2) const data: Record<string, unknown> = {};
+
+    (3) if (dto.name) data.nombre = dto.name;
+
+    (4) if (dto.lastName !== undefined) data.apellido = dto.lastName;
+
+    (5) if (dto.ci !== undefined) data.ci = dto.ci;
+
+    (6) if (dto.email) data.correo = dto.email.toLowerCase();
+
+    (7) if (dto.rol) data.rol = dto.rol;
+
+    (8) if (dto.password) data.password = await bcrypt.hash(dto.password, 10);
+
+    (9) return this.prisma.usuario.update({ where: { id }, data, select: usuarioSelect });
+}
+
+
+Tabla de Pruebas de Caja Blanca - Actualizar Usuario
+
+| CAMINO | ENTRADA SIMULADA | SALIDA ESPERADA |
+|--------|-----------------|-----------------|
+| 1, (F) | Id de usuario no existe en BD | El sistema lanza NotFoundException 'Usuario no encontrado'. No se actualiza nada. No se crea entrada vacía. BD sin cambios. |
+| 1, 2, 3, 4, 5, 6, 7, 8, 9, (F) | Id válido, todos los campos presentes (name, lastName, ci, email, rol, password) | El sistema construye objeto data con todos los campos. Email se normaliza a minúsculas. Password se hashea con bcrypt. Actualiza usuario con todos los cambios. Retorna usuario actualizado con campos seleccionados. |
+| 1, 2, 9, (F) | Id válido, solo name (lastName, ci, email, rol, password = null/undefined) | El sistema construye data solo con nombre. Actualiza solo nombre. Otros campos sin cambios. Retorna usuario con nombre modificado. |
+| 1, 2, 4, 9, (F) | Id válido, solo lastName (name, ci, email, rol, password = null/undefined) | El sistema construye data solo con apellido. Actualiza solo apellido. Retorna usuario con apellido modificado. |
+| 1, 2, 5, 9, (F) | Id válido, solo ci (name, lastName, email, rol, password = null/undefined) | El sistema construye data solo con ci. Actualiza solo ci. Retorna usuario con ci modificado. |
+| 1, 2, 6, 9, (F) | Id válido, solo email (name, lastName, ci, rol, password = null/undefined) | El sistema construye data solo con email normalizado. Actualiza solo correo. Retorna usuario con email modificado en minúsculas. |
+| 1, 2, 7, 9, (F) | Id válido, solo rol (name, lastName, ci, email, password = null/undefined) | El sistema construye data solo con rol. Actualiza solo rol. Retorna usuario con rol modificado. |
+| 1, 2, 8, 9, (F) | Id válido, solo password (name, lastName, ci, email, rol = null/undefined) | El sistema construye data solo con password hasheado. Hashea password con bcrypt. Actualiza solo contraseña. Retorna usuario con password actualizado (no retorna el hash en select). |
+| 1, 2, 3, 6, 9, (F) | Id válido, name y email (lastName, ci, rol, password = null/undefined) | El sistema construye data con name y email. Email normalizado. Actualiza ambos campos. Otros sin cambios. Retorna usuario con ambas modificaciones. |
+| 1, 2, 3, 8, 9, (F) | Id válido, name y password (lastName, ci, email, rol = null/undefined) | El sistema construye data con name y password hasheado. Actualiza nombre y contraseña. Retorna usuario con ambos cambios. |
+| 1, 2, 3, 4, 5, 6, 7, 8, 9, (F) | Id válido, todos los campos con valores empty string '' | El sistema evalúa cada campo: name='' es truthy (no se actualiza), lastName='' es falsy (se actualiza a ''), ci='' es falsy (se actualiza a ''), email='' es falsy (no se actualiza por condición if(dto.email)), password='' es falsy (no se actualiza). Actualización parcial según lógica. |
+
+Nota. Elaboración propia (2026).

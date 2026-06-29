@@ -1,0 +1,26 @@
+FUNCIONES EN ORDEN - CU11: Sancionar Vehiculo
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Guardia - Vista (SancionarView) - Controlador (SanctionsController)
+               - Service (SanctionsService) - Repositorio (Vehiculo / TipoSancion / Sancion)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+SANCIONAR VEHICULO
+----------------------------------------------------------------
+1.  Guardia      -> Vista        : seleccionar vehiculo y tipo de sancion
+2.  Vista        -> Controlador  : create(dto)
+3.  Controlador  -> Service      : create(dto)
+4.  Service      -> Vehiculo     : findUnique({ where: { placa } })
+5.  Vehiculo     -> Service      : vehiculo                     (return)
+6.  Service      -> TipoSancion  : findUnique({ where: { id } })
+7.  TipoSancion  -> Service      : tipoSancion                  (return)
+8.  Service      -> Service      : calcular fechaFin (duracionDias)
+9.  Service      -> Sancion      : create({ vehiculoId, tipoSancionId, fechaInicio, fechaFin })
+10. Sancion      -> Service      : sancion                      (return)
+11. Service      -> Controlador  : sancion                      (return)
+12. Controlador  -> Vista        : vehiculo sancionado          (return)
+13. Vista        -> Guardia      : muestra confirmacion         (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

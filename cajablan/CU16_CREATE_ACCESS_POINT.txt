@@ -1,0 +1,50 @@
+CU16: Configurar Punto de Acceso - Crear Punto de Acceso
+
+async createAccessPoint(dto: CreatePuntoAccesoDto) {
+    try {
+        (1) return await this.prisma.puntoAcceso.create({
+            data: {
+                nombre: dto.nombre,
+                ubicacion: dto.ubicacion,
+                descripcion: dto.descripcion,
+                estado: dto.estado,
+                camaraIngresoId: dto.camaraIngresoId,
+                camaraSalidaId: dto.camaraSalidaId,
+                usuarioId: dto.usuarioId,
+            },
+            include: {
+                camaraIngreso: true,
+                camaraSalida: true,
+                usuario: { select: { id: true, nombre: true, correo: true } },
+            },
+        });
+    } catch (e: unknown) {
+        (2) const code = (e as { code?: string })?.code;
+
+        (3) if (code === 'P2002') throw new ConflictException('Una de las camaras ya esta asignada a otro punto de acceso');
+
+        (4) if (code === 'P2003') throw new NotFoundException('Camara o usuario no encontrado');
+
+        (5) throw e;
+    }
+}
+
+
+Tabla de Pruebas de Caja Blanca - Crear Punto de Acceso
+
+| CAMINO | ENTRADA SIMULADA | SALIDA ESPERADA |
+|--------|-----------------|-----------------|
+| 1, 2, 3, (F) | CamaraIngresoId o CamaraSalidaId ya asignado (Prisma error code P2002 - unique constraint) | El sistema captura excepción, extrae código 'P2002'. Lanza ConflictException 'Una de las camaras ya esta asignada a otro punto de acceso'. No se crea punto duplicado. BD sin cambios. |
+| 1, 2, 3, (F) | CamaraSalidaId ya asignado a otro punto (Prisma error code P2002) | El sistema captura excepción, extrae código 'P2002'. Lanza ConflictException 'Una de las camaras ya esta asignada a otro punto de acceso'. No se crea punto. BD sin cambios. |
+| 1, 2, 4, (F) | CamaraIngresoId no existe (Prisma error code P2003 - foreign key constraint) | El sistema captura excepción, extrae código 'P2003'. Lanza NotFoundException 'Camara o usuario no encontrado'. No se crea punto. BD sin cambios. |
+| 1, 2, 4, (F) | CamaraSalidaId no existe (Prisma error code P2003) | El sistema captura excepción, extrae código 'P2003'. Lanza NotFoundException 'Camara o usuario no encontrado'. No se crea punto. BD sin cambios. |
+| 1, 2, 4, (F) | UsuarioId no existe (Prisma error code P2003) | El sistema captura excepción, extrae código 'P2003'. Lanza NotFoundException 'Camara o usuario no encontrado'. No se crea punto. BD sin cambios. |
+| 1, 2, 5, (F) | Error de BD desconocido (código ≠ P2002, P2003) | El sistema captura excepción, extrae código. Si código no coincide con P2002 ni P2003, relanza excepción original (e). Error se propaga al caller. No se crea punto. |
+| 1, 2, 5, (F) | Excepción sin propiedad code | El sistema extrae code = undefined. Si code no es P2002 ni P2003, relanza excepción original. |
+| 1, (F) | Todos los parámetros válidos (nombre, ubicacion, descripcion, estado, camaraIngresoId, camaraSalidaId, usuarioId) | El sistema crea punto de acceso en BD. Retorna objeto completo con relaciones incluidas: camaraIngreso (objeto camara), camaraSalida (objeto camara), usuario (id, nombre, correo). Punto de acceso configurado correctamente. |
+| 1, (F) | CamaraIngresoId válido, CamaraSalidaId = null/undefined (opcional) | El sistema crea punto de acceso con solo cámara de ingreso. camaraSalida = null. Retorna punto con ingreso asignado, salida = null. Punto válido. |
+| 1, (F) | CamaraIngresoId = null/undefined, CamaraSalidaId válido (opcional) | El sistema crea punto de acceso con solo cámara de salida. camaraIngreso = null. Retorna punto con salida asignada, ingreso = null. Punto válido. |
+| 1, (F) | Nombre con caracteres especiales/unicode | El sistema almacena nombre tal como está (incluyendo caracteres especiales). Retorna punto de acceso con nombre intacto. |
+| 1, (F) | Descripción vacía o muy larga | El sistema almacena descripción sin validación de longitud en esta función. Retorna punto de acceso. Validación es responsabilidad de DTO/decoradores. |
+
+Nota. Elaboración propia (2026).

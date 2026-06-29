@@ -1,0 +1,38 @@
+CU16: Configurar Punto de Acceso - Actualizar Punto de Acceso
+
+async updateAccessPoint(id: number, dto: UpdatePuntoAccesoDto) {
+    (1) const existing = await this.prisma.puntoAcceso.findUnique({ where: { id } });
+
+    (2) if (!existing) throw new NotFoundException('Punto de acceso no encontrado');
+
+    (3) return this.prisma.puntoAcceso.update({
+        where: { id },
+        data: dto,
+        include: {
+            camaraIngreso: true,
+            camaraSalida: true,
+            usuario: { select: { id: true, nombre: true, correo: true } },
+        },
+    });
+}
+
+
+Tabla de Pruebas de Caja Blanca - Actualizar Punto de Acceso
+
+| CAMINO | ENTRADA SIMULADA | SALIDA ESPERADA |
+|--------|-----------------|-----------------|
+| 1, 2, (F) | Id de punto de acceso no existe en BD (existing = null) | El sistema lanza NotFoundException 'Punto de acceso no encontrado'. No se actualiza nada. BD sin cambios. Operación abortada. |
+| 1, 3, (F) | Id válido, todos los campos presentes en dto (nombre, ubicacion, descripcion, estado, camaraIngresoId, camaraSalidaId, usuarioId) | El sistema actualiza punto de acceso con todos los campos proporcionados. Retorna objeto actualizado con relaciones incluidas (camaraIngreso, camaraSalida, usuario). Punto de acceso completamente actualizado. |
+| 1, 3, (F) | Id válido, solo nombre (ubicacion, descripcion, estado, camaraIngresoId, camaraSalidaId, usuarioId = undefined) | El sistema actualiza solo nombre. Otros campos sin cambios. Retorna punto con nombre modificado. Relaciones incluidas. |
+| 1, 3, (F) | Id válido, solo ubicacion (nombre, descripcion, estado, camaraIngresoId, camaraSalidaId, usuarioId = undefined) | El sistema actualiza solo ubicacion. Otros campos sin cambios. Retorna punto con ubicacion modificada. |
+| 1, 3, (F) | Id válido, solo descripcion (otros = undefined) | El sistema actualiza solo descripcion. Otros campos sin cambios. Retorna punto con descripcion modificada. |
+| 1, 3, (F) | Id válido, solo estado (otros = undefined) | El sistema actualiza solo estado. Otros campos sin cambios. Retorna punto con estado modificado. |
+| 1, 3, (F) | Id válido, solo camaraIngresoId (otros = undefined) | El sistema actualiza solo camaraIngresoId. camaraSalida sin cambios. Retorna punto con ingreso modificado. |
+| 1, 3, (F) | Id válido, solo camaraSalidaId (otros = undefined) | El sistema actualiza solo camaraSalidaId. camaraIngreso sin cambios. Retorna punto con salida modificada. |
+| 1, 3, (F) | Id válido, solo usuarioId (otros = undefined) | El sistema actualiza solo usuarioId. Cámaras sin cambios. Retorna punto con usuario modificado. |
+| 1, 3, (F) | Id válido, nombre y ubicacion (otros = undefined) | El sistema actualiza nombre y ubicacion. Otros campos sin cambios. Retorna punto con ambas modificaciones. |
+| 1, 3, (F) | Id válido, camaraIngresoId y camaraSalidaId (otros = undefined) | El sistema actualiza ambas cámaras. Otros campos sin cambios. Retorna punto con cámaras modificadas. |
+| 1, 3, (F) | Id válido, camaraIngresoId = null (SetNullData, dto contiene null explícitamente) | El sistema actualiza camaraIngresoId a null (desasigna cámara de ingreso). camaraIngreso = null. Otros campos sin cambios. Retorna punto con ingreso desasignado. |
+| 1, 3, (F) | Id válido, dto completamente vacío (todos campos = undefined) | El sistema no actualiza ningún campo (dto vacío, update recibe {}). Punto sin cambios. Retorna punto de acceso sin modificaciones. |
+
+Nota. Elaboración propia (2026).

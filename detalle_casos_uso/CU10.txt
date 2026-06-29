@@ -1,0 +1,22 @@
+Caso de Uso
+CU10. Gestionar Sanciones
+Propósito
+Administrar los tipos de sanción y las sanciones registradas en el sistema.
+Descripción
+El administrador define los tipos de sanción (nombre, motivo y duración) y puede consultar o eliminar las sanciones aplicadas.
+Actores
+Administrador
+Actor Iniciador
+Administrador
+Precondición
+Haber iniciado sesión como Administrador.
+Proceso
+1. El administrador accede al módulo de Sanciones.
+2. Registra tipos de sanción con su nombre, motivo y duración en días.
+3. El sistema lista las sanciones aplicadas a los vehículos.
+4. El administrador puede eliminar una sanción.
+5. El sistema guarda los cambios.
+Postcondición
+Tipos de sanción y sanciones gestionados correctamente.
+Excepciones
+Si el tipo de sanción o la sanción no existen, el sistema muestra "no encontrado".

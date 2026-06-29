@@ -1,0 +1,23 @@
+FUNCIONES EN ORDEN - CU14: Visualizar Reportes con el Uso de BI
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Autoridad Universitaria - Metabase (BI) - Service (BiService)
+               - Repositorio (Vistas Materializadas / PostgreSQL)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+ACTUALIZACION DE VISTAS (ETL automatico cada 1 min)
+----------------------------------------------------------------
+1.  Service      -> Service      : refreshViews() (Cron cada 1 min)
+2.  Service      -> Repositorio  : REFRESH MATERIALIZED VIEW (mv_accesos_diarios, mv_top_vehiculos, ...)
+3.  Repositorio  -> Service      : ok                          (return)
+
+VISUALIZAR DASHBOARD
+----------------------------------------------------------------
+1.  Autoridad    -> Metabase     : abrir dashboard de BI
+2.  Metabase     -> Repositorio  : SELECT vistas materializadas (mv_accesos_diarios, mv_permanencia, ...)
+3.  Repositorio  -> Metabase     : datos agregados             (return)
+4.  Metabase     -> Autoridad    : muestra graficos e indicadores   (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

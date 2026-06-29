@@ -1,0 +1,72 @@
+PRUEBAS DE VULNERABILIDAD - OWASP ZAP
+URL analizada: http://localhost  (Nginx -> Next.js / NestJS)
+================================================================
+
+RESUMEN GENERAL DEL ESCANEO
+- Vulnerabilidades criticas (High):   0
+- Vulnerabilidades medias (Medium):   3
+- Vulnerabilidades bajas (Low):       5
+- Informativas:                       3
+- Total de alertas:                  11
+
+================================================================
+ALERTAS DETECTADAS
+================================================================
+
+1. Falta de CSP (Content Security Policy)
+   - Ruta afectada: /robots.txt
+   - Riesgo: Medio
+   - Impacto: posible inyeccion de scripts (XSS).
+   - Solucion: Content-Security-Policy: default-src 'self' (Helmet / nginx).
+
+2. Cross-Domain Misconfiguration (CORS)
+   - Evidencia: access-control-allow-origin: *
+   - Riesgo: Medio   
+   - Impacto: permite peticiones desde cualquier dominio.
+   - Solucion: restringir el origen permitido (CORS) al dominio del frontend.
+
+3. Falta de X-Frame-Options (Clickjacking)
+   - Ruta afectada: /
+   - Riesgo: Medio
+   - Impacto: la pagina puede embeberse en un iframe (clickjacking).
+   - Solucion: X-Frame-Options: DENY.
+
+4. Server Leaks Information via "X-Powered-By"
+   - Ruta afectada: /sitemap.xml   (Evidencia: X-Powered-By: Next.js)
+   - Riesgo: Bajo
+   - Solucion: ocultar el header (app.disable('x-powered-by') / Helmet).
+
+5. Server Leaks Version Information via "Server"
+   - Evidencia: nginx/1.27.5
+   - Riesgo: Bajo
+   - Solucion: server_tokens off; en nginx.conf.
+
+6. Falta de Strict-Transport-Security (HSTS)
+   - Riesgo: Bajo
+   - Solucion: agregar HSTS al habilitar HTTPS.
+
+7. Timestamp Disclosure - Unix
+   - Riesgo: Bajo
+   - Impacto: se exponen marcas de tiempo en respuestas (sin impacto directo).
+
+8. Falta de X-Content-Type-Options
+   - Riesgo: Bajo
+   - Solucion: X-Content-Type-Options: nosniff.
+
+9. Aplicacion Web Moderna (Informativo)
+   - Detecta que es una SPA (Next.js/React), que exige controles de
+     CSRF, validacion de JWT y proteccion contra XSS.
+
+10. Re-examine Cache-control Directives (Informativo)
+    - Revisar cabeceras de cache (no almacenar contenido sensible).
+
+11. Retrieved from Cache (Informativo)
+    - Contenido servido desde cache; validar que no sea sensible.
+
+================================================================
+CONCLUSION
+No se detectaron vulnerabilidades criticas (High = 0). Las alertas
+medias y bajas corresponden a cabeceras HTTP de seguridad ausentes,
+corregibles con Helmet en NestJS y configuracion de cabeceras en Nginx.
+
+Nota. Elaboracion propia (2026).

@@ -1,0 +1,21 @@
+| **Nombre** | Prueba de CU02. Gestionar Usuario |
+|--------|-------|
+| **Descripción** | Permite al administrador crear, actualizar y eliminar usuarios del sistema, asignando roles y cifrando contraseñas de forma segura. |
+|--------|-------|
+| **Precondición** | El administrador debe haber iniciado sesión en la plataforma. Base de datos operativa. |
+|--------|-------|
+| **Datos de Entrada** | Crear: Nombre=Juan, Apellido=Pérez, CI=9876543, Correo=juan.perez@uagrm.edu.bo, Password=clave123, Rol=Operador. Actualizar: UserId=1, Nombre=Juan Carlos, Email=juan.carlos@uagrm.edu.bo, Rol=Supervisor. Eliminar: UserId=2. |
+|--------|-------|
+| **Captura de Imagen Inicial** | *(Pantalla del módulo de Usuarios mostrando lista de usuarios existentes)* |
+|--------|-------|
+| **Pasos** | 1. Acceder a la sección de **"Usuarios"**.<br>2. Seleccionar la acción a realizar:<br>  • Crear un nuevo usuario.<br>  • Modificar un usuario existente.<br>  • Eliminar un usuario obsoleto.<br>3. Ingresar o actualizar la información necesaria.<br>4. Guardar los cambios.<br>5. Verificar que los cambios se reflejan correctamente en la lista de usuarios. |
+|--------|-------|
+| **Resultado Esperado** | Los usuarios se crean, actualizan o eliminan correctamente, reflejándose en la vista principal de usuarios con validación de unicidad de correo, cifrado de contraseña y manejo de errores. |
+|--------|-------|
+| **Resultado Obtenido** | Los cambios en usuarios se aplicaron correctamente: creación validada, actualización reflejada, eliminación completada. Todos los cambios están disponibles y visibles en la lista de usuarios. |
+|--------|-------|
+| **Captura de Imagen Final** | *(Pantalla mostrando lista actualizada con nuevo usuario, datos modificados y usuario eliminado ya no presente)* |
+|--------|-------|
+| **Resultado de la Prueba** | **CORRECTO** |
+
+Nota. Elaboración propia (2026).

@@ -1,0 +1,45 @@
+@startuml Colaboracion_Iniciar_Sesion
+title Diagrama de Comunicacion (UML 2.5) - CU01: Iniciar Sesion
+
+skinparam linetype ortho
+skinparam object {
+  BackgroundColor #E8F4FD
+  BorderColor #2C6CA5
+}
+skinparam actor {
+  BorderColor #2C3E50
+}
+
+actor "Usuario" as User
+object ":LoginForm" as Form
+object ":AuthController" as Ctrl
+object ":AuthService" as Svc
+object ":UserRepository" as Repo
+object ":BcryptHasher" as Bcrypt
+object ":JwtService" as Jwt
+
+' ================= MENSAJES NUMERADOS (UML 2.5) =================
+' IDA (llamadas)
+User --> Form  : 1: ingresar(correo, password)
+Form --> Form  : 1.1: validarCampos()
+Form --> Ctrl  : 2: login(credenciales)
+Ctrl --> Svc   : 3: login(dto)
+Svc  --> Repo  : 4: findByCorreo(correo)
+Repo --> Svc   : 5: usuario
+
+' Guard UML 2.5 con [condicion]
+Svc  --> Bcrypt: 6: [usuario existe] compare(password, hash)
+Bcrypt --> Svc : 7: validPassword
+Svc  --> Jwt   : 8: [password valido] sign({sub, email, role})
+Jwt  --> Svc   : 9: accessToken
+
+' VUELTA (retornos)
+Svc  --> Ctrl  : 10: [password valido] sesion
+Ctrl --> Form  : 11: 200 OK { token, user }
+Form --> User  : 12: redirige al panel
+
+' Caminos alternativos (errores)
+Svc  --> Ctrl  : 5.1: [usuario no existe] UnauthorizedException
+Svc  --> Ctrl  : 7.1: [password invalido] UnauthorizedException
+
+@enduml

@@ -1,0 +1,107 @@
+@startuml Diagrama_de_Capas_Detallado
+title Diagrama de Capas (Vista Logica) - Sistema de Control Vehicular UAGRM
+
+skinparam packageStyle folder
+skinparam package {
+  BackgroundColor White
+  BorderColor Black
+}
+
+' ===== ACTORES Y SISTEMAS EXTERNOS =====
+package "Usuarios\n(Administrador / Guardia / Operador)" as Users {
+}
+
+package "Sistemas Externos\n(Camaras-Telefono / Navegador)" as ExtSys {
+}
+
+' ===== CAPA DE PRESENTACION (Next.js) =====
+package "Capa de Presentacion (Next.js)" as Presentation {
+  package "Administracion\n(login, usuarios, camaras,\npuntos acceso, parqueo, plaza)" as PresAdmin {
+  }
+  package "Control Vehicular\n(ingreso, salida, analisis IA,\nhistorial, streaming)" as PresVehicular {
+  }
+  package "Sanciones y Notificaciones\n(sanciones, alertas)" as PresSanciones {
+  }
+  package "Reportes y Respaldo\n(dashboards BI, backups)" as PresReportes {
+  }
+}
+
+' ===== CAPA DE SERVICIOS (Controllers NestJS) =====
+package "Capa de Servicios (API REST - Controllers)" as Services {
+  package "auth / users / cameras /\naccess / parqueo / plaza .controller" as ServAdmin {
+  }
+  package "detections / vehicles .controller\n+ streaming.gateway" as ServVehicular {
+  }
+  package "sanctions / sanction-definitions /\nalerts .controller" as ServSanciones {
+  }
+  package "bi / backups .controller" as ServReportes {
+  }
+}
+
+' ===== CAPA DE NEGOCIO (Services NestJS) =====
+package "Capa de Negocio (NestJS - Services)" as Business {
+  package "auth.service / users.service /\ncameras.service / access.service /\nparqueo.service / plaza.service" as BizAdmin {
+  }
+  package "detections.service / vehicles.service /\nvision.service" as BizVehicular {
+  }
+  package "sanctions.service /\nsanction-definitions.service /\nalerts.service" as BizSanciones {
+  }
+  package "bi.service / backups.service" as BizReportes {
+  }
+}
+
+' ===== CAPA DE DATOS =====
+package "Capa de Datos" as Data {
+  package "Acceso a Datos\n(prisma.service - Prisma ORM)" as DataAccess {
+  }
+  package "Agentes de Servicio\n(storage.service / mail.service)" as ServiceAgents {
+  }
+}
+
+' ===== FUENTES DE DATOS =====
+package "Fuentes de Datos\n(PostgreSQL)" as DataSources {
+}
+
+package "Servicios Externos\n(Claude AI / AWS Rekognition /\nAWS S3 / Gmail SMTP)" as ExtServices {
+}
+
+' ===== CROSS CUTTING =====
+package "Aspectos Transversales" as CrossCutting {
+  package "Seguridad\n(JWT / bcrypt /\nJwtAuthGuard / Public)" as Security {
+  }
+  package "Gestion Operacional\n(alerts.service / Logger NestJS)" as OpMgmt {
+  }
+  package "Comunicacion\n(WebSocket - socket.io\nstreaming.gateway)" as Communication {
+  }
+}
+
+' ===== RELACIONES VERTICALES POR MODULO =====
+Users ..> Presentation
+ExtSys ..> Services
+
+PresAdmin ..> ServAdmin
+PresVehicular ..> ServVehicular
+PresSanciones ..> ServSanciones
+PresReportes ..> ServReportes
+
+ServAdmin ..> BizAdmin
+ServVehicular ..> BizVehicular
+ServSanciones ..> BizSanciones
+ServReportes ..> BizReportes
+
+BizAdmin ..> Data
+BizVehicular ..> Data
+BizSanciones ..> Data
+BizReportes ..> Data
+
+DataAccess ..> DataSources
+ServiceAgents ..> ExtServices
+BizVehicular ..> ExtServices : OCR (Rekognition) / IA (Claude)
+
+' ===== RELACIONES TRANSVERSALES =====
+Presentation ..> CrossCutting
+Services ..> CrossCutting
+Business ..> CrossCutting
+Data ..> CrossCutting
+
+@enduml

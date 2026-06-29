@@ -1,0 +1,66 @@
+CU07: Registrar Salida Vehicular con OCR
+
+async registerExit(dto: RegisterExitDto, file: Express.Multer.File | undefined) {
+    (1) const placa = dto.placa.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+    (2) if (!placa) throw new BadRequestException('Placa invalida');
+
+    (3) const now = new Date();
+
+    (4) let evidenceUrl: string | null = null;
+
+    (5) if (file) {
+        const stored = await this.storageService.saveImage(file);
+        evidenceUrl = stored.url;
+    } else if (dto.evidenceUrl) {
+        evidenceUrl = dto.evidenceUrl;
+    }
+
+    (6) const [vehiculo, puntoAcceso] = await Promise.all([
+        this.prisma.vehiculo.findUnique({ where: { placa } }),
+        this.prisma.puntoAcceso.findFirst({ where: { camaraSalidaId: dto.cameraId }, select: { id: true } }),
+    ]);
+
+    (7) if (!vehiculo) throw new BadRequestException('Vehiculo no encontrado en el sistema');
+
+    (8) const openLog = await this.prisma.registroAcceso.findFirst({
+        where: { vehiculoId: vehiculo.id, horaSalida: null, estado: 'ingreso' },
+        orderBy: { horaIngreso: 'desc' },
+    });
+
+    (9) const puntoEgresoData = puntoAcceso ? { puntoAccesoEgresoId: puntoAcceso.id } : {};
+
+    (10) if (openLog) {
+        await this.prisma.registroAcceso.update({
+            where: { id: openLog.id },
+            data: { horaSalida: now, estado: 'salida', urlEvidencia: evidenceUrl ?? openLog.urlEvidencia, ...puntoEgresoData },
+        });
+        if (openLog.plazaId) {
+            await this.prisma.plaza.update({ where: { id: openLog.plazaId }, data: { estado: 'libre' } });
+        }
+    } else {
+        await this.prisma.registroAcceso.create({
+            data: { vehiculoId: vehiculo.id, horaIngreso: now, horaSalida: now, fecha: now, estado: 'salida', urlEvidencia: evidenceUrl, ...puntoEgresoData },
+        });
+    }
+
+    (11) return { placa, evidenceUrl, vehicle: vehiculo };
+}
+
+
+Tabla de Pruebas de Caja Blanca - Registrar Salida Vehicular
+
+| CAMINO | ENTRADA SIMULADA | SALIDA ESPERADA |
+|--------|-----------------|-----------------|
+| 1, 2, (F) | PlacaValida = F (placa = "----") | El sistema rechaza el registro de salida por placa inválida. Lanza BadRequestException 'Placa invalida'. No se crea registro de salida. BD sin cambios. |
+| 1, 3, 4, 5, 6, 7, (F) | PlacaValida = V, VehiculoExiste = F (vehiculo = null) | El sistema rechaza porque vehículo no está registrado. Lanza BadRequestException 'Vehiculo no encontrado en el sistema'. No se crea registro. BD sin cambios. |
+| 1, 3, 4, 5, 6, 8, 10, 11, (F) | PlacaValida = V, VehiculoExiste = V, File = V, PuntoAcceso = F, OpenLog = V, PlazaId = F | El sistema actualiza registro existente (openLog): horaSalida = now, estado = 'salida', urlEvidencia = nueva imagen, sin punto de acceso egreso. No libera plaza (openLog.plazaId = null). Retorna placa, evidenceUrl (nueva), vehículo. |
+| 1, 3, 4, 5, 6, 8, 10, 11, (F) | PlacaValida = V, VehiculoExiste = V, File = V, PuntoAcceso = V, OpenLog = V, PlazaId = V | El sistema actualiza registro: horaSalida = now, estado = 'salida', urlEvidencia = nueva imagen, puntoAccesoEgresoId asignado. Libera plaza (estado = 'libre'). Retorna placa, evidenceUrl (nueva), vehículo. |
+| 1, 3, 4, 5, 6, 8, 10, 11, (F) | PlacaValida = V, VehiculoExiste = V, File = F, EvidenceUrl = V, OpenLog = V, PlazaId = V | El sistema actualiza registro: horaSalida = now, estado = 'salida', urlEvidencia = URL proporcionada, puntoAccesoEgresoId asignado. Libera plaza. Retorna placa, evidenceUrl (URL proporcionada), vehículo. |
+| 1, 3, 4, 5, 6, 8, 10, 11, (F) | PlacaValida = V, VehiculoExiste = V, File = F, EvidenceUrl = F, OpenLog = V, PlazaId = V | El sistema actualiza registro: horaSalida = now, estado = 'salida', urlEvidencia = openLog.urlEvidencia (fallback, mantiene anterior), puntoAccesoEgresoId asignado. Libera plaza. Retorna placa, evidenceUrl (null), vehículo. |
+| 1, 3, 4, 5, 6, 8, 10, 11, (F) | PlacaValida = V, VehiculoExiste = V, File = F, EvidenceUrl = F, OpenLog = F, PuntoAcceso = F | El sistema crea nuevo registro de salida: horaIngreso = now, horaSalida = now, fecha = now, estado = 'salida', urlEvidencia = null, sin punto de acceso. Retorna placa, evidenceUrl (null), vehículo. |
+| 1, 3, 4, 5, 6, 8, 10, 11, (F) | PlacaValida = V, VehiculoExiste = V, File = V, PuntoAcceso = F, OpenLog = F | El sistema crea nuevo registro de salida con imagen: horaIngreso = now, horaSalida = now, estado = 'salida', urlEvidencia = nueva imagen, sin punto de acceso. Retorna placa, evidenceUrl (nueva), vehículo. |
+| 1, 3, 4, 5, 6, 8, 10, 11, (F) | PlacaValida = V, VehiculoExiste = V, File = V, PuntoAcceso = V, OpenLog = F | El sistema crea nuevo registro de salida: horaIngreso = now, horaSalida = now, estado = 'salida', urlEvidencia = nueva imagen, puntoAccesoEgresoId asignado. Retorna placa, evidenceUrl (nueva), vehículo. |
+| 1, 3, 4, 5, 6, 8, 10, 11, (F) | PlacaValida = V, VehiculoExiste = V, File = V, PuntoAcceso = V, OpenLog = V, PlazaId = F | El sistema actualiza registro: horaSalida = now, estado = 'salida', urlEvidencia = nueva, puntoAccesoEgresoId asignado. No hay plaza que liberar (openLog.plazaId = null). Retorna placa, evidenceUrl (nueva), vehículo. |
+
+Nota. Elaboración propia (2026).

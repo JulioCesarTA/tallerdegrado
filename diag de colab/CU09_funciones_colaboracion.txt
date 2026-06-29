@@ -1,0 +1,21 @@
+FUNCIONES EN ORDEN - CU09: Visualizar Historial de Acceso Vehicular
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Operador - Vista (HistorialView) - Controlador (VehiclesController)
+               - Service (VehiclesService) - Repositorio (prisma.vehiculo)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+VISUALIZAR HISTORIAL
+----------------------------------------------------------------
+1.  Operador     -> Vista        : ingresar placa del vehiculo
+2.  Vista        -> Controlador  : findHistory(plate)
+3.  Controlador  -> Service      : findByPlate(plate)
+4.  Service      -> Repositorio  : findUnique({ where: { placa }, include: registrosAcceso })
+5.  Repositorio  -> Service      : vehiculo + registrosAcceso[]   (return)
+6.  Service      -> Controlador  : vehiculo                       (return)
+7.  Controlador  -> Vista        : historial                      (return)
+8.  Vista        -> Operador     : muestra historial de accesos   (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

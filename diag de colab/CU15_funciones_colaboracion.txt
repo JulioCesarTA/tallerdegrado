@@ -1,0 +1,27 @@
+FUNCIONES EN ORDEN - CU15: Generar Backup
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Administrador - Vista (BackupView) - Controlador (BackupsController)
+               - Service (BackupsService) - StorageService (AWS S3)
+               - Repositorio (todas las tablas / prisma.backup)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+GENERAR BACKUP
+----------------------------------------------------------------
+1.  Administrador -> Vista        : clic en "Generar Backup"
+2.  Vista         -> Controlador  : generate()
+3.  Controlador   -> Service      : generate(usuarioId)
+4.  Service       -> Service      : buildSnapshot()
+5.  Service       -> Repositorio  : findMany (usuarios, camaras, vehiculos, registros, sanciones, alertas)
+6.  Repositorio   -> Service      : snapshot                    (return)
+7.  Service       -> StorageService : saveBackup(JSON)
+8.  StorageService -> Service     : url                         (return)
+9.  Service       -> Repositorio  : create({ usuarioId, url, fecha })
+10. Repositorio   -> Service      : backup                      (return)
+11. Service       -> Controlador  : { fileName, url, generatedAt }   (return)
+12. Controlador   -> Vista        : backup generado             (return)
+13. Vista         -> Administrador: muestra confirmacion        (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

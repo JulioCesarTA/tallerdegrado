@@ -1,0 +1,20 @@
+Caso de Uso
+CU12. Visualizar Transmisión de Cámaras en Tiempo Real
+Propósito
+Visualizar el video en vivo de las cámaras del sistema.
+Descripción
+El sistema transmite en tiempo real el video capturado por las cámaras de los puntos de acceso mediante WebSocket.
+Actores
+Personal de Seguridad
+Actor Iniciador
+Personal de Seguridad
+Precondición
+Tener cámaras configuradas y en funcionamiento.
+Proceso
+1. El usuario accede al módulo de transmisión y selecciona una cámara.
+2. El sistema establece una conexión en tiempo real mediante WebSocket (Socket.IO).
+3. El sistema transmite el video en vivo de la cámara seleccionada.
+Postcondición
+La transmisión en vivo se visualiza correctamente.
+Excepciones
+Si la cámara está desconectada, el sistema genera una alerta (ver CU13).

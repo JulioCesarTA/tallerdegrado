@@ -1,0 +1,21 @@
+| **Nombre** | Prueba de CU07. Registrar Salida Vehicular con OCR |
+|--------|-------|
+| **Descripción** | Permite registrar la salida de un vehículo mediante reconocimiento automático de placa, actualización de registro de acceso y liberación de plaza de estacionamiento. |
+|--------|-------|
+| **Precondición** | El usuario debe haber iniciado sesión. Existe registro de ingreso activo sin salida. Existe cámara de salida configurada. |
+|--------|-------|
+| **Datos de Entrada** | Imagen con placa legible (ABC123) del vehículo que ingresó previamente. Punto de acceso con cámara de salida configurada. |
+|--------|-------|
+| **Captura de Imagen Inicial** | *(Pantalla del módulo de Detecciones/Salida mostrando interfaz de captura)* |
+|--------|-------|
+| **Pasos** | 1. Acceder a la sección de **"Salidas"**.<br>2. Capturar imagen del vehículo mediante cámara de salida.<br>3. Sistema realiza OCR y extrae placa (ABC123).<br>4. Localizar registro de ingreso activo del vehículo.<br>5. Validar que exista registro abierto (horaSalida = null).<br>6. Actualizar registro con hora de salida y punto de egreso.<br>7. Liberar plaza que ocupaba el vehículo.<br>8. Registrar cambios y verificar actualización. |
+|--------|-------|
+| **Resultado Esperado** | Sistema valida placa, localiza ingreso activo sin salida, registra hora de salida, actualiza estado a 'salida', asigna punto de egreso, libera plaza (estado='libre') y crea registro completo. |
+|--------|-------|
+| **Resultado Obtenido** | Sistema identificó placa ABC123 correctamente. Localizó registro de ingreso activo para ese vehículo. Actualizo registro con horaSalida=now, estado='salida'. Plaza fue liberada (estado='libre'). Punto de acceso egreso asignado. Registro visible en interfaz con información completa de entrada-salida. |
+|--------|-------|
+| **Captura de Imagen Final** | *(Pantalla mostrando registro actualizado con horaSalida, plaza liberada y confirmación de éxito)* |
+|--------|-------|
+| **Resultado de la Prueba** | **CORRECTO** |
+
+Nota. Elaboración propia (2026).

@@ -1,0 +1,20 @@
+Caso de Uso
+CU20. Buscar Vehículo por Placa
+Propósito
+Localizar un vehículo a partir de su placa.
+Descripción
+El usuario busca un vehículo por su número de placa para consultar sus datos y su historial de acceso.
+Actores
+Personal de Seguridad, Administrador
+Actor Iniciador
+Personal de Seguridad
+Precondición
+El vehículo debe estar registrado en el sistema.
+Proceso
+1. El usuario ingresa el número de placa.
+2. El sistema busca el vehículo correspondiente (consulta indexada por placa).
+3. Muestra los datos del vehículo y su historial de acceso.
+Postcondición
+El vehículo es localizado y se muestra su información.
+Excepciones
+Si no existe un vehículo con esa placa, el sistema muestra "Vehículo no encontrado".

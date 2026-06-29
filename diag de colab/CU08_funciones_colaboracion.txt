@@ -1,0 +1,27 @@
+FUNCIONES EN ORDEN - CU08: Analizar Caracteristicas Vehiculares con IA
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Guardia - Vista (AnalisisView) - Controlador (DetectionsController)
+               - Service (DetectionsService) - VisionService - ClaudeAPI - StorageService
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+ANALIZAR CON IA
+----------------------------------------------------------------
+1.  Guardia      -> Vista        : capturar imagen del vehiculo
+2.  Vista        -> Controlador  : analyzeVehicle(image)
+3.  Controlador  -> Service      : analyzeVehicleFile(file)
+4.  Service      -> VisionService: analyzeVehicle(file)
+5.  VisionService-> ClaudeAPI    : POST /v1/messages (api.anthropic.com)
+6.  ClaudeAPI    -> VisionService: { tipoVehiculo, marca, modelo, color, caracteristicas }   (return)
+7.  VisionService-> Service      : analysis                     (return)
+8.  Service      -> StorageService : saveImage(file)
+9.  StorageService -> Service    : evidenceUrl                  (return)
+10. Service      -> Controlador  : { ...analysis, evidenceUrl } (return)
+11. Controlador  -> Vista        : analisis del vehiculo        (return)
+12. Vista        -> Guardia      : muestra caracteristicas      (return)
+
+Nota: pasos 4-7 (IA) y 8-9 (guardado) corren en PARALELO (Promise.all).
+
+================================================================
+Nota. Elaboracion propia (2026).

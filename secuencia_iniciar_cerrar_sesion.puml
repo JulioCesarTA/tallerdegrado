@@ -1,0 +1,88 @@
+@startuml Secuencia_Iniciar_Cerrar_Sesion
+title Diagrama de Secuencia - CU01: Iniciar y Cerrar Sesion
+
+skinparam sequence {
+  ArrowColor #2C3E50
+  LifeLineBorderColor #2C6CA5
+  ParticipantBorderColor #2C6CA5
+  ParticipantBackgroundColor #E8F4FD
+  ActorBorderColor #2C3E50
+}
+autonumber
+
+actor "Usuario" as User
+participant "Vista\n(LoginView)" as Vista
+participant "Control\n(AuthController)" as Control
+participant "Servicio\n(AuthService)" as Servicio
+participant "Repositorio\n(UserRepository)" as Repo
+database "BD\n(PostgreSQL)" as BD
+
+== Iniciar Sesion ==
+
+User -> Vista : ingresar(correo, password)
+activate Vista
+Vista -> Vista : validarCampos()
+Vista -> Control : POST /auth/login(LoginDto)
+activate Control
+Control -> Servicio : login(dto)
+activate Servicio
+
+Servicio -> Repo : buscarPorCorreo(correo)
+activate Repo
+Repo -> BD : SELECT * FROM usuario WHERE correo = ?
+activate BD
+BD --> Repo : registro
+deactivate BD
+Repo --> Servicio : usuario | null
+deactivate Repo
+
+alt [usuario no existe]
+    Servicio --> Control : UnauthorizedException
+    Control --> Vista : 401 Credenciales invalidas
+    Vista --> User : muestra error
+
+else [usuario existe]
+    Servicio -> Servicio : compararPassword(password, hash)
+
+    alt [password invalido]
+        Servicio --> Control : UnauthorizedException
+        Control --> Vista : 401 Credenciales invalidas
+        Vista --> User : muestra error
+
+    else [password valido]
+        Servicio -> Servicio : generarToken(sub, email, rol)
+        Servicio --> Control : { accessToken, user }
+        Control --> Vista : 200 OK { accessToken, user }
+        Vista --> User : redirige al panel principal
+    end
+end
+
+deactivate Servicio
+deactivate Control
+deactivate Vista
+
+== Cerrar Sesion ==
+
+User -> Vista : clic en "Cerrar Sesion"
+activate Vista
+Vista -> Vista : eliminarTokenLocal()
+Vista -> Control : POST /auth/logout
+activate Control
+Control -> Servicio : logout(userId)
+activate Servicio
+Servicio -> Repo : buscarPorId(userId)
+activate Repo
+Repo -> BD : SELECT id FROM usuario WHERE id = ?
+activate BD
+BD --> Repo : registro
+deactivate BD
+Repo --> Servicio : usuario
+deactivate Repo
+Servicio --> Control : { message: 'Sesion cerrada' }
+Control --> Vista : 200 OK
+deactivate Servicio
+Vista --> User : redirige a Login
+deactivate Control
+deactivate Vista
+
+@enduml

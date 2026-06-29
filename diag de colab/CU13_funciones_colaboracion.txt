@@ -1,0 +1,21 @@
+FUNCIONES EN ORDEN - CU13: Notificar Camara Desconectada
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: CamaraTelefono - StreamingGateway - Service (AlertsService)
+               - Repositorio (prisma.alerta) - Vista (MonitoreoView) - Operador
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+NOTIFICAR CAMARA DESCONECTADA
+----------------------------------------------------------------
+1.  CamaraTelefono   -> StreamingGateway : disconnect (se cae la conexion)
+2.  StreamingGateway -> StreamingGateway : handleDisconnect(client)
+3.  StreamingGateway -> Service          : createInternalAlert({ typeName: 'camera_disconnected', camaraId })
+4.  Service          -> Repositorio      : create({ tipoAlerta, camaraId })
+5.  Repositorio      -> Service          : alerta                       (return)
+6.  Service          -> StreamingGateway : alerta                       (return)
+7.  StreamingGateway -> Vista            : emit('alert:new', { id, cameraId, type })
+8.  Vista            -> Operador         : muestra alerta "Camara desconectada"   (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

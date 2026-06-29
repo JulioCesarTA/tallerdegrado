@@ -1,0 +1,76 @@
+@startuml Subsistema_Sanciones
+title Figura. Subsistema de Sanciones y Notificaciones
+
+skinparam componentStyle uml2
+skinparam component {
+  BackgroundColor #BBDEFB
+  BorderColor #1565C0
+}
+skinparam package {
+  BackgroundColor #FFF3E0
+  BorderColor #E65100
+}
+
+' ============================================================
+' CLIENTE - Formularios (Next.js)
+' ============================================================
+package "Sanciones y Notificaciones" as Cliente #FCE4EC {
+  [SancionFrom]       <<component>> as SancionFrom #F48FB1
+  [SancionarFrom]     <<component>> as SancionarFrom #F48FB1
+  [AlertaCamaraFrom]  <<component>> as AlertaFrom #F48FB1
+}
+
+' ============================================================
+' SERVIDOR - Controller / Service / Model (NestJS)
+' ============================================================
+package "Servidor" as Servidor {
+
+  ' ---- Controllers ----
+  [SanctionsController]           <<class>> as SancCtrl
+  [SanctionDefinitionsController] <<class>> as SancDefCtrl
+  [AlertsController]              <<class>> as AlertsCtrl
+
+  ' ---- Services ----
+  [SanctionsService]           <<class>> as SancSvc
+  [SanctionDefinitionsService] <<class>> as SancDefSvc
+  [AlertsService]              <<class>> as AlertsSvc
+
+  ' ---- Models ----
+  [SancionModel]           <<class>> as SancionMdl
+  [DefinicionSancionModel] <<class>> as DefMdl
+  [AlertaModel]            <<class>> as AlertaMdl
+}
+
+' ============================================================
+' BASE DE DATOS (PostgreSQL)
+' ============================================================
+package "Base de Datos" as BD #FCE4EC {
+  [bd_control_vehicular] <<script>> as Script #F48FB1
+  [sancion]            <<table>> as TSancion #F48FB1
+  [definicion_sancion] <<table>> as TDef #F48FB1
+  [alerta]             <<table>> as TAlerta #F48FB1
+  [vehiculo]           <<table>> as TVehiculo #F48FB1
+}
+
+' ============================================================
+' CLIENTE -> SERVIDOR  (JSON/HTTPS)
+' ============================================================
+Cliente -down-> Servidor : "<<JSON/HTTPS>>"
+
+' ============================================================
+' SERVIDOR: Service ..|> Controller (realiza) ; Service -- Model
+' ============================================================
+SancSvc    ..|> SancCtrl
+SancDefSvc ..|> SancDefCtrl
+AlertsSvc  ..|> AlertsCtrl
+
+SancSvc    -- SancionMdl
+SancDefSvc -- DefMdl
+AlertsSvc  -- AlertaMdl
+
+' ============================================================
+' SERVIDOR -> BASE DE DATOS
+' ============================================================
+Servidor -down-> BD
+
+@enduml

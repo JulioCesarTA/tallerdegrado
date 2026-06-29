@@ -1,0 +1,23 @@
+FUNCIONES EN ORDEN - CU16: Configurar Punto de Acceso
+(Diagrama de Colaboracion / Comunicacion)
+Participantes: Administrador - Vista (PuntoAccesoView) - Controlador (AccessController)
+               - Service (AccessService) - Repositorio (prisma.puntoAcceso)
+================================================================
+(return) = marcar "Is Return" en EA (sin parentesis).
+================================================================
+
+CONFIGURAR PUNTO DE ACCESO
+----------------------------------------------------------------
+1.  Administrador -> Vista        : asignar camaras y usuario responsable
+2.  Vista         -> Controlador  : updateAccessPoint(id, dto)
+3.  Controlador   -> Service      : updateAccessPoint(id, dto)
+4.  Service       -> Repositorio  : findUnique({ where: { id } })
+5.  Repositorio   -> Service      : puntoAcceso                 (return)
+6.  Service       -> Repositorio  : update({ camaraIngresoId, camaraSalidaId, usuarioId })
+7.  Repositorio   -> Service      : puntoAcceso + camaras + usuario   (return)
+8.  Service       -> Controlador  : puntoAcceso                 (return)
+9.  Controlador   -> Vista        : configuracion guardada      (return)
+10. Vista         -> Administrador: muestra confirmacion        (return)
+
+================================================================
+Nota. Elaboracion propia (2026).

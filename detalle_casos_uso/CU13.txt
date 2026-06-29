@@ -1,0 +1,20 @@
+Caso de Uso
+CU13. Notificar Cámara Desconectada
+Propósito
+Alertar al personal cuando una cámara se desconecta.
+Descripción
+El sistema detecta automáticamente la desconexión de una cámara, genera una alerta y la notifica en tiempo real.
+Actores
+Sistema
+Actor Iniciador
+Sistema (automático)
+Precondición
+Tener cámaras registradas y monitoreadas.
+Proceso
+1. El sistema monitorea el estado de las cámaras.
+2. Si detecta que una cámara se desconectó, crea una alerta con su tipo y estado "pendiente".
+3. Notifica al personal de seguridad en tiempo real mediante WebSocket.
+Postcondición
+La alerta de cámara desconectada queda registrada y notificada.
+Excepciones
+Ninguna.
