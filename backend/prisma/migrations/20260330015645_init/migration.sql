@@ -1,99 +1,192 @@
--- CreateEnum
-CREATE TYPE "public"."UserRole" AS ENUM ('admin', 'operador');
-
--- CreateEnum
-CREATE TYPE "public"."CameraType" AS ENUM ('entrada', 'salida');
-
--- CreateEnum
-CREATE TYPE "public"."CameraStatus" AS ENUM ('activa', 'inactiva', 'error', 'desconectada');
-
--- CreateEnum
-CREATE TYPE "public"."EventType" AS ENUM ('ingreso', 'salida');
-
--- CreateEnum
-CREATE TYPE "public"."EventStatus" AS ENUM ('valido', 'revision');
-
--- CreateEnum
-CREATE TYPE "public"."AlertType" AS ENUM ('camera_disconnected', 'camera_error', 'detection_failure');
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateTable
-CREATE TABLE "public"."User" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "passwordHash" TEXT NOT NULL,
-    "role" "public"."UserRole" NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+CREATE TABLE "public"."Usuario" (
+    "id" SERIAL NOT NULL,
+    "nombre" VARCHAR(50) NOT NULL,
+    "apellido" VARCHAR(50),
+    "ci" VARCHAR(20),
+    "correo" VARCHAR(50) NOT NULL,
+    "password" VARCHAR(255) NOT NULL,
+    "rol" VARCHAR(50) NOT NULL DEFAULT 'Operador',
+    "resetCode" VARCHAR(6),
+    "resetCodeExp" TIMESTAMP(3),
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."Camera" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "location" TEXT NOT NULL,
-    "type" "public"."CameraType" NOT NULL,
-    "source" TEXT NOT NULL,
-    "status" "public"."CameraStatus" NOT NULL DEFAULT 'activa',
-    "consecutiveDetectionFailure" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+CREATE TABLE "public"."Camara" (
+    "id" SERIAL NOT NULL,
+    "nombre" VARCHAR(50) NOT NULL,
+    "ubicacion" VARCHAR(100) NOT NULL,
+    "tipoCamara" VARCHAR(50) NOT NULL,
+    "estado" VARCHAR(50) NOT NULL DEFAULT 'activa',
 
-    CONSTRAINT "Camera_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Camara_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."vehicle_events" (
-    "id" TEXT NOT NULL,
-    "occurredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "cameraId" TEXT NOT NULL,
-    "eventType" "public"."EventType" NOT NULL,
-    "plate" TEXT NOT NULL,
-    "evidenceUrl" TEXT,
-    "vehicleType" TEXT NOT NULL,
-    "color" TEXT NOT NULL,
-    "model" TEXT NOT NULL,
-    "status" "public"."EventStatus" NOT NULL DEFAULT 'valido',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+CREATE TABLE "public"."Vehiculo" (
+    "id" SERIAL NOT NULL,
+    "placa" VARCHAR(20) NOT NULL,
+    "marca" VARCHAR(100),
+    "modelo" VARCHAR(100),
+    "tipoVehiculo" VARCHAR(50),
+    "color" VARCHAR(50),
+    "caracteristicas" VARCHAR(500),
 
-    CONSTRAINT "vehicle_events_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Vehiculo_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."Alert" (
-    "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "message" TEXT NOT NULL,
-    "type" "public"."AlertType" NOT NULL,
-    "isRead" BOOLEAN NOT NULL DEFAULT false,
-    "cameraId" TEXT,
-    "eventId" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+CREATE TABLE "public"."PuntoAcceso" (
+    "id" SERIAL NOT NULL,
+    "nombre" VARCHAR(100) NOT NULL,
+    "ubicacion" VARCHAR(255) NOT NULL,
+    "descripcion" VARCHAR(255),
+    "estado" VARCHAR(50) NOT NULL DEFAULT 'activo',
+    "camaraIngresoId" INTEGER,
+    "camaraSalidaId" INTEGER,
+    "usuarioId" INTEGER,
 
-    CONSTRAINT "Alert_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "PuntoAcceso_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."RegistroAcceso" (
+    "id" SERIAL NOT NULL,
+    "vehiculoId" INTEGER NOT NULL,
+    "puntoAccesoIngresoId" INTEGER,
+    "puntoAccesoEgresoId" INTEGER,
+    "horaIngreso" TIMESTAMP(3) NOT NULL,
+    "horaSalida" TIMESTAMP(3),
+    "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "urlEvidencia" VARCHAR(500),
+    "estado" VARCHAR(20) NOT NULL,
+    "plazaId" INTEGER,
+
+    CONSTRAINT "RegistroAcceso_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Backup" (
+    "id" SERIAL NOT NULL,
+    "usuarioId" INTEGER NOT NULL,
+    "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "url" VARCHAR(500) NOT NULL,
+
+    CONSTRAINT "Backup_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."TipoSancion" (
+    "id" SERIAL NOT NULL,
+    "nombre" VARCHAR(100) NOT NULL,
+    "motivo" VARCHAR(200) NOT NULL,
+    "duracionDias" INTEGER NOT NULL,
+
+    CONSTRAINT "TipoSancion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Sancion" (
+    "id" SERIAL NOT NULL,
+    "vehiculoId" INTEGER NOT NULL,
+    "tipoSancionId" INTEGER NOT NULL,
+    "fechaInicio" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "fechaFin" TIMESTAMP(3),
+
+    CONSTRAINT "Sancion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Alerta" (
+    "id" SERIAL NOT NULL,
+    "tipoAlerta" VARCHAR(100) NOT NULL,
+    "camaraId" INTEGER,
+    "creadoEn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "estadoAlerta" VARCHAR(50) NOT NULL DEFAULT 'pendiente',
+
+    CONSTRAINT "Alerta_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Parqueo" (
+    "id" SERIAL NOT NULL,
+    "nombre" VARCHAR(100) NOT NULL,
+    "ubicacion" VARCHAR(150) NOT NULL,
+    "tipo" VARCHAR(30) NOT NULL,
+
+    CONSTRAINT "Parqueo_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Plaza" (
+    "id" SERIAL NOT NULL,
+    "parqueoId" INTEGER NOT NULL,
+    "codigo" VARCHAR(20) NOT NULL,
+    "tipo" VARCHAR(30) NOT NULL,
+    "estado" VARCHAR(20) NOT NULL DEFAULT 'libre',
+
+    CONSTRAINT "Plaza_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
+CREATE UNIQUE INDEX "Usuario_correo_key" ON "public"."Usuario"("correo");
 
 -- CreateIndex
-CREATE INDEX "vehicle_events_cameraId_idx" ON "public"."vehicle_events"("cameraId");
+CREATE UNIQUE INDEX "Vehiculo_placa_key" ON "public"."Vehiculo"("placa");
 
 -- CreateIndex
-CREATE INDEX "vehicle_events_plate_idx" ON "public"."vehicle_events"("plate");
+CREATE INDEX "Vehiculo_placa_idx" ON "public"."Vehiculo"("placa");
 
 -- CreateIndex
-CREATE INDEX "Alert_isRead_idx" ON "public"."Alert"("isRead");
+CREATE UNIQUE INDEX "PuntoAcceso_camaraIngresoId_key" ON "public"."PuntoAcceso"("camaraIngresoId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PuntoAcceso_camaraSalidaId_key" ON "public"."PuntoAcceso"("camaraSalidaId");
+
+-- CreateIndex
+CREATE INDEX "RegistroAcceso_vehiculoId_idx" ON "public"."RegistroAcceso"("vehiculoId");
+
+-- CreateIndex
+CREATE INDEX "RegistroAcceso_fecha_idx" ON "public"."RegistroAcceso"("fecha");
 
 -- AddForeignKey
-ALTER TABLE "public"."vehicle_events" ADD CONSTRAINT "vehicle_events_cameraId_fkey" FOREIGN KEY ("cameraId") REFERENCES "public"."Camera"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."PuntoAcceso" ADD CONSTRAINT "PuntoAcceso_camaraIngresoId_fkey" FOREIGN KEY ("camaraIngresoId") REFERENCES "public"."Camara"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Alert" ADD CONSTRAINT "Alert_cameraId_fkey" FOREIGN KEY ("cameraId") REFERENCES "public"."Camera"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."PuntoAcceso" ADD CONSTRAINT "PuntoAcceso_camaraSalidaId_fkey" FOREIGN KEY ("camaraSalidaId") REFERENCES "public"."Camara"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Alert" ADD CONSTRAINT "Alert_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "public"."vehicle_events"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."PuntoAcceso" ADD CONSTRAINT "PuntoAcceso_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "public"."Usuario"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."RegistroAcceso" ADD CONSTRAINT "RegistroAcceso_vehiculoId_fkey" FOREIGN KEY ("vehiculoId") REFERENCES "public"."Vehiculo"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."RegistroAcceso" ADD CONSTRAINT "RegistroAcceso_puntoAccesoIngresoId_fkey" FOREIGN KEY ("puntoAccesoIngresoId") REFERENCES "public"."PuntoAcceso"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."RegistroAcceso" ADD CONSTRAINT "RegistroAcceso_puntoAccesoEgresoId_fkey" FOREIGN KEY ("puntoAccesoEgresoId") REFERENCES "public"."PuntoAcceso"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."RegistroAcceso" ADD CONSTRAINT "RegistroAcceso_plazaId_fkey" FOREIGN KEY ("plazaId") REFERENCES "public"."Plaza"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Backup" ADD CONSTRAINT "Backup_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "public"."Usuario"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Sancion" ADD CONSTRAINT "Sancion_vehiculoId_fkey" FOREIGN KEY ("vehiculoId") REFERENCES "public"."Vehiculo"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Sancion" ADD CONSTRAINT "Sancion_tipoSancionId_fkey" FOREIGN KEY ("tipoSancionId") REFERENCES "public"."TipoSancion"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Alerta" ADD CONSTRAINT "Alerta_camaraId_fkey" FOREIGN KEY ("camaraId") REFERENCES "public"."Camara"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Plaza" ADD CONSTRAINT "Plaza_parqueoId_fkey" FOREIGN KEY ("parqueoId") REFERENCES "public"."Parqueo"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
